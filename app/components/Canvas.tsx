@@ -23,14 +23,30 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
         canvas.width = img.width + editorState.padding * 2;
         canvas.height = img.height + editorState.padding * 2;
 
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         // Apply background
         if (editorState.background !== 'none') {
-          ctx.fillStyle = editorState.background;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          if (editorState.background.startsWith('linear-gradient')) {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            const colors = editorState.background.match(/#[0-9a-fA-F]{6}/g);
+            if (colors) {
+              const step = 1 / (colors.length - 1);
+              colors.forEach((color, index) => {
+                gradient.addColorStop(index * step, color);
+              });
+              ctx.fillStyle = gradient;
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+          } else {
+            ctx.fillStyle = editorState.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
         }
 
-        // Apply padding
-        ctx.drawImage(img, editorState.padding, editorState.padding);
+        // Apply padding and draw the image
+        ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
 
         // Apply inset
         if (editorState.inset > 0) {
@@ -48,7 +64,7 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
         if (editorState.shadow > 0) {
           ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
           ctx.shadowBlur = editorState.shadow;
-          ctx.drawImage(img, editorState.padding, editorState.padding);
+          ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
         }
 
         // Apply corner radius
@@ -94,6 +110,10 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
           ctx.filter = getFilterString(editorState);
           ctx.drawImage(canvas, 0, 0);
         }
+
+        // Save the edited image to the editor state
+        const editedImage = canvas.toDataURL('image/png');
+        setEditorState(prev => ({ ...prev, image: editedImage }));
       };
     }
   }, [editorState]);
