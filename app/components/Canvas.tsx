@@ -33,26 +33,26 @@ export default function Canvas({ editorState, setEditorState, activeTool }: Canv
     // Clear canvas
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     
-    // Apply background
+    // Apply background behind the image
     if (background !== 'none') {
       ctx.fillStyle = background;
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
-    
-    // Save context for rotation
+
+    // Save context for rotation and other transforms
     ctx.save();
     ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
     ctx.rotate((rotate * Math.PI) / 180);
     
-    // Apply shadow
+    // Apply shadow to the image
     if (shadow > 0) {
       ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
       ctx.shadowBlur = shadow;
       ctx.shadowOffsetX = shadow / 2;
       ctx.shadowOffsetY = shadow / 2;
     }
-    
-    // Draw image with padding
+
+    // Draw the image with padding
     ctx.drawImage(
       img,
       -img.width / 2 + padding,
@@ -61,7 +61,7 @@ export default function Canvas({ editorState, setEditorState, activeTool }: Canv
       img.height
     );
     
-    // Apply inset
+    // Apply inset (border) to the image
     if (inset > 0) {
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
       ctx.lineWidth = inset;
@@ -72,8 +72,8 @@ export default function Canvas({ editorState, setEditorState, activeTool }: Canv
         img.height - inset
       );
     }
-    
-    // Apply corner radius
+
+    // Apply corner radius to the image
     if (cornerRadius > 0) {
       ctx.globalCompositeOperation = 'destination-in';
       ctx.beginPath();
@@ -110,18 +110,18 @@ export default function Canvas({ editorState, setEditorState, activeTool }: Canv
       ctx.fill();
       ctx.globalCompositeOperation = 'source-over';
     }
-    
-    // Restore context after rotation
+
+    // Restore context after transformations
     ctx.restore();
     
-    // Apply filter
+    // Apply filter to the image
     if (filter !== 'none') {
       ctx.filter = getFilterString(editorState);
       ctx.drawImage(ctx.canvas, 0, 0);
       ctx.filter = 'none';
     }
-    
-    // Draw annotations
+
+    // Draw annotations on top of the image
     drawAnnotations(ctx);
   };
 
