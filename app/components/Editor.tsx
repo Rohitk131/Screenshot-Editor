@@ -127,20 +127,17 @@ const Editor = () => {
     fileInputRef.current?.click();
   };
 
-  const applyEffect3D = (ctx: CanvasRenderingContext2D, effect: string | null, width: number, height: number) => {
-    if (!effect) return;
-
-    ctx.translate(width / 2, height / 2);
-
+  const applyEffect3D = (ctx: CanvasRenderingContext2D, effect: string, width: number, height: number) => {
     switch (effect) {
       case 'Rotate':
-        ctx.rotate((editorState.rotate * Math.PI) / 180);
+        ctx.transform(1, 0.2, 0, 1, 0, 0);
         break;
       case 'Flip':
         ctx.scale(-1, 1);
+        ctx.translate(-width, 0);
         break;
       case 'Tilt':
-        ctx.transform(1, 0.2, 0.2, 1, 0, 0);
+        ctx.transform(1, 0, 0.2, 1, 0, 0);
         break;
       case 'Perspective':
         ctx.transform(1, 0, 0.2, 1, 0, 0);
@@ -149,14 +146,13 @@ const Editor = () => {
         ctx.transform(1, 0.2, 0.2, 1, 0, 0);
         break;
       case 'Extrude':
-        ctx.transform(1.2, 0.2, 0.2, 1.2, 0, 0);
+        ctx.transform(1.1, 0, 0, 1.1, -width * 0.05, -height * 0.05);
+        break;
+      default:
         break;
     }
-
-    ctx.translate(-width / 2, -height / 2);
   };
 
-  // Helper function to draw rounded rectangles
   const roundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -169,8 +165,6 @@ const Editor = () => {
   };
 
   return (
-    <div className="h-screen w-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-200 to-indigo-800">
-      <div className="w-full max-w-7xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex">
     <div className="h-screen w-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="w-full max-w-7xl h-[90vh] bg-white rounded-3xl overflow-hidden flex"
            style={{
@@ -184,17 +178,13 @@ const Editor = () => {
         {/* Main content area */}
         <div className="flex-1 flex flex-col">
           {/* Topbar */}
-          <div className="bg-white border-b border-gray-200  p-2 flex items-center justify-between shadow-xl shadow-b ">
+          <div className="bg-white border-b border-gray-200 p-2 flex items-center space-x-2">
             <div className="flex items-center space-x-2">
-              {/* File operations */}
               <button
                 className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out flex items-center"
                 onClick={handleUpload}
               >
                 <Upload size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Download size={20} />
               </button>
               <input
                 type="file"
@@ -203,17 +193,17 @@ const Editor = () => {
                 accept="image/*"
                 onChange={handleFileChange}
               />
-
-              {/* Divider */}
-              <span className="text-gray-300">|</span>
-
-              {/* Editing tools */}
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <ImageIcon size={20} />
               </button>
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Camera size={20} />
               </button>
+            </div>
+
+            <span className="text-gray-300">|</span>
+
+            <div className="flex items-center space-x-2">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Crop size={20} />
               </button>
@@ -235,11 +225,11 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Type size={20} />
               </button>
+            </div>
 
-              {/* Divider */}
-              <span className="text-gray-300">|</span>
+            <span className="text-gray-300">|</span>
 
-              {/* Shapes */}
+            <div className="flex items-center space-x-2">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Square size={20} />
               </button>
@@ -249,10 +239,11 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Triangle size={20} />
               </button>
+            </div>
 
-              {/* Divider */}
-              <span className="text-gray-300">|</span>
+            <span className="text-gray-300">|</span>
 
+            <div className="flex items-center space-x-2">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Scissors size={20} />
               </button>
@@ -268,16 +259,19 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <ZoomIn size={20} />
               </button>
+            </div>
 
-              {/* Divider */}
-              <span className="text-gray-300">|</span>
+            <span className="text-gray-300">|</span>
 
-              {/* Undo and Redo buttons */}
+            <div className="flex items-center space-x-2 ml-auto">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Undo size={20} />
               </button>
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
                 <Redo size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Download size={20} />
               </button>
             </div>
           </div>
@@ -288,37 +282,6 @@ const Editor = () => {
               className="rounded-xl overflow-hidden flex justify-center items-center"
               style={{
                 background: editorState.background,
-                boxShadow: `0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)`,
-                padding: `${editorState.padding}px`,
-              }}
-            >
-              <div
-                className="relative"
-                style={{
-                  boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.2)`,
-                  filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ''})`,
-                }}
-              >
-                {editorState.image ? (
-                  <canvas
-                    ref={canvasRef}
-                    className="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
-                  />
-                ) : (
-                  <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
-                    <div className='border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14'>
-                      <img src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif" width={100} height={100} />
-                    <p className="text-gray-500 mb-4">Upload an image</p>
-                    <button
-                      onClick={handleUpload}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
-                      >
-                      Select Image
-                    </button>
-                    </div>
-                  </div>
-                )}
-              </div>
                 boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.3)`,
                 width: `${canvasSize.width}px`,
                 height: `${canvasSize.height}px`,
@@ -352,5 +315,3 @@ const Editor = () => {
 }
 
 export default Editor;
-
-
