@@ -141,10 +141,15 @@ const Editor = () => {
               ctx.globalCompositeOperation = "source-over";
               const frame = new Image();
               frame.onload = () => {
+                console.log('Frame image loaded');
                 ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
+              };
+              frame.onerror = () => {
+                console.error('Error loading frame image');
               };
               frame.src = editorState.frame;
             }
+
 
             ctx.restore();
           }
@@ -350,12 +355,10 @@ const Editor = () => {
                   ref={canvasRef}
                   className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
                   style={{
-                    boxShadow: `0 ${editorState.shadow * 0.3}px ${
-                      editorState.shadow * 0.6
-                    }px rgba(0,0,0,${editorState.shadow * 0.008})`,
-                    filter: `${editorState.filter}(${
-                      editorState[editorState.filter as keyof EditorState] || ""
-                    })`,
+                    boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6
+                      }px rgba(0,0,0,${editorState.shadow * 0.008})`,
+                    filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""
+                      })`,
                     borderRadius: `${editorState.cornerRadius}px`,
                   }}
                 />
@@ -396,11 +399,8 @@ const Editor = () => {
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-64 bg-gray-100 border-l border-gray-200 flex-shrink-0 overflow-y-auto hide-scrollbar">
-          <RightSidebar
-            editorState={editorState}
-            setEditorState={setEditorState}
-          />
+        <div className="w-64 bg-gray-100 border-l border-gray-200 flex-shrink-0 overflow-y-auto">
+          <RightSidebar editorState={editorState} setEditorState={setEditorState} />
         </div>
       </div>
       {/* Hidden file input */}

@@ -18,7 +18,8 @@ export interface EditorState {
   penSize: number;
   shapes: Shape[];
   mosaicSize: number;
-  frame: any
+  frame: Frame | null; // Ensure Frame type is correctly defined
+  theme?: 'light' | 'dark'; // Add theme property if needed
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
@@ -40,4 +41,10 @@ export interface Shape {
   height: number;
   color: string;
   strokeWidth: number;
+}
+
+// Define Frame type to match the structure of frame data
+export interface Frame {
+  src: string; // URL of the frame image
+  label: string; // Optional label for the frame, if needed
 }
