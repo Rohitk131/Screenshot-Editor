@@ -1,10 +1,11 @@
-'use client'
+'use client';
 
 import { useState, useRef, ChangeEvent } from 'react';
 import { EditorState, Filter } from '../types';
 import Sidebar from './Sidebar';
 import Canvas from './Canvas';
 import CropTool from './CropTool';
+import ActionBar from './Actionbar';
 
 export default function Editor() {
   const [editorState, setEditorState] = useState<EditorState>({
@@ -83,21 +84,29 @@ export default function Editor() {
   };
 
   return (
-    <>
-      <Sidebar 
-        editorState={editorState} 
-        setEditorState={setEditorState} 
+    <div className="h-screen w-full flex">
+      <Sidebar
+        editorState={editorState}
+        setEditorState={setEditorState}
         onUpload={handleUpload}
         onTabScreenshot={handleTabScreenshot}
-        onDownload={handleDownload}
-        onCrop={() => setIsCropping(true)}
-        onAnnotate={handleAnnotate}
-        onUndo={handleUndo} // Pass the onUndo function
       />
-      <Canvas editorState={editorState} setEditorState={setEditorState} />
-      {editorState.image && isCropping && (
-        <CropTool image={editorState.image} onCropComplete={handleCropComplete} />
-      )}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 relative">
+          <Canvas editorState={editorState} setEditorState={setEditorState} />
+          {editorState.image && isCropping && (
+            <CropTool image={editorState.image} onCropComplete={handleCropComplete} />
+          )}
+        </div>
+        <div className="absolute top-0 right-0  p-4">
+          <ActionBar
+            onAnnotate={handleAnnotate}
+            onDownload={handleDownload}
+            onCrop={() => setIsCropping(true)}
+            onUndo={handleUndo}
+          />
+        </div>
+      </div>
       <input
         type="file"
         ref={fileInputRef}
@@ -105,7 +114,7 @@ export default function Editor() {
         className="hidden"
         accept="image/*"
       />
-    </>
+    </div>
   );
 }
 
