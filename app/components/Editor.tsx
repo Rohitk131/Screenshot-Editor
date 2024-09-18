@@ -45,7 +45,7 @@ const Editor = () => {
 
   return (
     <div className="h-screen w-full flex items-center justify-center p-8 bg-gray-900">
-      <div className="w-full max-w-6xl h-[90vh] bg-transparent rounded-3xl shadow-2xl overflow-hidden flex">
+      <div className="w-full max-w-7xl h-[90vh] bg-transparent rounded-3xl shadow-2xl overflow-hidden flex">
         {/* Left sidebar */}
         <Sidebar editorState={editorState} setEditorState={setEditorState} />
   
