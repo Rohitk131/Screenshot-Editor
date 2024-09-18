@@ -1,17 +1,17 @@
-'use client'
-
-import { useEffect, useRef, useState } from 'react';
-import { EditorState } from '../types';
+import React, { useEffect, useRef, useState } from 'react';
+import { EditorState, Tool } from '../types';
 
 interface CanvasProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
+  activeTool: Tool;
 }
 
-export default function Canvas({ editorState, setEditorState }: CanvasProps) {
+export default function Canvas({ editorState, setEditorState, activeTool }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const isDrawing = useRef(false);
-  const [history, setHistory] = useState<string[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,103 +22,108 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
       img.onload = () => {
         canvas.width = img.width + editorState.padding * 2;
         canvas.height = img.height + editorState.padding * 2;
-  
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-        // Apply background
-        if (editorState.background !== 'none') {
-          if (editorState.background.startsWith('linear-gradient')) {
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            const colors = editorState.background.match(/#[0-9a-fA-F]{6}/g);
-            if (colors) {
-              const step = 1 / (colors.length - 1);
-              colors.forEach((color, index) => {
-                gradient.addColorStop(index * step, color);
-              });
-              ctx.fillStyle = gradient;
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-          } else {
-            ctx.fillStyle = editorState.background;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-          }
-        }
-  
-        // Apply padding and draw the image
-        ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
-  
-        // Apply inset
-        if (editorState.inset > 0) {
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-          ctx.lineWidth = editorState.inset;
-          ctx.strokeRect(
-            editorState.padding + editorState.inset / 2,
-            editorState.padding + editorState.inset / 2,
-            img.width - editorState.inset,
-            img.height - editorState.inset
-          );
-        }
-  
-        // Apply shadow
-        if (editorState.shadow > 0) {
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-          ctx.shadowBlur = editorState.shadow;
-          ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
-        }
-  
-        // Apply corner radius
-        if (editorState.cornerRadius > 0) {
-          ctx.globalCompositeOperation = 'destination-in';
-          ctx.beginPath();
-          ctx.moveTo(editorState.padding + editorState.cornerRadius, editorState.padding);
-          ctx.arcTo(
-            editorState.padding + img.width,
-            editorState.padding,
-            editorState.padding + img.width,
-            editorState.padding + img.height,
-            editorState.cornerRadius
-          );
-          ctx.arcTo(
-            editorState.padding + img.width,
-            editorState.padding + img.height,
-            editorState.padding,
-            editorState.padding + img.height,
-            editorState.cornerRadius
-          );
-          ctx.arcTo(
-            editorState.padding,
-            editorState.padding + img.height,
-            editorState.padding,
-            editorState.padding,
-            editorState.cornerRadius
-          );
-          ctx.arcTo(
-            editorState.padding,
-            editorState.padding,
-            editorState.padding + img.width,
-            editorState.padding,
-            editorState.cornerRadius
-          );
-          ctx.closePath();
-          ctx.fill();
-          ctx.globalCompositeOperation = 'source-over';
-        }
-  
-        // Apply filters
-        if (editorState.filter !== 'none') {
-          ctx.filter = getFilterString(editorState);
-          ctx.drawImage(canvas, 0, 0);
-        }
-  
-        // Save the edited image to the editor state
-        const editedImage = canvas.toDataURL('image/png');
-        setEditorState(prev => ({ ...prev, image: editedImage }));
+        drawImage(ctx, img);
       };
     }
-  }, [editorState]);
-  
-  
+  }, [editorState.image, editorState.padding, editorState.background, editorState.filter]);
+
+  const drawImage = (ctx: CanvasRenderingContext2D, img: HTMLImageElement) => {
+    const { padding, background, inset, shadow, cornerRadius, rotate, filter } = editorState;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    
+    // Apply background
+    if (background !== 'none') {
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
+    
+    // Save context for rotation
+    ctx.save();
+    ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.rotate((rotate * Math.PI) / 180);
+    
+    // Apply shadow
+    if (shadow > 0) {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = shadow;
+      ctx.shadowOffsetX = shadow / 2;
+      ctx.shadowOffsetY = shadow / 2;
+    }
+    
+    // Draw image with padding
+    ctx.drawImage(
+      img,
+      -img.width / 2 + padding,
+      -img.height / 2 + padding,
+      img.width,
+      img.height
+    );
+    
+    // Apply inset
+    if (inset > 0) {
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.lineWidth = inset;
+      ctx.strokeRect(
+        -img.width / 2 + padding + inset / 2,
+        -img.height / 2 + padding + inset / 2,
+        img.width - inset,
+        img.height - inset
+      );
+    }
+    
+    // Apply corner radius
+    if (cornerRadius > 0) {
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.moveTo(-img.width / 2 + padding + cornerRadius, -img.height / 2 + padding);
+      ctx.arcTo(
+        img.width / 2 + padding,
+        -img.height / 2 + padding,
+        img.width / 2 + padding,
+        img.height / 2 + padding,
+        cornerRadius
+      );
+      ctx.arcTo(
+        img.width / 2 + padding,
+        img.height / 2 + padding,
+        -img.width / 2 + padding,
+        img.height / 2 + padding,
+        cornerRadius
+      );
+      ctx.arcTo(
+        -img.width / 2 + padding,
+        img.height / 2 + padding,
+        -img.width / 2 + padding,
+        -img.height / 2 + padding,
+        cornerRadius
+      );
+      ctx.arcTo(
+        -img.width / 2 + padding,
+        -img.height / 2 + padding,
+        img.width / 2 + padding,
+        -img.height / 2 + padding,
+        cornerRadius
+      );
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    
+    // Restore context after rotation
+    ctx.restore();
+    
+    // Apply filter
+    if (filter !== 'none') {
+      ctx.filter = getFilterString(editorState);
+      ctx.drawImage(ctx.canvas, 0, 0);
+      ctx.filter = 'none';
+    }
+    
+    // Draw annotations
+    drawAnnotations(ctx);
+  };
 
   const getFilterString = (state: EditorState) => {
     const filters = [];
@@ -131,57 +136,75 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
     return filters.join(' ');
   };
 
-  const startDrawing = (e: React.MouseEvent) => {
-    isDrawing.current = true;
-    draw(e);
+  const drawAnnotations = (ctx: CanvasRenderingContext2D) => {
+    editorState.annotations.forEach((annotation) => {
+      ctx.beginPath();
+      ctx.moveTo(annotation.path[0].x, annotation.path[0].y);
+      for (let i = 1; i < annotation.path.length; i++) {
+        ctx.lineTo(annotation.path[i].x, annotation.path[i].y);
+      }
+      ctx.strokeStyle = annotation.color;
+      ctx.lineWidth = annotation.size;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    });
   };
 
-  const endDrawing = () => {
-    isDrawing.current = false;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const img = canvas.toDataURL('image/png');
-      setEditorState(prev => ({ ...prev, image: img }));
-      setHistory(prev => [...prev, img]);
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (activeTool === 'annotate') {
+      setIsDrawing(true);
+      const { offsetX, offsetY } = e.nativeEvent;
+      setLastX(offsetX);
+      setLastY(offsetY);
     }
   };
 
-  const draw = (e: React.MouseEvent) => {
-    if (!isDrawing.current) return;
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || activeTool !== 'annotate') return;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (canvas && ctx) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const { offsetX, offsetY } = e.nativeEvent;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(offsetX, offsetY);
       ctx.strokeStyle = editorState.penColor;
       ctx.lineWidth = editorState.penSize;
       ctx.lineCap = 'round';
-
-      if (editorState.penType === 'marker') {
-        ctx.globalAlpha = 0.5;
-      } else {
-        ctx.globalAlpha = 1.0;
-      }
-
-      ctx.lineTo(x, y);
+      ctx.lineJoin = 'round';
       ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x, y);
+      setLastX(offsetX);
+      setLastY(offsetY);
+
+      // Update annotations in state
+      setEditorState((prev) => ({
+        ...prev,
+        annotations: [
+          ...prev.annotations,
+          {
+            path: [{ x: lastX, y: lastY }, { x: offsetX, y: offsetY }],
+            color: editorState.penColor,
+            size: editorState.penSize,
+            tool: editorState.currentTool,
+          },
+        ],
+      }));
     }
   };
 
+  const endDrawing = () => {
+    setIsDrawing(false);
+  };
+
   return (
-    <div className="flex-1 flex items-center justify-center h-screen bg-slate-900  overflow-hidden">
-      <canvas
-        ref={canvasRef}
-        onMouseDown={startDrawing}
-        onMouseUp={endDrawing}
-        onMouseOut={endDrawing}
-        onMouseMove={draw}
-        className=" "
-        style={{ width: '100%', height: '100%', display: 'block' }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      onMouseDown={startDrawing}
+      onMouseMove={draw}
+      onMouseUp={endDrawing}
+      onMouseOut={endDrawing}
+      className="max-w-full max-h-full object-contain"
+    />
   );
 }

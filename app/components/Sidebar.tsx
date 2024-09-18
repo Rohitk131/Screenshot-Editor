@@ -1,18 +1,15 @@
+import React from 'react';
 import { EditorState, Filter } from "../types";
 import ColorPicker from "./ColorPicker";
 
 interface SidebarProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
-  onUpload: () => void;
-  onTabScreenshot: () => void;
 }
 
 export default function Sidebar({
   editorState,
   setEditorState,
-  onUpload,
-  onTabScreenshot,
 }: SidebarProps) {
   const gradients = [
     "linear-gradient(to right, #ff6e7f, #bfe9ff)",
@@ -20,11 +17,6 @@ export default function Sidebar({
     "linear-gradient(to right, #ff0081, #ff8c00)",
     "linear-gradient(to right, #8e2de2, #4a00e0)",
     "linear-gradient(to right, #fcb045, #fd1d1d, #d53369)",
-    "linear-gradient(to right, #232526, #414345)",
-    "linear-gradient(to right, #3fada8, #f6d365)",
-    "linear-gradient(to right, #d38377, #d0a5c4)",
-    "linear-gradient(to right, #00d2ff, #3a7bd5)",
-    "linear-gradient(to right, #ff0099, #493240)",
   ];
 
   const filters: Filter[] = [
@@ -37,25 +29,16 @@ export default function Sidebar({
     "contrast",
   ];
 
-  return (
-    <div className="relative w-80 bg-gray-800 p-6  shadow-lg overflow-y-auto text-sm text-gray-200">
-      {/* Screenshot Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Screenshot</h3>
-        <button
-          onClick={onUpload}
-          className="bg-blue-600 text-white px-5 py-3 rounded-lg mb-4 w-full hover:bg-blue-700 transition duration-300 shadow-md"
-        >
-          Upload Image
-        </button>
-        <button
-          onClick={onTabScreenshot}
-          className="bg-green-600 text-white px-5 py-3 rounded-lg mb-4 w-full hover:bg-green-700 transition duration-300 shadow-md"
-        >
-          Capture Tab
-        </button>
-      </section>
+  const handlePaddingChange = (value: number) => {
+    setEditorState(prev => ({
+      ...prev,
+      padding: value,
+      image: prev.image, // Keep the image size constant
+    }));
+  };
 
+  return (
+    <div className="w-80 bg-gray-800 p-6 shadow-lg overflow-y-auto text-sm text-gray-200">
       {/* Background Section */}
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Background</h3>
@@ -63,7 +46,7 @@ export default function Sidebar({
           {gradients.map((gradient, index) => (
             <button
               key={index}
-              className="w-full h-12 rounded-lg  hover:scale-105 transition-transform duration-300"
+              className="w-full h-12 rounded-lg hover:scale-105 transition-transform duration-300"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -83,8 +66,8 @@ export default function Sidebar({
       <section className="mb-8">
         <h3 className="text-xl font-semibold mb-4">Adjustments</h3>
         {["padding", "inset", "shadow", "cornerRadius", "rotate"].map(
-          (adjustment, index) => (
-            <label key={index} className="block mb-6">
+          (adjustment) => (
+            <label key={adjustment} className="block mb-6">
               <span className="block text-gray-400 capitalize mb-2">
                 {adjustment}
               </span>
@@ -94,10 +77,12 @@ export default function Sidebar({
                 max={adjustment === "rotate" ? "360" : "100"}
                 value={editorState[adjustment as keyof EditorState] as number}
                 onChange={(e) =>
-                  setEditorState((prev) => ({
-                    ...prev,
-                    [adjustment]: Number(e.target.value),
-                  }))
+                  adjustment === "padding"
+                    ? handlePaddingChange(Number(e.target.value))
+                    : setEditorState((prev) => ({
+                        ...prev,
+                        [adjustment]: Number(e.target.value),
+                      }))
                 }
                 className="w-full bg-gray-700 rounded-lg"
               />
@@ -131,7 +116,7 @@ export default function Sidebar({
             type="range"
             min="0"
             max="200"
-            value={editorState[editorState.filter] || 100}
+            value={editorState[editorState.filter]}
             onChange={(e) =>
               setEditorState((prev) => ({
                 ...prev,
@@ -148,17 +133,13 @@ export default function Sidebar({
         <section className="mb-8">
           <h3 className="text-xl font-semibold mb-4">Annotation Tools</h3>
           <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Pen Type</label>
+            <label className="block mb-2 text-gray-400">Tool Type</label>
             <select
-              value={editorState.penType}
+              value={editorState.currentTool}
               onChange={(e) =>
                 setEditorState((prev) => ({
                   ...prev,
-                  penType: e.target.value as
-                    | "pen"
-                    | "pencil"
-                    | "marker"
-                    | "eraser",
+                  currentTool: e.target.value as 'pen' | 'pencil' | 'marker' | 'eraser',
                 }))
               }
               className="w-full bg-gray-800 p-3 rounded-lg text-gray-300 shadow-md"
@@ -170,7 +151,7 @@ export default function Sidebar({
             </select>
           </div>
           <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Pen Color</label>
+            <label className="block mb-2 text-gray-400">Color</label>
             <ColorPicker
               color={editorState.penColor}
               onChange={(color) =>
@@ -179,7 +160,7 @@ export default function Sidebar({
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Pen Size</label>
+            <label className="block mb-2 text-gray-400">Size</label>
             <input
               type="range"
               min="1"

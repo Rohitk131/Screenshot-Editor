@@ -10,11 +10,32 @@ export interface EditorState {
   filter: Filter;
   brightness: number;
   contrast: number;
-  annotations: any[];
+  annotations: Annotation[];
   isAnnotating: boolean;
-  penType: 'pen' | 'pencil' | 'marker' | 'eraser';
+  currentTool: 'pen' | 'pencil' | 'marker' | 'eraser';
   penColor: string;
   penSize: number;
+  shapes: Shape[];
+  mosaicSize: number;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
+
+export type Tool = 'none' | 'upload' | 'screenshot' | 'annotate' | 'shape' | 'crop' | 'mosaic';
+
+export interface Annotation {
+  path: { x: number; y: number }[];
+  color: string;
+  size: number;
+  tool: 'pen' | 'pencil' | 'marker' | 'eraser';
+}
+
+export interface Shape {
+  type: 'rectangle' | 'ellipse' | 'arrow';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: string;
+  strokeWidth: number;
+}
