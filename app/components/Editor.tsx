@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react';
 import { EditorState } from '../types';
-import { Upload, Camera, Pen, Square, Crop, Grid, Undo, Redo, Download } from 'lucide-react';
+import { Upload, Camera, Pen, Square, Crop, Grid, Undo, Redo, Download, Type, Circle, Triangle, Image as ImageIcon, Scissors, Layers, Sliders, Smile, Eraser, Move, ZoomIn, RotateCw } from 'lucide-react';
 import Sidebar from './Sidebar';
 
 const Editor = () => {
@@ -28,8 +28,8 @@ const Editor = () => {
     currentTool: 'pen',
     penColor: '#000000',
     penSize: 5,
-    frame: null,
-    effect3D: null,
+    frame: '',
+    effect3D: '',
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,7 +38,7 @@ const Editor = () => {
 
   useEffect(() => {
     if (editorState.image) {
-      const img = new Image();
+      const img = new window.Image();
       img.onload = () => {
         if (canvasRef.current && containerRef.current) {
           const ctx = canvasRef.current.getContext('2d');
@@ -119,10 +119,6 @@ const Editor = () => {
     fileInputRef.current?.click();
   };
 
-  const toggleAnnotation = () => {
-    setEditorState((prev) => ({ ...prev, isAnnotating: !prev.isAnnotating }));
-  };
-
   const applyEffect3D = (ctx: CanvasRenderingContext2D, effect: string | null, width: number, height: number) => {
     if (!effect) return;
 
@@ -167,7 +163,7 @@ const Editor = () => {
   return (
     <div className="h-screen w-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="w-full max-w-7xl h-[90vh] bg-white rounded-3xl shadow-xl overflow-hidden flex">
-        {/* Light-themed sidebar */}
+        {/* Sidebar */}
         <div className="w-64 bg-gray-100 border-r border-gray-200 p-4 flex-shrink-0">
           <Sidebar editorState={editorState} setEditorState={setEditorState} />
         </div>
@@ -175,17 +171,17 @@ const Editor = () => {
         {/* Main content area */}
         <div className="flex-1 flex flex-col">
           {/* Topbar */}
-          <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center text-gray-700">
-            {/* File upload */}
-            <div className="flex items-center space-x-4">
+          <div className="bg-white border-b border-gray-200 p-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {/* File operations */}
               <button
-                className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out"
+                className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out flex items-center"
                 onClick={handleUpload}
               >
-                <Upload size={18} className="text-blue-600" />
+                <Upload size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Camera size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Download size={20} />
               </button>
               <input
                 type="file"
@@ -194,39 +190,81 @@ const Editor = () => {
                 accept="image/*"
                 onChange={handleFileChange}
               />
-            </div>
-  
-            {/* Drawing tools */}
-            <div className="flex items-center space-x-4">
-              <button 
-                className={`p-2 rounded-lg focus:outline-none transition duration-300 ease-in-out ${
-                  editorState.isAnnotating ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                }`}
-                onClick={toggleAnnotation}
-              >
-                <Pen size={18} />
+
+              {/* Divider */}
+              <span className="text-gray-300">|</span>
+
+              {/* Editing tools */}
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <ImageIcon size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Square size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Camera size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Crop size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Crop size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Grid size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <RotateCw size={20} />
               </button>
-            </div>
-  
-            {/* Undo, Redo and download buttons */}
-            <div className="flex items-center space-x-4">
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Undo size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Sliders size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Redo size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Layers size={20} />
               </button>
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Download size={18} className="text-blue-600" />
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Pen size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Eraser size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Type size={20} />
+              </button>
+
+              {/* Divider */}
+              <span className="text-gray-300">|</span>
+
+              {/* Shapes */}
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Square size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Circle size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Triangle size={20} />
+              </button>
+
+              {/* Divider */}
+              <span className="text-gray-300">|</span>
+
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Scissors size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Smile size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Grid size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Move size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <ZoomIn size={20} />
+              </button>
+
+              {/* Divider */}
+              <span className="text-gray-300">|</span>
+
+              {/* Undo and Redo buttons */}
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Undo size={20} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <Redo size={20} />
               </button>
             </div>
           </div>
@@ -274,3 +312,4 @@ const Editor = () => {
 }
 
 export default Editor;
+

@@ -71,18 +71,18 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-64 bg-gray-100 p-4 shadow-md overflow-y-auto text-sm text-gray-800 h-full">
+    <div className="w-64 bg-gray-100 p-4 overflow-y-auto text-sm text-gray-800 h-full">
       {/* Background Section */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-700">Background</h3>
         
         {/* Gradient backgrounds */}
-        <h4 className="text-md font-medium mb-2 text-gray-600">Gradients</h4>
+        <h4 className="text-sm font-medium mb-2 text-gray-600">Gradients</h4>
         <div className="grid grid-cols-5 gap-2 mb-3">
           {gradients.map((gradient, index) => (
             <button
               key={index}
-              className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm"
+              className="w-8 h-8 rounded-md hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -92,27 +92,24 @@ export default function Sidebar({
         </div>
         
         {/* Plain color backgrounds */}
-        <h4 className="text-md font-medium mb-2 text-gray-600">Plain Colors</h4>
+        <h4 className="text-sm font-medium mb-2 text-gray-600">Plain Colors</h4>
         <div className="grid grid-cols-5 gap-2 mb-3">
           {plainColors.map((color, index) => (
             <button
               key={index}
-              className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm"
+              className="w-8 h-8 rounded-md hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: color }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: color }))
               }
             />
           ))}
-          <div className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm bg-white flex items-center justify-center">
-            <ColorPicker
-              color={editorState.background}
-              onChange={(color) =>
-                setEditorState((prev) => ({ ...prev, background: color }))
-              }
-            />
-            <span className="text-xl">+</span>
-          </div>
+          <ColorPicker
+            color={editorState.background}
+            onChange={(color) =>
+              setEditorState((prev) => ({ ...prev, background: color }))
+            }
+          />
         </div>
       </section>
 
@@ -123,7 +120,7 @@ export default function Sidebar({
           {wallpapers.map((wallpaper, index) => (
             <button
               key={index}
-              className="w-16 h-16 rounded-md overflow-hidden hover:scale-105 transition-transform duration-300 shadow-sm"
+              className="w-16 h-16 rounded-md overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{
                 backgroundImage: `url(${wallpaper})`,
                 backgroundSize: "cover",
@@ -179,7 +176,7 @@ export default function Sidebar({
               filter: e.target.value as Filter,
             }))
           }
-          className="w-full bg-white p-2 rounded-md text-gray-700 shadow-sm border border-gray-300"
+          className="w-full bg-white p-2 rounded-md text-gray-700 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {filters.map((filter) => (
             <option key={filter} value={filter}>
@@ -212,7 +209,7 @@ export default function Sidebar({
           {frames.map((frame, index) => (
             <button
               key={index}
-              className="w-16 h-16 rounded-md overflow-hidden hover:scale-105 transition-transform duration-300 shadow-sm bg-white"
+              className="w-16 h-16 rounded-md overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300 bg-white"
               style={{
                 backgroundImage: `url(${frame})`,
                 backgroundSize: "contain",
@@ -241,7 +238,7 @@ export default function Sidebar({
                 editorState.effect3D === effect
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
-              } transition-colors duration-300`}
+              } transition-colors duration-300 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
               onClick={() =>
                 setEditorState((prev) => ({
                   ...prev,
