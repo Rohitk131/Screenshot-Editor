@@ -18,6 +18,7 @@ export interface EditorState {
   penSize: number;
   shapes: Shape[];
   mosaicSize: number;
+  frame: any
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

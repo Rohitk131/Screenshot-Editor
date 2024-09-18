@@ -37,17 +37,19 @@ export default function RightSidebar({
           {frames.map((frame, index) => (
             <button
               key={index}
-              className="w-16 h-16 rounded-md overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300 bg-white"
+              className={`w-16 h-16 rounded-md overflow-hidden hover:ring-2 transition-all duration-300 bg-white ${
+                editorState.frame === frame ? "ring-2 ring-blue-500" : ""
+              }`}
               style={{
                 backgroundImage: `url(${frame})`,
-                backgroundSize: "contain",
+                backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
               }}
               onClick={() =>
                 setEditorState((prev) => ({
                   ...prev,
-                  frame: frame,
+                  frame: frame, // Update the selected frame
                 }))
               }
             />
@@ -64,13 +66,13 @@ export default function RightSidebar({
               key={index}
               className={`p-2 rounded-md ${
                 editorState.effect3D === effect
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
               } transition-colors duration-300 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
               onClick={() =>
                 setEditorState((prev) => ({
                   ...prev,
-                  effect3D: effect,
+                  effect3D: effect, // Update the 3D effect
                 }))
               }
             >
