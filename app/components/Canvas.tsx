@@ -22,10 +22,10 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
       img.onload = () => {
         canvas.width = img.width + editorState.padding * 2;
         canvas.height = img.height + editorState.padding * 2;
-
+  
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  
         // Apply background
         if (editorState.background !== 'none') {
           if (editorState.background.startsWith('linear-gradient')) {
@@ -44,10 +44,10 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
           }
         }
-
+  
         // Apply padding and draw the image
         ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
-
+  
         // Apply inset
         if (editorState.inset > 0) {
           ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
@@ -59,14 +59,14 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
             img.height - editorState.inset
           );
         }
-
+  
         // Apply shadow
         if (editorState.shadow > 0) {
           ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
           ctx.shadowBlur = editorState.shadow;
           ctx.drawImage(img, editorState.padding, editorState.padding, img.width, img.height);
         }
-
+  
         // Apply corner radius
         if (editorState.cornerRadius > 0) {
           ctx.globalCompositeOperation = 'destination-in';
@@ -104,19 +104,21 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
           ctx.fill();
           ctx.globalCompositeOperation = 'source-over';
         }
-
+  
         // Apply filters
         if (editorState.filter !== 'none') {
           ctx.filter = getFilterString(editorState);
           ctx.drawImage(canvas, 0, 0);
         }
-
+  
         // Save the edited image to the editor state
         const editedImage = canvas.toDataURL('image/png');
         setEditorState(prev => ({ ...prev, image: editedImage }));
       };
     }
   }, [editorState]);
+  
+  
 
   const getFilterString = (state: EditorState) => {
     const filters = [];
@@ -170,18 +172,16 @@ export default function Canvas({ editorState, setEditorState }: CanvasProps) {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-gray-700 p-8 overflow-hidden">
-      <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '100%', overflow: 'hidden' }}>
-        <canvas
-          ref={canvasRef}
-          onMouseDown={startDrawing}
-          onMouseUp={endDrawing}
-          onMouseOut={endDrawing}
-          onMouseMove={draw}
-          className="border"
-          style={{ maxWidth: '100%', maxHeight: '100%' }}
-        />
-      </div>
+    <div className="flex-1 flex items-center justify-center h-screen bg-slate-900  overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        onMouseDown={startDrawing}
+        onMouseUp={endDrawing}
+        onMouseOut={endDrawing}
+        onMouseMove={draw}
+        className=" "
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      />
     </div>
   );
 }
