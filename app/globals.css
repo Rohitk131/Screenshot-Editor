@@ -25,3 +25,7 @@ body {
     text-wrap: balance;
   }
 }
+/* Add this to your global CSS file */
+.sidebar::-webkit-scrollbar {
+  display: none;
+}

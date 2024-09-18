@@ -17,11 +17,11 @@ export default function Sidebar({
     "linear-gradient(to right, #ff0081, #ff8c00)",
     "linear-gradient(to right, #8e2de2, #4a00e0)",
     "linear-gradient(to right, #fcb045, #fd1d1d, #d53369)",
-    "linear-gradient(to right, #232526, #414345)",
-    "linear-gradient(to right, #3fada8, #f6d365)",
-    "linear-gradient(to right, #d38377, #d0a5c4)",
-    "linear-gradient(to right, #00d2ff, #3a7bd5)",
-    "linear-gradient(to right, #ff0099, #493240)",
+  ];
+
+  const plainColors = [
+    "#FF5733", "#33FF57", "#3357FF", "#FF33F1", 
+    "#33FFF1", "#F1FF33", "#FF3333", "#33FF33", "#3333FF"
   ];
 
   const wallpapers = [
@@ -30,7 +30,6 @@ export default function Sidebar({
     "https://images.unsplash.com/photo-1533134486753-c833f0ed4866?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://images.unsplash.com/photo-1620121478247-ec786b9be2fa?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
   ];
 
   const filters: Filter[] = [
@@ -47,20 +46,23 @@ export default function Sidebar({
     setEditorState((prev) => ({
       ...prev,
       padding: value,
-      image: prev.image, // Keep the image size constant
+      image: prev.image,
     }));
   };
 
   return (
-    <div className="w-80 bg-gray-800 p-6 shadow-lg overflow-y-auto text-sm text-gray-200">
+    <div className="w-64 bg-gray-100 p-4 shadow-md overflow-y-auto text-sm text-gray-800 h-full">
       {/* Background Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Background</h3>
-        <div className="grid grid-cols-5 gap-2 mb-4">
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">Background</h3>
+        
+        {/* Gradient backgrounds */}
+        <h4 className="text-md font-medium mb-2 text-gray-600">Gradients</h4>
+        <div className="grid grid-cols-5 gap-2 mb-3">
           {gradients.map((gradient, index) => (
             <button
               key={index}
-              className="w-10 h-10 rounded-lg hover:scale-105 transition-transform duration-300"
+              className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -68,22 +70,40 @@ export default function Sidebar({
             />
           ))}
         </div>
-        <ColorPicker
-          color={editorState.background}
-          onChange={(color) =>
-            setEditorState((prev) => ({ ...prev, background: color }))
-          }
-        />
+        
+        {/* Plain color backgrounds */}
+        <h4 className="text-md font-medium mb-2 text-gray-600">Plain Colors</h4>
+        <div className="grid grid-cols-5 gap-2 mb-3">
+          {plainColors.map((color, index) => (
+            <button
+              key={index}
+              className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm"
+              style={{ background: color }}
+              onClick={() =>
+                setEditorState((prev) => ({ ...prev, background: color }))
+              }
+            />
+          ))}
+          <div className="w-8 h-8 rounded-md hover:scale-105 transition-transform duration-300 shadow-sm bg-white flex items-center justify-center">
+            <ColorPicker
+              color={editorState.background}
+              onChange={(color) =>
+                setEditorState((prev) => ({ ...prev, background: color }))
+              }
+            />
+            <span className="text-xl">+</span>
+          </div>
+        </div>
       </section>
 
       {/* Wallpaper Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Wallpaper</h3>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">Wallpaper</h3>
         <div className="grid grid-cols-3 gap-2">
           {wallpapers.map((wallpaper, index) => (
             <button
               key={index}
-              className="w-20 h-20 rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300"
+              className="w-16 h-16 rounded-md overflow-hidden hover:scale-105 transition-transform duration-300 shadow-sm"
               style={{
                 backgroundImage: `url(${wallpaper})`,
                 backgroundSize: "cover",
@@ -100,12 +120,12 @@ export default function Sidebar({
       </section>
 
       {/* Adjustments Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Adjustments</h3>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">Adjustments</h3>
         {["padding", "inset", "shadow", "cornerRadius", "rotate"].map(
           (adjustment) => (
-            <label key={adjustment} className="block mb-6">
-              <span className="block text-gray-400 capitalize mb-2">
+            <label key={adjustment} className="block mb-4">
+              <span className="block text-gray-600 capitalize mb-1">
                 {adjustment}
               </span>
               <input
@@ -121,7 +141,7 @@ export default function Sidebar({
                         [adjustment]: Number(e.target.value),
                       }))
                 }
-                className="w-full bg-gray-700 rounded-lg"
+                className="w-full bg-gray-200 rounded-lg appearance-none h-2"
               />
             </label>
           )
@@ -129,8 +149,8 @@ export default function Sidebar({
       </section>
 
       {/* Filters Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Filters</h3>
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">Filters</h3>
         <select
           value={editorState.filter}
           onChange={(e) =>
@@ -139,7 +159,7 @@ export default function Sidebar({
               filter: e.target.value as Filter,
             }))
           }
-          className="w-full bg-gray-800 p-3 rounded-lg text-gray-300 shadow-md"
+          className="w-full bg-white p-2 rounded-md text-gray-700 shadow-sm border border-gray-300"
         >
           {filters.map((filter) => (
             <option key={filter} value={filter}>
@@ -160,17 +180,17 @@ export default function Sidebar({
                 [editorState.filter]: Number(e.target.value),
               }))
             }
-            className="w-full mt-4 bg-gray-700 rounded-lg"
+            className="w-full mt-3 bg-gray-200 rounded-lg appearance-none h-2"
           />
         )}
       </section>
 
       {/* Annotation Tools Section */}
       {editorState.isAnnotating && (
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Annotation Tools</h3>
-          <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Tool Type</label>
+        <section className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">Annotation Tools</h3>
+          <div className="mb-3">
+            <label className="block mb-1 text-gray-600">Tool Type</label>
             <select
               value={editorState.currentTool}
               onChange={(e) =>
@@ -179,7 +199,7 @@ export default function Sidebar({
                   currentTool: e.target.value as 'pen' | 'pencil' | 'marker' | 'eraser',
                 }))
               }
-              className="w-full bg-gray-800 p-3 rounded-lg text-gray-300 shadow-md"
+              className="w-full bg-white p-2 rounded-md text-gray-700 shadow-sm border border-gray-300"
             >
               <option value="pen">Pen</option>
               <option value="pencil">Pencil</option>
@@ -187,8 +207,8 @@ export default function Sidebar({
               <option value="eraser">Eraser</option>
             </select>
           </div>
-          <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Color</label>
+          <div className="mb-3">
+            <label className="block mb-1 text-gray-600">Color</label>
             <ColorPicker
               color={editorState.penColor}
               onChange={(color) =>
@@ -196,8 +216,8 @@ export default function Sidebar({
               }
             />
           </div>
-          <div className="mb-4">
-            <label className="block mb-2 text-gray-400">Size</label>
+          <div className="mb-3">
+            <label className="block mb-1 text-gray-600">Size</label>
             <input
               type="range"
               min="1"
@@ -209,7 +229,7 @@ export default function Sidebar({
                   penSize: Number(e.target.value),
                 }))
               }
-              className="w-full bg-gray-700 rounded-lg"
+              className="w-full bg-gray-200 rounded-lg appearance-none h-2"
             />
           </div>
         </section>
