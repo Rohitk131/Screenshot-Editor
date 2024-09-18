@@ -1,4 +1,5 @@
 export interface EditorState {
+  effect3D: string;
   background: string;
   padding: number;
   inset: number;

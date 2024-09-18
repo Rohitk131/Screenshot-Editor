@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { EditorState } from '../types';
 import { Upload, Camera, Pen, Square, Crop, Grid, Undo, Redo, Download } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -24,9 +24,85 @@ const Editor = () => {
     grayscale: 0,
     sepia: 0,
     invert: 0,
+    isAnnotating: false,
+    currentTool: 'pen',
+    penColor: '#000000',
+    penSize: 5,
+    frame: null,
+    effect3D: null,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (editorState.image) {
+      const img = new Image();
+      img.onload = () => {
+        if (canvasRef.current && containerRef.current) {
+          const ctx = canvasRef.current.getContext('2d');
+          if (ctx) {
+            const containerWidth = containerRef.current.clientWidth - editorState.padding * 2;
+            const containerHeight = containerRef.current.clientHeight - editorState.padding * 2;
+            const imgAspectRatio = img.width / img.height;
+            const containerAspectRatio = containerWidth / containerHeight;
+
+            let newWidth, newHeight;
+
+            if (imgAspectRatio > containerAspectRatio) {
+              newWidth = containerWidth;
+              newHeight = containerWidth / imgAspectRatio;
+            } else {
+              newHeight = containerHeight;
+              newWidth = containerHeight * imgAspectRatio;
+            }
+
+            canvasRef.current.width = newWidth;
+            canvasRef.current.height = newHeight;
+
+            ctx.clearRect(0, 0, newWidth, newHeight);
+            ctx.save();
+
+            // Apply inset
+            const insetX = editorState.inset * (newWidth / 100);
+            const insetY = editorState.inset * (newHeight / 100);
+            ctx.translate(insetX, insetY);
+            newWidth -= insetX * 2;
+            newHeight -= insetY * 2;
+
+            // Apply rotation
+            ctx.translate(newWidth / 2, newHeight / 2);
+            ctx.rotate((editorState.rotate * Math.PI) / 180);
+            ctx.translate(-newWidth / 2, -newHeight / 2);
+
+            // Apply 3D effects
+            applyEffect3D(ctx, editorState.effect3D, newWidth, newHeight);
+
+            // Draw image
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+            // Apply corner radius
+            ctx.globalCompositeOperation = 'destination-in';
+            roundedRect(ctx, 0, 0, newWidth, newHeight, editorState.cornerRadius);
+
+            // Apply frame if selected
+            if (editorState.frame) {
+              ctx.globalCompositeOperation = 'source-over';
+              const frame = new Image();
+              frame.onload = () => {
+                ctx.drawImage(frame, -insetX, -insetY, newWidth + insetX * 2, newHeight + insetY * 2);
+              };
+              frame.src = editorState.frame;
+            }
+
+            ctx.restore();
+          }
+        }
+      };
+      img.src = editorState.image;
+    }
+  }, [editorState]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,6 +117,51 @@ const Editor = () => {
 
   const handleUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const toggleAnnotation = () => {
+    setEditorState((prev) => ({ ...prev, isAnnotating: !prev.isAnnotating }));
+  };
+
+  const applyEffect3D = (ctx: CanvasRenderingContext2D, effect: string | null, width: number, height: number) => {
+    if (!effect) return;
+
+    ctx.translate(width / 2, height / 2);
+
+    switch (effect) {
+      case 'Rotate':
+        ctx.rotate((editorState.rotate * Math.PI) / 180);
+        break;
+      case 'Flip':
+        ctx.scale(-1, 1);
+        break;
+      case 'Tilt':
+        ctx.transform(1, 0.2, 0.2, 1, 0, 0);
+        break;
+      case 'Perspective':
+        ctx.transform(1, 0, 0.2, 1, 0, 0);
+        break;
+      case 'Skew':
+        ctx.transform(1, 0.2, 0.2, 1, 0, 0);
+        break;
+      case 'Extrude':
+        ctx.transform(1.2, 0.2, 0.2, 1.2, 0, 0);
+        break;
+    }
+
+    ctx.translate(-width / 2, -height / 2);
+  };
+
+  // Helper function to draw rounded rectangles
+  const roundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+    ctx.fill();
   };
 
   return (
@@ -77,8 +198,13 @@ const Editor = () => {
   
             {/* Drawing tools */}
             <div className="flex items-center space-x-4">
-              <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
-                <Pen size={18} className="text-blue-600" />
+              <button 
+                className={`p-2 rounded-lg focus:outline-none transition duration-300 ease-in-out ${
+                  editorState.isAnnotating ? 'bg-blue-500 text-white' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                }`}
+                onClick={toggleAnnotation}
+              >
+                <Pen size={18} />
               </button>
               <button className="bg-blue-50 p-2 rounded-lg hover:bg-blue-100 focus:outline-none transition duration-300 ease-in-out">
                 <Square size={18} className="text-blue-600" />
@@ -106,31 +232,26 @@ const Editor = () => {
           </div>
   
           {/* Editor canvas area */}
-          <div className="flex-1 p-8 bg-gray-50 overflow-hidden">
+          <div className="flex-1 p-8 bg-gray-50 overflow-hidden" ref={containerRef}>
             <div
               className="w-full h-full rounded-xl overflow-hidden flex justify-center items-center"
               style={{
                 background: editorState.background,
                 boxShadow: `0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)`,
+                padding: `${editorState.padding}px`,
               }}
             >
               <div
                 className="relative"
                 style={{
-                  padding: `${editorState.padding}px`,
+                  boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.2)`,
+                  filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ''})`,
                 }}
               >
                 {editorState.image ? (
-                  <img
-                    src={editorState.image}
-                    alt="Uploaded content"
+                  <canvas
+                    ref={canvasRef}
                     className="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
-                    style={{
-                      borderRadius: `${editorState.cornerRadius}px`,
-                      boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.2)`,
-                      filter: `${editorState.filter}(${editorState[editorState.filter] || ''})`,
-                      transform: `rotate(${editorState.rotate}deg)`,
-                    }}
                   />
                 ) : (
                   <div className="text-center p-8 bg-white rounded-lg shadow-md">

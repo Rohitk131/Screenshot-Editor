@@ -21,7 +21,7 @@ export default function Sidebar({
 
   const plainColors = [
     "#FF5733", "#33FF57", "#3357FF", "#FF33F1", 
-    "#33FFF1", "#F1FF33", "#FF3333", "#33FF33", "#3333FF"
+    "#33FFF1", "#F1FF33", "#0B416A", "#B93BC9", "#493232"
   ];
 
   const wallpapers = [
@@ -32,7 +32,6 @@ export default function Sidebar({
     "https://images.unsplash.com/photo-1696697918623-5f85f585ef18?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "https://plus.unsplash.com/premium_photo-1663937576065-706a8d985379?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-
   ];
 
   const filters: Filter[] = [
@@ -43,6 +42,24 @@ export default function Sidebar({
     "invert",
     "brightness",
     "contrast",
+  ];
+
+  const frames = [
+    "/frames/frame1.png",
+    "/frames/frame2.png",
+    "/frames/frame3.png",
+    "/frames/frame4.png",
+    "/frames/frame5.png",
+    "/frames/frame6.png",
+  ];
+
+  const effects3D = [
+    "Rotate",
+    "Flip",
+    "Tilt",
+    "Perspective",
+    "Skew",
+    "Extrude",
   ];
 
   const handlePaddingChange = (value: number) => {
@@ -188,55 +205,55 @@ export default function Sidebar({
         )}
       </section>
 
-      {/* Annotation Tools Section */}
-      {editorState.isAnnotating && (
-        <section className="mb-6">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Annotation Tools</h3>
-          <div className="mb-3">
-            <label className="block mb-1 text-gray-600">Tool Type</label>
-            <select
-              value={editorState.currentTool}
-              onChange={(e) =>
+      {/* Frames Section */}
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">Frames</h3>
+        <div className="grid grid-cols-3 gap-2">
+          {frames.map((frame, index) => (
+            <button
+              key={index}
+              className="w-16 h-16 rounded-md overflow-hidden hover:scale-105 transition-transform duration-300 shadow-sm bg-white"
+              style={{
+                backgroundImage: `url(${frame})`,
+                backgroundSize: "contain",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+              onClick={() =>
                 setEditorState((prev) => ({
                   ...prev,
-                  currentTool: e.target.value as 'pen' | 'pencil' | 'marker' | 'eraser',
+                  frame: frame,
                 }))
               }
-              className="w-full bg-white p-2 rounded-md text-gray-700 shadow-sm border border-gray-300"
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* 3D Effects Section */}
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-gray-700">3D Effects</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {effects3D.map((effect, index) => (
+            <button
+              key={index}
+              className={`p-2 rounded-md ${
+                editorState.effect3D === effect
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              } transition-colors duration-300`}
+              onClick={() =>
+                setEditorState((prev) => ({
+                  ...prev,
+                  effect3D: effect,
+                }))
+              }
             >
-              <option value="pen">Pen</option>
-              <option value="pencil">Pencil</option>
-              <option value="marker">Marker</option>
-              <option value="eraser">Eraser</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="block mb-1 text-gray-600">Color</label>
-            <ColorPicker
-              color={editorState.penColor}
-              onChange={(color) =>
-                setEditorState((prev) => ({ ...prev, penColor: color }))
-              }
-            />
-          </div>
-          <div className="mb-3">
-            <label className="block mb-1 text-gray-600">Size</label>
-            <input
-              type="range"
-              min="1"
-              max="50"
-              value={editorState.penSize}
-              onChange={(e) =>
-                setEditorState((prev) => ({
-                  ...prev,
-                  penSize: Number(e.target.value),
-                }))
-              }
-              className="w-full bg-gray-200 rounded-lg appearance-none h-2"
-            />
-          </div>
-        </section>
-      )}
+              {effect}
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
