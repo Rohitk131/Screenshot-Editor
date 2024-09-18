@@ -61,41 +61,45 @@ const Editor = () => {
               newWidth = newHeight * imgAspectRatio;
             }
 
-            // Set canvas size
-            setCanvasSize({ width: newWidth, height: newHeight });
-            canvasRef.current.width = newWidth;
-            canvasRef.current.height = newHeight;
+            // Add padding to canvas size
+            const canvasWidth = newWidth + editorState.padding * 2;
+            const canvasHeight = newHeight + editorState.padding * 2;
 
-            ctx.clearRect(0, 0, newWidth, newHeight);
+            // Set canvas size
+            setCanvasSize({ width: canvasWidth, height: canvasHeight });
+            canvasRef.current.width = canvasWidth;
+            canvasRef.current.height = canvasHeight;
+
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             ctx.save();
 
-            // Apply inset
-            const insetX = (editorState.inset / 100) * newWidth;
-            const insetY = (editorState.inset / 100) * newHeight;
-            const insetWidth = newWidth - 2 * insetX;
-            const insetHeight = newHeight - 2 * insetY;
+            // Apply inset and padding
+            const totalInsetX = (editorState.inset / 100) * newWidth + editorState.padding;
+            const totalInsetY = (editorState.inset / 100) * newHeight + editorState.padding;
+            const insetWidth = newWidth - 2 * (editorState.inset / 100) * newWidth;
+            const insetHeight = newHeight - 2 * (editorState.inset / 100) * newHeight;
 
             // Apply rotation
-            ctx.translate(newWidth / 2, newHeight / 2);
+            ctx.translate(canvasWidth / 2, canvasHeight / 2);
             ctx.rotate((editorState.rotate * Math.PI) / 180);
-            ctx.translate(-newWidth / 2, -newHeight / 2);
+            ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
             // Apply 3D effects
             applyEffect3D(ctx, editorState.effect3D, insetWidth, insetHeight);
 
             // Draw image
-            ctx.drawImage(img, insetX, insetY, insetWidth, insetHeight);
+            ctx.drawImage(img, totalInsetX, totalInsetY, insetWidth, insetHeight);
 
-            // Apply corner radius
+            // Apply corner radius to the image
             ctx.globalCompositeOperation = 'destination-in';
-            roundedRect(ctx, insetX, insetY, insetWidth, insetHeight, editorState.cornerRadius);
+            roundedRect(ctx, totalInsetX, totalInsetY, insetWidth, insetHeight, editorState.cornerRadius);
 
             // Apply frame if selected
             if (editorState.frame) {
               ctx.globalCompositeOperation = 'source-over';
               const frame = new Image();
               frame.onload = () => {
-                ctx.drawImage(frame, 0, 0, newWidth, newHeight);
+                ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
               };
               frame.src = editorState.frame;
             }
@@ -156,10 +160,14 @@ const Editor = () => {
   const roundedRect = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
-    ctx.arcTo(x + width, y, x + width, y + height, radius);
-    ctx.arcTo(x + width, y + height, x, y + height, radius);
-    ctx.arcTo(x, y + height, x, y, radius);
-    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
     ctx.fill();
   };
@@ -278,16 +286,17 @@ const Editor = () => {
   
           {/* Editor canvas area */}
           <div className="flex-1 p-8 bg-gray-50 overflow-hidden flex items-center justify-center" ref={containerRef}>
-            <div
-              className="rounded-xl overflow-hidden flex justify-center items-center"
-              style={{
-                background: editorState.background,
-                boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.3)`,
-                width: `${canvasSize.width}px`,
-                height: `${canvasSize.height}px`,
-              }}
-            >
-              {editorState.image ? (
+            {editorState.image ? (
+              <div
+                className="overflow-hidden flex justify-center items-center"
+                style={{
+                  background: editorState.background,
+                  boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.3)`,
+                  width: `${canvasSize.width}px`,
+                  height: `${canvasSize.height}px`,
+                  borderRadius: `${editorState.cornerRadius}px`,
+                }}
+              >
                 <canvas
                   ref={canvasRef}
                   className="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
@@ -295,18 +304,18 @@ const Editor = () => {
                     filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ''})`,
                   }}
                 />
-              ) : (
-                <div className="text-center p-8 bg-white rounded-lg shadow-md">
-                  <p className="text-gray-500 mb-4">Upload an image to start editing</p>
-                  <button
-                    onClick={handleUpload}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
-                  >
-                    Select Image
-                  </button>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center p-8 bg-white rounded-lg shadow-md">
+                <p className="text-gray-500 mb-4">Upload an image to start editing</p>
+                <button
+                  onClick={handleUpload}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
+                >
+                  Select Image
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
