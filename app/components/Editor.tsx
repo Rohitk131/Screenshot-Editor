@@ -276,20 +276,26 @@ const Editor = () => {
           <div className="flex-1 p-4 bg-gray-50 overflow-hidden flex items-center justify-center relative" ref={containerRef}>
             {editorState.image ? (
               <div
-                className="overflow-hidden flex justify-center items-center"
+                className="relative"
                 style={{
-                  background: editorState.background,
-                  boxShadow: `0 ${editorState.shadow}px ${editorState.shadow * 2}px rgba(0,0,0,0.3)`,
                   width: `${canvasSize.width}px`,
                   height: `${canvasSize.height}px`,
-                  borderRadius: `${editorState.cornerRadius}px`,
                 }}
               >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: editorState.background,
+                    borderRadius: `${editorState.cornerRadius}px`,
+                    boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
+                  }}
+                />
                 <canvas
                   ref={canvasRef}
-                  className="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
+                  className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
                   style={{
                     filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ''})`,
+                    borderRadius: `${editorState.cornerRadius}px`,
                   }}
                 />
               </div>
