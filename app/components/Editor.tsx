@@ -161,8 +161,8 @@ const Editor = () => {
   };
 
   return (
-    <div className="h-screen w-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="w-full max-w-7xl h-[90vh] bg-white rounded-3xl shadow-xl overflow-hidden flex">
+    <div className="h-screen w-full flex items-center justify-center p-8 bg-gradient-to-br from-blue-200 to-indigo-800">
+      <div className="w-full max-w-7xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex">
         {/* Sidebar */}
         <div className="w-64 bg-gray-100 border-r border-gray-200 p-4 flex-shrink-0">
           <Sidebar editorState={editorState} setEditorState={setEditorState} />
@@ -171,7 +171,7 @@ const Editor = () => {
         {/* Main content area */}
         <div className="flex-1 flex flex-col">
           {/* Topbar */}
-          <div className="bg-white border-b border-gray-200 p-2 flex items-center justify-between">
+          <div className="bg-white border-b border-gray-200  p-2 flex items-center justify-between shadow-xl shadow-b ">
             <div className="flex items-center space-x-2">
               {/* File operations */}
               <button
@@ -292,14 +292,17 @@ const Editor = () => {
                     className="max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
                   />
                 ) : (
-                  <div className="text-center p-8 bg-white rounded-lg shadow-md">
-                    <p className="text-gray-500 mb-4">Upload an image to start editing</p>
+                  <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
+                    <div className='border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14'>
+                      <img src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif" width={100} height={100} />
+                    <p className="text-gray-500 mb-4">Upload an image</p>
                     <button
                       onClick={handleUpload}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
-                    >
+                      >
                       Select Image
                     </button>
+                    </div>
                   </div>
                 )}
               </div>
