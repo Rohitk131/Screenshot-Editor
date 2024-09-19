@@ -24,11 +24,11 @@ import {
   ZoomIn,
   RotateCw,
   Eye,
-  Share,
+  Share2,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
-import CropTool from './CropTool';
+import CropTool from "./CropTool";
 
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -187,14 +187,14 @@ useEffect(() => {
   };
 
   const handleCropClick = () => {
-    setEditorState(prev => ({ ...prev, cropMode: !prev.cropMode }));
+    setEditorState((prev) => ({ ...prev, cropMode: !prev.cropMode }));
   };
 
   const handleCropComplete = (croppedImage: string) => {
-    setEditorState(prev => ({ 
-      ...prev, 
-      image: croppedImage, 
-      cropMode: false 
+    setEditorState((prev) => ({
+      ...prev,
+      image: croppedImage,
+      cropMode: false,
     }));
   };
 

@@ -6,7 +6,7 @@ import {
 } from './Navbars'; // Adjust the import path as necessary
 
 // Import frame images
-import safariLight from './frames/safari-light.png';
+import safariLight from "./frames/safari-light.png";
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -31,7 +31,28 @@ export default function RightSidebar({
   ];
 
   // Choose a navbar component based on a condition (e.g., theme or state)
-  const NavbarComponent = editorState.theme === "light" ? ChromeNavbarLight : ChromeNavbarDark;
+  const NavbarComponent =
+    editorState.theme === "light" ? ChromeNavbarLight : ChromeNavbarDark;
+
+  // Function to determine the transformation for the selected effect
+  const get3DEffectStyle = (effect: string) => {
+    switch (effect) {
+      case "Rotate":
+        return "rotateY(180deg)";
+      case "Flip":
+        return "rotateX(180deg)";
+      case "Tilt":
+        return "rotateZ(15deg)";
+      case "Perspective":
+        return "perspective(500px) rotateX(20deg)";
+      case "Skew":
+        return "skewX(20deg)";
+      case "Extrude":
+        return "scale(1.1) translateZ(20px)";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div className="w-72 bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar border-l border-gray-200">
@@ -45,13 +66,19 @@ export default function RightSidebar({
               <NavbarComponent />
               <button
                 className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
-                  editorState.frame?.src === frame.src ? "scale-105 ring-2 ring-blue-500" : ""
+                  editorState.frame?.src === frame.src
+                    ? "scale-105 ring-2 ring-blue-500"
+                    : ""
                 }`}
                 style={{
                   backgroundImage: `url(${frame.src.src})`, // Use .src for imported images
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
+                  transform: editorState.effect3D
+                    ? get3DEffectStyle(editorState.effect3D)
+                    : "", // Apply the selected 3D effect
+                  transition: "transform 0.5s ease",
                 }}
                 onClick={() =>
                   setEditorState((prev) => ({
