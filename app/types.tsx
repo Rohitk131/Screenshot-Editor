@@ -23,11 +23,14 @@ export interface EditorState {
   frame: Frame | null;
   theme: 'light' | 'dark';
   cropMode: boolean;
+  layout: Layout;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
 
 export type Tool = 'none' | 'upload' | 'screenshot' | 'annotate' | 'shape' | 'crop' | 'mosaic';
+
+export type Layout = "single" | "sideBySide" | "fourGrid";
 
 export interface Annotation {
   path: { x: number; y: number }[];

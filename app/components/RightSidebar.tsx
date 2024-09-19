@@ -1,5 +1,5 @@
 import React from "react";
-import { EditorState, Frame, Effect3D } from "../types";
+import { EditorState, Frame, Effect3D, Layout } from "../types";
 import { 
   ChromeNavbarLight, 
   ChromeNavbarDark 
@@ -54,8 +54,10 @@ export default function RightSidebar({
     }
   };
 
+  const layoutOptions: Layout[] = ["single", "sideBySide", "fourGrid"];
+
   return (
-    <div className="w-72 bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar border-l border-gray-200">
+    <div className="w-full bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar">
       {/* Frames Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
@@ -76,7 +78,7 @@ export default function RightSidebar({
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
                   transform: editorState.effect3D
-                    ? get3DEffectStyle(editorState.effect3D)
+                    ? get3DEffectStyle(editorState.effect3D.name)
                     : "", // Apply the selected 3D effect
                   transition: "transform 0.5s ease",
                 }}
@@ -96,7 +98,7 @@ export default function RightSidebar({
 
       {/* 3D Effects Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effects</h3>
         <div className="grid grid-cols-2 gap-4">
           {effects3D.map((effect, index) => (
             <button
@@ -126,9 +128,23 @@ export default function RightSidebar({
       </section>
 
       {/* Layout Section */}
-      <section>
-        <h3 className="text-xl font-bold mb-4 text-gray-800">3d Effect</h3>
-        {/* Add layout options here */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
+        <div className="flex flex-wrap gap-3">
+          {layoutOptions.map((layout) => (
+            <button
+              key={layout}
+              onClick={() => setEditorState({ ...editorState, layout })}
+              className={`px-3 py-1 rounded ${
+                editorState.layout === layout
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {layout}
+            </button>
+          ))}
+        </div>
       </section>
     </div>
   );
