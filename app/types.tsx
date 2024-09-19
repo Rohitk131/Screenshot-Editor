@@ -1,5 +1,7 @@
+import { StaticImageData } from 'next/image';
+
 export interface EditorState {
-  effect3D: string;
+  effect3D: string | null;
   background: string;
   padding: number;
   inset: number;
@@ -18,8 +20,9 @@ export interface EditorState {
   penSize: number;
   shapes: Shape[];
   mosaicSize: number;
-  frame: Frame | null; // Ensure Frame type is correctly defined
-  theme?: 'light' | 'dark'; // Add theme property if needed
+  frame: Frame | null;
+  theme: 'light' | 'dark';
+  cropMode: boolean;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
@@ -41,4 +44,9 @@ export interface Shape {
   height: number;
   color: string;
   strokeWidth: number;
+}
+
+export interface Frame {
+  src: StaticImageData;
+  label: string;
 }

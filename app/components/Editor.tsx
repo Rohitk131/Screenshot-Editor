@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
+import CropTool from './CropTool';
 
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -58,6 +59,7 @@ const Editor = () => {
     penSize: 5,
     frame: "",
     effect3D: "",
+    cropMode: false,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,9 +149,8 @@ const Editor = () => {
               frame.onerror = () => {
                 console.error('Error loading frame image');
               };
-              frame.src = editorState.frame;
+              frame.src = editorState.frame.src.src;
             }
-
 
             ctx.restore();
           }
@@ -230,6 +231,18 @@ const Editor = () => {
     ctx.fill();
   };
 
+  const handleCropClick = () => {
+    setEditorState(prev => ({ ...prev, cropMode: !prev.cropMode }));
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    setEditorState(prev => ({ 
+      ...prev, 
+      image: croppedImage, 
+      cropMode: false 
+    }));
+  };
+
   return (
     <div className="h-screen w-full flex items-center justify-start p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div
@@ -263,7 +276,10 @@ const Editor = () => {
               <span className="text-gray-300">|</span>
 
               <div className="flex items-center space-x-2">
-                <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+                <button 
+                  onClick={handleCropClick} 
+                  className={`text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out ${editorState.cropMode ? 'bg-gray-200' : ''}`}
+                >
                   <Crop size={20} />
                 </button>
                 <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
@@ -351,17 +367,22 @@ const Editor = () => {
                     background: editorState.background,
                   }}
                 />
-                <canvas
-                  ref={canvasRef}
-                  className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
-                  style={{
-                    boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6
-                      }px rgba(0,0,0,${editorState.shadow * 0.008})`,
-                    filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""
-                      })`,
-                    borderRadius: `${editorState.cornerRadius}px`,
-                  }}
-                />
+                {editorState.cropMode ? (
+                  <CropTool
+                    image={editorState.image}
+                    onCropComplete={handleCropComplete}
+                  />
+                ) : (
+                  <canvas
+                    ref={canvasRef}
+                    className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
+                    style={{
+                      boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
+                      filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
+                      borderRadius: `${editorState.cornerRadius}px`,
+                    }}
+                  />
+                )}
               </div>
             ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">

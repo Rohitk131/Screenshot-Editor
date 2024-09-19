@@ -5,6 +5,9 @@ import {
   ChromeNavbarDark 
 } from './Navbars'; // Adjust the import path as necessary
 
+// Import frame images
+import safariLight from './frames/safari-light.png';
+
 interface RightSidebarProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
@@ -15,12 +18,7 @@ export default function RightSidebar({
   setEditorState,
 }: RightSidebarProps) {
   const frames: Frame[] = [
-    { src: "/images/image1.jpg", label: "Image 1" },
-    { src: "/images/image2.jpg", label: "Image 2" },
-    { src: "/images/image3.jpg", label: "Image 3" },
-    { src: "/images/image4.jpg", label: "Image 4" },
-    { src: "/images/image5.jpg", label: "Image 5" },
-    { src: "/images/image6.jpg", label: "Image 6" },
+    { src: safariLight, label: "Safari Light" },
   ];
 
   const effects3D = [
@@ -44,13 +42,13 @@ export default function RightSidebar({
           {frames.map((frame, index) => (
             <div key={index} className="relative group">
               {/* Render the navbar as an overlay at the top */}
-              <NavbarComponent className="absolute top-2 left-2 right-2" />
+              <NavbarComponent />
               <button
                 className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
                   editorState.frame?.src === frame.src ? "scale-105 ring-2 ring-blue-500" : ""
                 }`}
                 style={{
-                  backgroundImage: `url(${frame.src})`,
+                  backgroundImage: `url(${frame.src.src})`, // Use .src for imported images
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
