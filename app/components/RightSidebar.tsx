@@ -36,7 +36,7 @@ export default function RightSidebar({
   const NavbarComponent = editorState.theme === "light" ? ChromeNavbarLight : ChromeNavbarDark;
 
   return (
-    <div className="w-72 bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full shadow-lg rounded-lg border border-gray-200">
+    <div className="w-72 bg-gray-200 p-6  text-sm text-gray-800 h-full shadow-lg rounded-2xl hide-scrollbar ">
       {/* Frames Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>

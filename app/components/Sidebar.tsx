@@ -57,7 +57,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-64 bg-gray-100 p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+    <div className="w-64 bg-gray-200 p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar ">
       {/* Background Section */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-700">Background</h3>
