@@ -90,6 +90,7 @@ const Editor = () => {
         const containerAspectRatio = containerWidth / containerHeight;
 
         let newWidth, newHeight;
+        let totalInsetX, totalInsetY, insetWidth, insetHeight;
 
         if (imgAspectRatio > containerAspectRatio) {
           newWidth = containerWidth * 0.8;
@@ -98,6 +99,12 @@ const Editor = () => {
           newHeight = containerHeight * 0.8;
           newWidth = newHeight * imgAspectRatio;
         }
+
+        // Calculate inset values
+        totalInsetX = (editorState.inset / 100) * newWidth;
+        totalInsetY = (editorState.inset / 100) * newHeight;
+        insetWidth = newWidth - 2 * totalInsetX;
+        insetHeight = newHeight - 2 * totalInsetY;
 
         // Add padding to canvas size
         const canvasWidth = newWidth + editorState.padding * 2;
@@ -109,29 +116,21 @@ const Editor = () => {
         canvasRef.current.height = canvasHeight;
 
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // Save the context state
         ctx.save();
 
-        // Draw image
-        const totalInsetX = (editorState.inset / 100) * newWidth;
-        const totalInsetY = (editorState.inset / 100) * newHeight;
-        const insetWidth = newWidth - 2 * totalInsetX;
-        const insetHeight = newHeight - 2 * totalInsetY;
-
-        // Apply rotation
+        // Move to the center of the canvas
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
+
+        // Rotate the canvas
         ctx.rotate((editorState.rotate * Math.PI) / 180);
+
+        // Move back
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
-        ctx.drawImage(
-          image,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
-          insetWidth,
-          insetHeight
-        );
-
-        // Apply corner radius only to the image
-        ctx.globalCompositeOperation = "destination-in";
+        // Create a clipping region for the image
+        ctx.beginPath();
         roundedRect(
           ctx,
           totalInsetX + editorState.padding,
@@ -140,7 +139,24 @@ const Editor = () => {
           insetHeight,
           editorState.cornerRadius
         );
+        ctx.clip();
 
+        // Apply shadow
+        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
+        ctx.shadowBlur = editorState.shadow * 0.5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = editorState.shadow * 0.2;
+
+        // Draw the image
+        ctx.drawImage(
+          image,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight
+        );
+
+        // Restore the context state (removes clipping, shadow, and rotation)
         ctx.restore();
       }
     }
@@ -245,7 +261,10 @@ const Editor = () => {
               <button onClick={handleCropClick} className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${editorState.cropMode ? 'bg-gray-200' : ''}`}>
                 <Crop size={22} />
               </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+              <button
+                onClick={() => setEditorState(prev => ({ ...prev, rotate: (prev.rotate + 90) % 360 }))}
+                className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out"
+              >
                 <RotateCw size={22} />
               </button>
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
@@ -319,22 +338,15 @@ const Editor = () => {
               style={{
                 width: `${canvasSize.width}px`,
                 height: `${canvasSize.height}px`,
+                background: editorState.background,
+                borderRadius: `${editorState.cornerRadius}px`,
               }}
             >
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: editorState.background,
-                  borderRadius: `${editorState.cornerRadius}px`,
-                }}
-              />
               <canvas
                 ref={canvasRef}
-                className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
+                className="absolute top-0 left-0 z-10"
                 style={{
-                  boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
                   filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
-                  borderRadius: `${editorState.cornerRadius}px`,
                   transform: get3DTransform(),
                   transition: "transform 0.3s ease-in-out",
                 }}
@@ -360,17 +372,19 @@ const Editor = () => {
           )}
             {/* Bottom right corner icons */}
             {editorState.image && (
-              <div className="absolute bottom-4 right-4 flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
-                <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                  <Undo size={22} className="text-gray-700" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                  <Redo size={22} className="text-gray-700" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                  <Eye size={22} className="text-gray-700" />
-                </button>
-              </div>
+               <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+               <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
+                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                   <Undo size={22} className="text-gray-700" />
+                 </button>
+                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                   <Redo size={22} className="text-gray-700" />
+                 </button>
+                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                   <Eye size={22} className="text-gray-700" />
+                 </button>
+               </div>
+             </div>
             )}
           </div>
 

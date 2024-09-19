@@ -98,7 +98,7 @@ export default function RightSidebar({
 
       {/* 3D Effects Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effects</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
         <div className="grid grid-cols-2 gap-4">
           {effects3D.map((effect, index) => (
             <button
