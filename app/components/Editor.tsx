@@ -68,88 +68,83 @@ const Editor = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+
   useEffect(() => {
     if (editorState.image) {
-      const img = new window.Image();
+      const img = new Image();
       img.onload = () => {
-        if (canvasRef.current && containerRef.current) {
-          const ctx = canvasRef.current.getContext("2d");
-          if (ctx) {
-            const containerWidth = containerRef.current.clientWidth;
-            const containerHeight = containerRef.current.clientHeight;
-            const imgAspectRatio = img.width / img.height;
-            const containerAspectRatio = containerWidth / containerHeight;
-
-            let newWidth, newHeight;
-
-            if (imgAspectRatio > containerAspectRatio) {
-              newWidth = containerWidth * 0.8;
-              newHeight = newWidth / imgAspectRatio;
-            } else {
-              newHeight = containerHeight * 0.8;
-              newWidth = newHeight * imgAspectRatio;
-            }
-
-            // Add padding to canvas size
-            const canvasWidth = newWidth + editorState.padding * 2;
-            const canvasHeight = newHeight + editorState.padding * 2;
-
-            // Set canvas size
-            setCanvasSize({ width: canvasWidth, height: canvasHeight });
-            canvasRef.current.width = canvasWidth;
-            canvasRef.current.height = canvasHeight;
-
-            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-            ctx.save();
-
-            // Draw background without corner radius
-            ctx.fillStyle = editorState.background;
-            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-            // Apply 3D effect
-            const effect3DTransform = get3DEffectStyle(editorState.effect3D.name);
-            if (effect3DTransform) {
-              applyCanvasTransform(ctx, effect3DTransform, canvasWidth, canvasHeight);
-            }
-
-            // Apply rotation
-            ctx.translate(canvasWidth / 2, canvasHeight / 2);
-            ctx.rotate((editorState.rotate * Math.PI) / 180);
-            ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
-
-            // Calculate inset for image
-            const totalInsetX = (editorState.inset / 100) * newWidth;
-            const totalInsetY = (editorState.inset / 100) * newHeight;
-            const insetWidth = newWidth - 2 * totalInsetX;
-            const insetHeight = newHeight - 2 * totalInsetY;
-
-            // Draw image
-            ctx.drawImage(
-              img,
-              totalInsetX + editorState.padding,
-              totalInsetY + editorState.padding,
-              insetWidth,
-              insetHeight
-            );
-
-            // Apply corner radius only to the image
-            ctx.globalCompositeOperation = "destination-in";
-            roundedRect(
-              ctx,
-              totalInsetX + editorState.padding,
-              totalInsetY + editorState.padding,
-              insetWidth,
-              insetHeight,
-              editorState.cornerRadius
-            );
-
-            ctx.restore();
-          }
-        }
+        setImage(img);
       };
       img.src = editorState.image;
     }
-  }, [editorState]);
+  }, [editorState.image]);
+
+  useEffect(() => {
+    if (image && canvasRef.current && containerRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        const imgAspectRatio = image.width / image.height;
+        const containerAspectRatio = containerWidth / containerHeight;
+
+        let newWidth, newHeight;
+
+        if (imgAspectRatio > containerAspectRatio) {
+          newWidth = containerWidth * 0.8;
+          newHeight = newWidth / imgAspectRatio;
+        } else {
+          newHeight = containerHeight * 0.8;
+          newWidth = newHeight * imgAspectRatio;
+        }
+
+        // Add padding to canvas size
+        const canvasWidth = newWidth + editorState.padding * 2;
+        const canvasHeight = newHeight + editorState.padding * 2;
+
+        // Set canvas size
+        setCanvasSize({ width: canvasWidth, height: canvasHeight });
+        canvasRef.current.width = canvasWidth;
+        canvasRef.current.height = canvasHeight;
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        ctx.save();
+
+        // Draw image
+        const totalInsetX = (editorState.inset / 100) * newWidth;
+        const totalInsetY = (editorState.inset / 100) * newHeight;
+        const insetWidth = newWidth - 2 * totalInsetX;
+        const insetHeight = newHeight - 2 * totalInsetY;
+
+        // Apply rotation
+        ctx.translate(canvasWidth / 2, canvasHeight / 2);
+        ctx.rotate((editorState.rotate * Math.PI) / 180);
+        ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
+
+        ctx.drawImage(
+          image,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight
+        );
+
+        // Apply corner radius only to the image
+        ctx.globalCompositeOperation = "destination-in";
+        roundedRect(
+          ctx,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight,
+          editorState.cornerRadius
+        );
+
+        ctx.restore();
+      }
+    }
+  }, [image, editorState, canvasRef, containerRef]);
 
   const handleUpload = () => {
     fileInputRef.current?.click();
@@ -203,43 +198,22 @@ const Editor = () => {
     }));
   };
 
-  const applyCanvasTransform = (
-    ctx: CanvasRenderingContext2D,
-    transform: string,
-    width: number,
-    height: number
-  ) => {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.translate(width / 2, height / 2);
-
-    const matrix = new DOMMatrix(transform);
-    ctx.transform(
-      matrix.a,
-      matrix.b,
-      matrix.c,
-      matrix.d,
-      matrix.e,
-      matrix.f
-    );
-
-    ctx.translate(-width / 2, -height / 2);
-  };
-
-  const get3DEffectStyle = (effect: string) => {
-    switch (effect) {
+  // Function to get 3D transform based on effect
+  const get3DTransform = () => {
+    if (!editorState.effect3D || editorState.effect3D.name === "None") {
+      return "";
+    }
+    switch (editorState.effect3D.name) {
+      case "Tilt Left":
+        return "perspective(1000px) rotateY(-15deg)";
+      case "Tilt Right":
+        return "perspective(1000px) rotateY(15deg)";
+      case "Tilt Up":
+        return "perspective(1000px) rotateX(15deg)";
+      case "Tilt Down":
+        return "perspective(1000px) rotateX(-15deg)";
       case "Rotate":
-        return "rotateY(180deg)";
-      case "Flip":
-        return "rotateX(180deg)";
-      case "Tilt":
-        return "rotateZ(15deg)";
-      case "Perspective":
-        return "perspective(500px) rotateX(20deg)";
-      case "Skew":
-        return "skewX(20deg)";
-      case "Extrude":
-        return "scale(1.1) translateZ(20px)";
+        return "perspective(1000px) rotate3d(1, 1, 1, 15deg)";
       default:
         return "";
     }
@@ -351,6 +325,7 @@ const Editor = () => {
                 className="absolute inset-0"
                 style={{
                   background: editorState.background,
+                  borderRadius: `${editorState.cornerRadius}px`,
                 }}
               />
               <canvas
@@ -360,6 +335,8 @@ const Editor = () => {
                   boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
                   filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
                   borderRadius: `${editorState.cornerRadius}px`,
+                  transform: get3DTransform(),
+                  transition: "transform 0.3s ease-in-out",
                 }}
               />
             </div>

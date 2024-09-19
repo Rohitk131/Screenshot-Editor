@@ -78,7 +78,7 @@ export default function RightSidebar({
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
                   transform: editorState.effect3D
-                    ? get3DEffectStyle(editorState.effect3D.name)
+                    ? editorState.effect3D.transform
                     : "", // Apply the selected 3D effect
                   transition: "transform 0.5s ease",
                 }}
