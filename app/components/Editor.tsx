@@ -108,9 +108,10 @@ const Editor = () => {
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
             ctx.rotate((editorState.rotate * Math.PI) / 180);
             ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
-
             // Apply 3D effects
-            applyEffect3D(ctx, editorState.effect3D, newWidth, newHeight);
+            if (editorState.effect3D) {
+              applyEffect3D(ctx, editorState.effect3D, newWidth, newHeight);
+            }
 
             // Calculate inset for image
             const totalInsetX = (editorState.inset / 100) * newWidth;
@@ -245,183 +246,169 @@ const Editor = () => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-br from-gray-300 to-gray-700 px-8 py-4">
-      
-
-        {/* Topbar */}
-        <div className="bg-white border-b border-gray-200 p-2 flex items-center justify-between rounded-2xl">
-          <div className="flex items-center space-x-2 overflow-x-auto">
-            <button
-              onClick={handleUpload}
-              className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1"
-            >
-              <Upload size={16} />
-              <span>Upload</span>
-            </button>
+      <div className="bg-white border-b border-gray-200 p-2 flex items-center justify-between rounded-2xl">
+        <div className="w-[25%]"></div> {/* This creates the 15% space on the left */}
+        <div className="flex items-center space-x-4 overflow-x-auto flex-grow pr-8"> {/* Added pr-8 for right padding */}
+          <button
+            onClick={handleUpload}
+            className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1"
+          >
+            <Upload size={16} />
+            <span>Upload</span>
+          </button>
+          <div className="flex items-center space-x-3"> {/* Group 1 */}
             <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
               <ImageIcon size={20} />
             </button>
             <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
               <Camera size={20} />
             </button>
-
-            <span className="text-gray-300">|</span>
-
-            <div className="flex items-center space-x-2">
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Crop size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <RotateCw size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Sliders size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Layers size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Pen size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Eraser size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Type size={20} />
-              </button>
-            </div>
-
-            <span className="text-gray-300">|</span>
-
-            <div className="flex items-center space-x-2">
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Square size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Circle size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Triangle size={20} />
-              </button>
-            </div>
-
-            <span className="text-gray-300">|</span>
-
-            <div className="flex items-center space-x-2">
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Scissors size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Smile size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Grid size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <Move size={20} />
-              </button>
-              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
-                <ZoomIn size={20} />
-              </button>
-            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1">
-              <Share size={16} />
-              <span>Share</span>
+          <div className="flex items-center space-x-3"> {/* Group 2 */}
+            <button onClick={handleCropClick} className={`text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out ${editorState.cropMode ? 'bg-gray-200' : ''}`}>
+              <Crop size={20} />
             </button>
-            <button className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-1">
-              <Download size={16} />
-              <span>Download</span>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <RotateCw size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Sliders size={20} />
+            </button>
+          </div>
+          <div className="flex items-center space-x-3"> {/* Group 3 */}
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Layers size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Pen size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Eraser size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Type size={20} />
+            </button>
+          </div>
+          <div className="flex items-center space-x-3"> {/* Group 4 */}
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Square size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Circle size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Triangle size={20} />
+            </button>
+          </div>
+          <div className="flex items-center space-x-3"> {/* Group 5 */}
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Scissors size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Smile size={20} />
+            </button>
+            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+              <Grid size={20} />
             </button>
           </div>
         </div>
-
-        {/* Main content area */}
-        <div className="flex-1 flex overflow-hidden p-4 bg-white rounded-2xl mt-2">
-          {/* Left Sidebar */}
-          <div className="w-64 flex-shrink-0 overflow-y-auto hide-scrollbar  rounded-2xl">
-            <Sidebar editorState={editorState} setEditorState={setEditorState} />
-          </div>
-
-          {/* Editor canvas area */}
-          <div
-            className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center relative bg-gray-300"
-            ref={containerRef}
-          >
-            {editorState.image ? (
-              <div
-                className="relative"
-                style={{
-                  width: `${canvasSize.width}px`,
-                  height: `${canvasSize.height}px`,
-                }}
-              >
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: editorState.background,
-                  }}
-                />
-                <canvas
-                  ref={canvasRef}
-                  className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
-                  style={{
-                    boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
-                    filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
-                    borderRadius: `${editorState.cornerRadius}px`,
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
-                <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
-                  <img
-                    src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
-                    width={100}
-                    height={100}
-                  />
-                  <p className="text-gray-500 mb-4">Upload an image</p>
-                  <button
-                    onClick={handleUpload}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
-                  >
-                    Select Image
-                  </button>
-                </div>
-              </div>
-            )}
-            {/* Bottom right corner icons */}
-            {editorState.image && (
-              <div className="absolute bottom-4 right-4 flex space-x-2 bg-black bg-opacity-50 rounded-full p-1">
-                <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
-                  <Undo size={20} className="text-gray-700" />
-                </button>
-                <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
-                  <Redo size={20} className="text-gray-700" />
-                </button>
-                <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
-                  <Eye size={20} className="text-gray-700" />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="w-64 flex-shrink-0 hide-scrollbar rounded-2xl justify-center flex overflow-y-auto overflow-y-auto ">
-            <RightSidebar editorState={editorState} setEditorState={setEditorState} />
-          </div>
+        <div className="flex items-center space-x-2">
+          <button className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1">
+            <Share size={16} />
+            <span>Share</span>
+          </button>
+          <button className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-1">
+            <Download size={16} />
+            <span>Download</span>
+          </button>
         </div>
-
-        {/* Hidden file input */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="image/*"
-          className="hidden"
-        />
       </div>
-    
+
+      {/* Main content area */}
+      <div className="flex-1 flex overflow-hidden p-4 bg-white rounded-2xl mt-2">
+        {/* Left Sidebar */}
+        <div className="w-64 flex-shrink-0 overflow-y-auto hide-scrollbar  rounded-2xl">
+          <Sidebar editorState={editorState} setEditorState={setEditorState} />
+        </div>
+
+        {/* Editor canvas area */}
+        <div
+          className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center relative bg-gray-300"
+          ref={containerRef}
+        >
+          {editorState.image ? (
+            <div
+              className="relative"
+              style={{
+                width: `${canvasSize.width}px`,
+                height: `${canvasSize.height}px`,
+              }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: editorState.background,
+                }}
+              />
+              <canvas
+                ref={canvasRef}
+                className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
+                style={{
+                  boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
+                  filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
+                  borderRadius: `${editorState.cornerRadius}px`,
+                }}
+              />
+            </div>
+          ) : (
+            <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
+              <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
+                <img
+                  src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
+                  width={100}
+                  height={100}
+                />
+                <p className="text-gray-500 mb-4">Upload an image</p>
+                <button
+                  onClick={handleUpload}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
+                >
+                  Select Image
+                </button>
+              </div>
+            </div>
+          )}
+          {/* Bottom right corner icons */}
+          {editorState.image && (
+            <div className="absolute bottom-4 right-4 flex space-x-2 bg-black bg-opacity-50 rounded-full p-1">
+              <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
+                <Undo size={20} className="text-gray-700" />
+              </button>
+              <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
+                <Redo size={20} className="text-gray-700" />
+              </button>
+              <button className="p-2 bg-white bg-opacity-80 rounded-full shadow-md hover:bg-opacity-100 transition duration-300 ease-in-out">
+                <Eye size={20} className="text-gray-700" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="w-64 flex-shrink-0 hide-scrollbar rounded-2xl justify-center flex overflow-y-auto overflow-y-auto ">
+          <RightSidebar editorState={editorState} setEditorState={setEditorState} />
+        </div>
+      </div>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+    </div>
   );
 };
 

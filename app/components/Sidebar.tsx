@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { EditorState, Filter } from "../types";
 import ColorPicker from "./ColorPicker";
+import CustomGradientModal from "./CustomGradientModal";
+import { Plus } from "lucide-react";
 
 interface SidebarProps {
   editorState: EditorState;
@@ -11,6 +13,9 @@ export default function Sidebar({
   editorState,
   setEditorState,
 }: SidebarProps) {
+  const [showGradientModal, setShowGradientModal] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+
   const gradients = [
     "linear-gradient(to right, #ff6e7f, #bfe9ff)",
     "linear-gradient(to right, #00c6ff, #0072ff)",
@@ -21,12 +26,11 @@ export default function Sidebar({
     "linear-gradient(to right, #3fada8, #f6d365)",
     "linear-gradient(to right, #d38377, #d0a5c4)",
     "linear-gradient(to right, #00d2ff, #3a7bd5)",
-    "linear-gradient(to right, #ff0099, #493240)",
   ];
 
   const plainColors = [
     "#FF5733", "#33FF57", "#3357FF", "#FF33F1", 
-    "#33FFF1", "#F1FF33", "#0B416A", "#B93BC9", "#493232"
+    "#33FFF1", "#F1FF33", "#0B416A", "#B93BC9"
   ];
 
   const wallpapers = [
@@ -56,8 +60,18 @@ export default function Sidebar({
     }));
   };
 
+  const handleCustomGradient = (gradient: string) => {
+    setEditorState((prev) => ({ ...prev, background: gradient }));
+    setShowGradientModal(false);
+  };
+
+  const handleCustomColor = (color: string) => {
+    setEditorState(prev => ({ ...prev, background: color }));
+    setShowColorPicker(false);
+  };
+
   return (
-    <div className="w-64 bg-gray-200 p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar ">
+    <div className="w-64 bg-gray-200 p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
       {/* Background Section */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-700">Background</h3>
@@ -75,6 +89,12 @@ export default function Sidebar({
               }
             />
           ))}
+          <button
+            className="w-8 h-8 rounded-md hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            onClick={() => setShowGradientModal(true)}
+          >
+            <Plus size={20} className="text-gray-400" />
+          </button>
         </div>
         
         {/* Plain color backgrounds */}
@@ -90,12 +110,12 @@ export default function Sidebar({
               }
             />
           ))}
-          <ColorPicker
-            color={editorState.background}
-            onChange={(color) =>
-              setEditorState((prev) => ({ ...prev, background: color }))
-            }
-          />
+          <button
+            className="w-8 h-8 rounded-md hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            onClick={() => setShowColorPicker(true)}
+          >
+            <Plus size={20} className="text-gray-400" />
+          </button>
         </div>
       </section>
 
@@ -187,6 +207,20 @@ export default function Sidebar({
           />
         )}
       </section>
+
+      {showGradientModal && (
+        <CustomGradientModal
+          onClose={() => setShowGradientModal(false)}
+          onApply={handleCustomGradient}
+        />
+      )}
+
+      {showColorPicker && (
+        <ColorPicker
+          onClose={() => setShowColorPicker(false)}
+          onColorSelect={handleCustomColor}
+        />
+      )}
     </div>
   );
 }
