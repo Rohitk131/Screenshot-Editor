@@ -1,5 +1,5 @@
 import React from "react";
-import { EditorState, Frame } from "../types";
+import { EditorState, Frame, Effect3D } from "../types";
 import { 
   ChromeNavbarLight, 
   ChromeNavbarDark 
@@ -21,20 +21,20 @@ export default function RightSidebar({
     { src: safariLight, label: "Safari Light" },
   ];
 
-  const effects3D = [
-    "Rotate",
-    "Flip",
-    "Tilt",
-    "Perspective",
-    "Skew",
-    "Extrude",
+  const effects3D: Effect3D[] = [
+    { name: "None", transform: "" },
+    { name: "Tilt Left", transform: "perspective(1000px) rotateY(-15deg)" },
+    { name: "Tilt Right", transform: "perspective(1000px) rotateY(15deg)" },
+    { name: "Tilt Up", transform: "perspective(1000px) rotateX(15deg)" },
+    { name: "Tilt Down", transform: "perspective(1000px) rotateX(-15deg)" },
+    { name: "Rotate", transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)" },
   ];
 
   // Choose a navbar component based on a condition (e.g., theme or state)
   const NavbarComponent = editorState.theme === "light" ? ChromeNavbarLight : ChromeNavbarDark;
 
   return (
-    <div className="w-72 bg-gray-200 p-6  text-sm text-gray-800 h-full shadow-lg rounded-2xl hide-scrollbar ">
+    <div className="w-72 bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar border-l border-gray-200">
       {/* Frames Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
@@ -69,24 +69,24 @@ export default function RightSidebar({
 
       {/* 3D Effects Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effects</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
         <div className="grid grid-cols-2 gap-4">
           {effects3D.map((effect, index) => (
             <button
               key={index}
-              className={`p-3 rounded-lg transition-transform transform ${
-                editorState.effect3D === effect
+              className={`p-3 rounded-lg transition-transform ${
+                editorState.effect3D.name === effect.name
                   ? "bg-blue-600 text-white scale-105"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
               onClick={() =>
                 setEditorState((prev) => ({
                   ...prev,
-                  effect3D: effect, // Update the 3D effect
+                  effect3D: effect,
                 }))
               }
             >
-              {effect}
+              {effect.name}
             </button>
           ))}
         </div>
@@ -100,7 +100,7 @@ export default function RightSidebar({
 
       {/* Layout Section */}
       <section>
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">3d Effect</h3>
         {/* Add layout options here */}
       </section>
     </div>

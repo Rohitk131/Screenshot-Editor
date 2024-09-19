@@ -1,7 +1,7 @@
 import { StaticImageData } from 'next/image';
 
 export interface EditorState {
-  effect3D: string | null;
+  effect3D: Effect3D;
   background: string;
   padding: number;
   inset: number;
@@ -50,3 +50,17 @@ export interface Frame {
   src: StaticImageData;
   label: string;
 }
+
+export interface Effect3D {
+  name: string;
+  transform: string;
+}
+const applyEffect3D = (
+  ctx: CanvasRenderingContext2D | null,
+  effect: string,
+  width: number,
+  height: number
+) => {
+  if (!ctx) return;
+  // ... (rest of the function)
+};

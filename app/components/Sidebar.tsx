@@ -30,7 +30,7 @@ export default function Sidebar({
 
   const plainColors = [
     "#FF5733", "#33FF57", "#3357FF", "#FF33F1", 
-    "#33FFF1", "#F1FF33", "#0B416A", "#B93BC9"
+    "#33FFF1", "#F1FF33", "#0B416A", "#B93BC9" , "#B77676"
   ];
 
   const wallpapers = [
@@ -71,7 +71,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-64 bg-gray-200 p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+    <div className="w-64 bg-white p-4 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar border-r border-gray-200">
       {/* Background Section */}
       <section className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-700">Background</h3>
