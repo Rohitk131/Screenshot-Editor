@@ -42,9 +42,3 @@ export interface Shape {
   color: string;
   strokeWidth: number;
 }
-
-// Define Frame type to match the structure of frame data
-export interface Frame {
-  src: string; // URL of the frame image
-  label: string; // Optional label for the frame, if needed
-}
