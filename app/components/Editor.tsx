@@ -24,11 +24,11 @@ import {
   ZoomIn,
   RotateCw,
   Eye,
-  Share,
+  Share2,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
-import CropTool from './CropTool';
+import CropTool from "./CropTool";
 
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -65,7 +65,6 @@ const Editor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (editorState.image) {
       const img = new window.Image();
@@ -77,9 +76,9 @@ const Editor = () => {
             const containerHeight = containerRef.current.clientHeight;
             const imgAspectRatio = img.width / img.height;
             const containerAspectRatio = containerWidth / containerHeight;
-
+  
             let newWidth, newHeight;
-
+  
             if (imgAspectRatio > containerAspectRatio) {
               newWidth = containerWidth * 0.8;
               newHeight = newWidth / imgAspectRatio;
@@ -87,39 +86,46 @@ const Editor = () => {
               newHeight = containerHeight * 0.8;
               newWidth = newHeight * imgAspectRatio;
             }
-
-            // Add padding to canvas size
+  
             const canvasWidth = newWidth + editorState.padding * 2;
             const canvasHeight = newHeight + editorState.padding * 2;
-
-            // Set canvas size
+  
             setCanvasSize({ width: canvasWidth, height: canvasHeight });
             canvasRef.current.width = canvasWidth;
             canvasRef.current.height = canvasHeight;
-
+  
+            // Clear the canvas before drawing
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             ctx.save();
-
+  
             // Draw background
             ctx.fillStyle = editorState.background;
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-            // Apply rotation
+  
+            // Apply rotation for the entire canvas
             ctx.translate(canvasWidth / 2, canvasHeight / 2);
             ctx.rotate((editorState.rotate * Math.PI) / 180);
             ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
-            // Apply 3D effects
-            if (editorState.effect3D) {
-              applyEffect3D(ctx, editorState.effect3D, newWidth, newHeight);
-            }
-
-            // Calculate inset for image
+  
+            // Reset shadow settings to avoid shadow on background
+            ctx.shadowColor = "transparent";
+  
+            // Calculate inset for the image
             const totalInsetX = (editorState.inset / 100) * newWidth;
             const totalInsetY = (editorState.inset / 100) * newHeight;
             const insetWidth = newWidth - 2 * totalInsetX;
             const insetHeight = newHeight - 2 * totalInsetY;
-
-            // Draw image
+  
+            // Apply shadow specifically for the image
+            ctx.shadowColor = "rgba(0, 0, 0, 0.3)"; // Adjust shadow color
+            ctx.shadowBlur = editorState.shadow; // Shadow blur
+            ctx.shadowOffsetX = 0; // Horizontal shadow offset
+            ctx.shadowOffsetY = 0; // Vertical shadow offset
+  
+            // Apply the 3D effect here (only for the image)
+            applyEffect3D(ctx, editorState.effect3D, insetWidth, insetHeight);
+  
+            // Draw the image with shadow
             ctx.drawImage(
               img,
               totalInsetX + editorState.padding,
@@ -127,7 +133,10 @@ const Editor = () => {
               insetWidth,
               insetHeight
             );
-
+  
+            // Reset shadow so it doesn't affect the next drawings
+            ctx.shadowColor = "transparent";
+  
             // Apply corner radius to the image
             ctx.globalCompositeOperation = "destination-in";
             roundedRect(
@@ -138,21 +147,8 @@ const Editor = () => {
               insetHeight,
               editorState.cornerRadius
             );
-
-            // Apply frame if selected
-            if (editorState.frame) {
-              ctx.globalCompositeOperation = "source-over";
-              const frame = new Image();
-              frame.onload = () => {
-                console.log('Frame image loaded');
-                ctx.drawImage(frame, 0, 0, canvasWidth, canvasHeight);
-              };
-              frame.onerror = () => {
-                console.error('Error loading frame image');
-              };
-              frame.src = editorState.frame.src.src;
-            }
-
+  
+            // Restore context state
             ctx.restore();
           }
         }
@@ -160,6 +156,9 @@ const Editor = () => {
       img.src = editorState.image;
     }
   }, [editorState]);
+  
+  
+  
 
   const handleUpload = () => {
     fileInputRef.current?.click();
@@ -233,91 +232,107 @@ const Editor = () => {
   };
 
   const handleCropClick = () => {
-    setEditorState(prev => ({ ...prev, cropMode: !prev.cropMode }));
+    setEditorState((prev) => ({ ...prev, cropMode: !prev.cropMode }));
   };
 
   const handleCropComplete = (croppedImage: string) => {
-    setEditorState(prev => ({ 
-      ...prev, 
-      image: croppedImage, 
-      cropMode: false 
+    setEditorState((prev) => ({
+      ...prev,
+      image: croppedImage,
+      cropMode: false,
     }));
   };
 
   return (
     <div className="h-screen w-full flex flex-col bg-gradient-to-br from-gray-300 to-gray-700 px-8 py-4">
-      <div className="bg-white border-b border-gray-200 p-2 flex items-center justify-between rounded-2xl">
-        <div className="w-[25%]"></div> {/* This creates the 15% space on the left */}
-        <div className="flex items-center space-x-4 overflow-x-auto flex-grow pr-8"> {/* Added pr-8 for right padding */}
+      <div className="bg-gradient-to-r from-gray-50 via-white to-gray-100 border-b border-gray-300 p-2 flex items-center justify-between rounded-2xl shadow-md">
+        <div className="w-[25%]"></div> {/* Left spacer */}
+        <div className="flex items-center space-x-4 overflow-x-auto flex-grow pr-8">
           <button
             onClick={handleUpload}
-            className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1"
+            className="px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md hover:from-blue-500 hover:to-blue-700 transition duration-300 ease-in-out flex items-center space-x-1 shadow-lg"
           >
             <Upload size={16} />
             <span>Upload</span>
           </button>
-          <div className="flex items-center space-x-3"> {/* Group 1 */}
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+
+          {/* Group 1 */}
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <ImageIcon size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Camera size={20} />
             </button>
           </div>
-          <div className="flex items-center space-x-3"> {/* Group 2 */}
-            <button onClick={handleCropClick} className={`text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out ${editorState.cropMode ? 'bg-gray-200' : ''}`}>
+
+          {/* Group 2 */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleCropClick}
+              className={`text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm ${
+                editorState.cropMode ? "bg-gray-200" : ""
+              }`}
+            >
               <Crop size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <RotateCw size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Sliders size={20} />
             </button>
           </div>
-          <div className="flex items-center space-x-3"> {/* Group 3 */}
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+
+          {/* Group 3 */}
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Layers size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Pen size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Eraser size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Type size={20} />
             </button>
           </div>
-          <div className="flex items-center space-x-3"> {/* Group 4 */}
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+
+          {/* Group 4 */}
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Square size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Circle size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Triangle size={20} />
             </button>
           </div>
-          <div className="flex items-center space-x-3"> {/* Group 5 */}
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+
+          {/* Group 5 */}
+          <div className="flex items-center space-x-3">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Scissors size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Smile size={20} />
             </button>
-            <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-md transition duration-300 ease-in-out">
+            <button className="text-gray-700 hover:bg-blue-100 hover:text-blue-600 p-2 rounded-md transition duration-300 ease-in-out shadow-sm">
               <Grid size={20} />
             </button>
           </div>
         </div>
+        {/* Right-side buttons */}
         <div className="flex items-center space-x-2">
-          <button className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-1">
-            <Share size={16} />
+          <button className="px-4 py-2 bg-gradient-to-r from-purple-400 to-purple-600 text-white rounded-md hover:from-purple-500 hover:to-purple-700 transition duration-300 ease-in-out flex items-center space-x-1 shadow-lg">
+            <Share2 size={16} />
             <span>Share</span>
           </button>
-          <button className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-1">
+          <button className="px-4 py-2 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md hover:from-green-500 hover:to-green-700 transition duration-300 ease-in-out flex items-center space-x-1 shadow-lg">
             <Download size={16} />
             <span>Download</span>
           </button>
@@ -348,14 +363,20 @@ const Editor = () => {
                 className="absolute inset-0"
                 style={{
                   background: editorState.background,
+                  boxShadow: `10 ${editorState.shadow * 0.3}px ${
+                    editorState.shadow * 0.6
+                  }px rgba(0,0,0,${editorState.shadow * 0.008})`,
+
                 }}
               />
               <canvas
                 ref={canvasRef}
                 className="relative z-10 max-w-full max-h-full object-contain transition-all duration-300 ease-in-out"
                 style={{
-                  boxShadow: `0 ${editorState.shadow * 0.3}px ${editorState.shadow * 0.6}px rgba(0,0,0,${editorState.shadow * 0.008})`,
-                  filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
+                  
+                  filter: `${editorState.filter}(${
+                    editorState[editorState.filter as keyof EditorState] || ""
+                  })`,
                   borderRadius: `${editorState.cornerRadius}px`,
                 }}
               />
@@ -396,7 +417,10 @@ const Editor = () => {
 
         {/* Right Sidebar */}
         <div className="w-64 flex-shrink-0 hide-scrollbar rounded-2xl justify-center flex overflow-y-auto overflow-y-auto ">
-          <RightSidebar editorState={editorState} setEditorState={setEditorState} />
+          <RightSidebar
+            editorState={editorState}
+            setEditorState={setEditorState}
+          />
         </div>
       </div>
 
