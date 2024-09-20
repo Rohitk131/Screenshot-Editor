@@ -72,29 +72,31 @@ export default function RightSidebar({
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
         <div className="grid grid-cols-3 gap-4">
-          {frames.map((frame, index) => (
-            <div key={index} className="relative group">
-              <button
-                className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
-                  editorState.frame?.label === frame.label
-                    ? "scale-105 ring-2 ring-blue-500"
-                    : ""
-                }`}
-                onClick={() =>
-                  setEditorState((prev) => ({
-                    ...prev,
-                    frame: frame,
-                  }))
-                }
-              >
-                <frame.component />
-              </button>
-              <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
-                {frame.label}
-              </span>
-            </div>
-          ))}
+  {frames.map((frame, index) => (
+    <div key={index} className="relative group">
+      <button
+        className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
+          editorState.frame?.label === frame.label
+            ? "scale-105 ring-2 ring-blue-500"
+            : ""
+        }`}
+        onClick={() =>
+          setEditorState((prev) => ({
+            ...prev,
+            frame: frame,
+          }))
+        }
+      >
+        <div className="w-full h-full bg-gray-200">
+          <frame.component />
         </div>
+      </button>
+      <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
+        {frame.label}
+      </span>
+    </div>
+  ))}
+</div>
       </section>
 
       {/* Layout Section */}

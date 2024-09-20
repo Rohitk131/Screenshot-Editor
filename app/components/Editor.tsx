@@ -166,6 +166,52 @@ const Editor = () => {
           insetWidth,
           insetHeight
         );
+  
+        // Draw the frame if selected
+        if (editorState.frame) {
+          const FrameComponent = editorState.frame.component;
+          const frameElement = document.createElement('div');
+          frameElement.style.width = `${canvasWidth}px`;
+          frameElement.style.height = `${canvasHeight}px`;
+          const root = ReactDOM.createRoot(frameElement);
+          root.render(<FrameComponent />);
+  
+          // Use a setTimeout to ensure the component has been rendered
+          setTimeout(() => {
+            html2canvas(frameElement).then(frameCanvas => {
+              ctx.drawImage(
+                frameCanvas,
+                0,
+                0,
+                canvasWidth,
+                canvasHeight
+              );
+            });
+          }, 0);
+        }
+
+        // Draw border if borderWidth > 0
+        if (editorState.borderWidth > 0) {
+          ctx.strokeStyle = editorState.borderColor;
+          ctx.lineWidth = editorState.borderWidth;
+
+          switch (editorState.borderStyle) {
+            case 'curved':
+              drawCurvedBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.cornerRadius);
+              break;
+            case 'sharp':
+              ctx.strokeRect(
+                totalInsetX + editorState.padding,
+                totalInsetY + editorState.padding,
+                insetWidth,
+                insetHeight
+              );
+              break;
+            case 'round':
+              drawRoundBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.borderWidth / 2);
+              break;
+          }
+        }
 
         // Reset shadow
         ctx.shadowColor = 'transparent';
