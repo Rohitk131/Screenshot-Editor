@@ -22,14 +22,11 @@ export default function Sidebar({
     "linear-gradient(to right, #ff0081, #ff8c00)",
     "linear-gradient(to right, #8e2de2, #4a00e0)",
     "linear-gradient(to right, #fcb045, #fd1d1d, #d53369)",
-    "linear-gradient(to right, #232526, #414345)",
-    "linear-gradient(to right, #3fada8, #f6d365)",
-    "linear-gradient(to right, #d38377, #d0a5c4)",
   ];
 
   const plainColors = [
     "#FF5733", "#33FF57", "#3357FF", "#FF33F1", 
-    "#33FFF1", "#F1FF33", "#0B416A"
+    "#33FFF1"
   ];
 
   const wallpapers = [
@@ -86,23 +83,31 @@ export default function Sidebar({
     setShowBorderColorPicker(false);
   };
 
-  const handleBorderStyleChange = (style: 'curved' | 'sharp' | 'round') => {
-    setEditorState(prev => ({ ...prev, borderStyle: style }));
-  };
-
   return (
-    <div className="w-full bg-white px-6 py-2 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+    <div className="w-full bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
       {/* Background Section */}
-      <section className="">
-        <h3 className="text-xl font-bold  text-gray-800">Background</h3>
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Background</h3>
         
         {/* Gradient backgrounds */}
-        <h4 className="text-base font-medium mb-1 text-gray-700">Gradients</h4>
-        <div className="grid grid-cols-6 gap-3 mb-2">
-          {gradients.map((gradient, index) => (
+        <h4 className="text-base font-medium mb-3 text-gray-700">Gradients</h4>
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          {gradients.slice(0, 3).map((gradient, index) => (
             <button
               key={index}
-              className="w-8 h-8 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              style={{ background: gradient }}
+              onClick={() =>
+                setEditorState((prev) => ({ ...prev, background: gradient }))
+              }
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {gradients.slice(3, 5).map((gradient, index) => (
+            <button
+              key={index + 3}
+              className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -110,20 +115,32 @@ export default function Sidebar({
             />
           ))}
           <button
-            className="w-full h-10 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
             onClick={() => setShowGradientModal(true)}
           >
-            <Plus size={16} className="text-gray-400" />
+            <Plus size={24} className="text-gray-400" />
           </button>
         </div>
         
         {/* Plain color backgrounds */}
-        <h4 className="text-base font-medium mb-1 text-gray-700">Plain Colors</h4>
-        <div className="grid grid-cols-6 gap-3 mb-2">
-          {plainColors.map((color, index) => (
+        <h4 className="text-base font-medium mb-3 text-gray-700">Plain Colors</h4>
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          {plainColors.slice(0, 3).map((color, index) => (
             <button
               key={index}
-              className="w-8 h-8 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              style={{ background: color }}
+              onClick={() =>
+                setEditorState((prev) => ({ ...prev, background: color }))
+              }
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {plainColors.slice(3, 5).map((color, index) => (
+            <button
+              key={index + 3}
+              className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: color }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: color }))
@@ -131,22 +148,22 @@ export default function Sidebar({
             />
           ))}
           <button
-            className="w-full h-10 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            className="w-full h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
             onClick={() => setShowColorPicker(true)}
           >
-            <Plus size={16} className="text-gray-400" />
+            <Plus size={24} className="text-gray-400" />
           </button>
         </div>
       </section>
 
       {/* Wallpaper Section */}
-      <section className="mb-2">
-        <h3 className="text-xl font-bold mb-0 text-gray-800">Wallpaper</h3>
-        <div className="grid grid-cols-4 gap-4">
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Wallpaper</h3>
+        <div className="grid grid-cols-3 gap-4">
           {wallpapers.map((wallpaper, index) => (
             <button
               key={index}
-              className="w-18 h-12 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-full h-16 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{
                 backgroundImage: `url(${wallpaper})`,
                 backgroundSize: "cover",
@@ -164,11 +181,11 @@ export default function Sidebar({
       </section>
 
       {/* Adjustments Section */}
-      <section className="mb-0">
-        <h3 className="text-xl font-bold mb-0 text-gray-800">Adjustments</h3>
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
         {["padding", "inset", "shadow", "cornerRadius", "rotate"].map(
           (adjustment) => (
-            <label key={adjustment} className="block mb-0">
+            <label key={adjustment} className="block mb-4">
               <span className="block text-gray-600 capitalize mb-1">
                 {adjustment}
               </span>
@@ -253,29 +270,6 @@ export default function Sidebar({
               onClick={() => setShowBorderColorPicker(true)}
             ></div>
             <span>{editorState.borderColor || '#000000'}</span>
-          </div>
-        </div>
-        <div className="mb-4">
-          <span className="block text-gray-600 mb-1">Border Style</span>
-          <div className="flex space-x-2">
-            <button
-              className={`px-3 py-1 rounded ${editorState.borderStyle === 'curved' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => handleBorderStyleChange('curved')}
-            >
-              Curved
-            </button>
-            <button
-              className={`px-3 py-1 rounded ${editorState.borderStyle === 'sharp' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => handleBorderStyleChange('sharp')}
-            >
-              Sharp
-            </button>
-            <button
-              className={`px-3 py-1 rounded ${editorState.borderStyle === 'round' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => handleBorderStyleChange('round')}
-            >
-              Round
-            </button>
           </div>
         </div>
       </section>
