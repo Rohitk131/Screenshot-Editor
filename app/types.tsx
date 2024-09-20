@@ -1,5 +1,8 @@
 import { StaticImageData } from 'next/image';
-
+export interface Frame {
+  label: string;
+  component: React.FC;
+}
 export interface EditorState {
   background: string;
   padding: number;

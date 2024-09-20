@@ -1,5 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from "react";
+import ReactDOM from 'react-dom/client';
+
 import html2canvas from 'html2canvas';
 import { EditorState } from "../types";
 import {
@@ -34,7 +36,7 @@ import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
 import ResizableImage from "./ImageSizer";
 import ImageSizer from "./ImageSizer";
-
+import { Frame } from "../types";
 
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -63,7 +65,7 @@ const Editor = () => {
     currentTool: "pen",
     penColor: "#000000",
     penSize: 5,
-    frame: "",
+    frame: null,
     layout: { name: "None", transform: "" },
     cropMode: false,
     borderWidth: 0,
@@ -188,6 +190,27 @@ const Editor = () => {
           insetWidth,
           insetHeight
         );
+        if (editorState.frame) {
+          const FrameComponent = editorState.frame.component;
+          const frameElement = document.createElement('div');
+          frameElement.style.width = `${canvasWidth}px`;
+          frameElement.style.height = `${canvasHeight}px`;
+          const root = ReactDOM.createRoot(frameElement);
+          root.render(<FrameComponent />);
+  
+          // Use a setTimeout to ensure the component has been rendered
+          setTimeout(() => {
+            html2canvas(frameElement).then(frameCanvas => {
+              ctx.drawImage(
+                frameCanvas,
+                0,
+                0,
+                canvasWidth,
+                canvasHeight
+              );
+            });
+          }, 0);
+        }
 
         // Draw border if borderWidth > 0
         if (editorState.borderWidth > 0) {
