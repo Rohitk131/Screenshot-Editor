@@ -7,6 +7,7 @@ import {
   MacOSNavbarLight,
   MacOSNavbarDark,
 } from "./Navbars";
+import { EditorState, Filter, Frame, Layout } from "../types";
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -19,7 +20,7 @@ export default function RightSidebar({
 }: RightSidebarProps) {
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
   const [showFrameDropdown, setShowFrameDropdown] = useState(false);
-
+  
   const frames: Frame[] = [
     { label: "Safari Light", component: SafariNavbarLight },
     { label: "Safari Dark", component: SafariNavbarDark },

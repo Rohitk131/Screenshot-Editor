@@ -33,6 +33,9 @@ export interface EditorState {
   imageSize: { width: number; height: number };
   isSizingImage: boolean;
   tempImageSize: { width: number; height: number };
+  imageShadow: string;
+  shadowIntensity: { [key: number]: number };
+  saturation: number;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
@@ -58,8 +61,9 @@ export interface Shape {
 }
 
 export interface Frame {
-  src: StaticImageData;
+  src?: StaticImageData; 
   label: string;
+  component: React.FC;
 }
 
 export interface Layout {

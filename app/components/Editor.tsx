@@ -74,6 +74,7 @@ const Editor = () => {
     isSizingImage: false,
     imageSize: { width: 0, height: 0 },
     tempImageSize: { width: 0, height: 0 },
+    imageShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,6 +137,7 @@ const Editor = () => {
         canvasRef.current.width = canvasWidth;
         canvasRef.current.height = canvasHeight;
 
+        // Clear the entire canvas
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         // Save the context state
@@ -150,37 +152,11 @@ const Editor = () => {
         // Move back
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
-        // Draw shadow
-        ctx.save();
-        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
-        ctx.shadowBlur = editorState.shadow * 0.5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = editorState.shadow * 0.2;
-
-        // Draw a rectangle for the shadow
-        ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // Transparent fill
-        roundedRect(
-          ctx,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
-          insetWidth,
-          insetHeight,
-          editorState.cornerRadius
-        );
-        ctx.fill();
-        ctx.restore();
-
-        // Create a clipping region for the image
-        ctx.beginPath();
-        roundedRect(
-          ctx,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
-          insetWidth,
-          insetHeight,
-          editorState.cornerRadius
-        );
-        ctx.clip();
+        // Apply shadow
+        ctx.shadowColor = editorState.imageShadow.split(')')[0] + ')';
+        ctx.shadowBlur = parseInt(editorState.imageShadow.split('px')[1]);
+        ctx.shadowOffsetX = parseInt(editorState.imageShadow.split('px')[0].split(' ').pop() || '0');
+        ctx.shadowOffsetY = parseInt(editorState.imageShadow.split('px')[1].split(' ').pop() || '0');
 
         // Draw the image
         ctx.drawImage(
@@ -190,53 +166,18 @@ const Editor = () => {
           insetWidth,
           insetHeight
         );
-        if (editorState.frame) {
-          const FrameComponent = editorState.frame.component;
-          const frameElement = document.createElement('div');
-          frameElement.style.width = `${canvasWidth}px`;
-          frameElement.style.height = `${canvasHeight}px`;
-          const root = ReactDOM.createRoot(frameElement);
-          root.render(<FrameComponent />);
-  
-          // Use a setTimeout to ensure the component has been rendered
-          setTimeout(() => {
-            html2canvas(frameElement).then(frameCanvas => {
-              ctx.drawImage(
-                frameCanvas,
-                0,
-                0,
-                canvasWidth,
-                canvasHeight
-              );
-            });
-          }, 0);
-        }
 
-        // Draw border if borderWidth > 0
-        if (editorState.borderWidth > 0) {
-          ctx.strokeStyle = editorState.borderColor;
-          ctx.lineWidth = editorState.borderWidth;
-
-          switch (editorState.borderStyle) {
-            case 'curved':
-              drawCurvedBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.cornerRadius);
-              break;
-            case 'sharp':
-              ctx.strokeRect(
-                totalInsetX + editorState.padding,
-                totalInsetY + editorState.padding,
-                insetWidth,
-                insetHeight
-              );
-              break;
-            case 'round':
-              drawRoundBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.borderWidth / 2);
-              break;
-          }
-        }
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
 
         // Restore the context state
         ctx.restore();
+
+        // Apply any other effects or drawings here
+        // ...
       }
     }
   }, [image, editorState, canvasRef, containerRef]);
@@ -529,7 +470,7 @@ const Editor = () => {
         </div>
 
         {/* Main content area */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-r border-gray-200">
             <Sidebar

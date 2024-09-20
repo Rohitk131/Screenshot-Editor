@@ -38,6 +38,16 @@ export default function Sidebar({
     "https://plus.unsplash.com/premium_photo-1663937576065-706a8d985379?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   ];
 
+  const shadowTypes = [
+    "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
+    "rgb(38, 57, 77) 0px 20px 30px -10px",
+    "rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
+    "rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px",
+    "rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset",
+    "rgba(0, 0, 0, 0.2) 0px 60px 40px -7px",
+    "rgba(0, 0, 0, 0.56) 0px 22px 70px 4px"
+  ];
+
   const handlePaddingChange = (value: number) => {
     setEditorState((prev) => ({
       ...prev,
@@ -75,6 +85,36 @@ export default function Sidebar({
 
   const handleBorderStyleChange = (style: 'curved' | 'sharp' | 'round') => {
     setEditorState(prev => ({ ...prev, borderStyle: style }));
+  };
+
+  const handleShadowChange = (value: number) => {
+    const currentShadow = editorState.imageShadow;
+    const shadowParts = currentShadow.split('),').map(part => part.trim());
+    const newShadowParts = shadowParts.map(part => {
+      const [rgba, rest] = part.split(') ');
+      if (rgba && rest) {
+        const values = rest.split(' ').map(v => parseFloat(v));
+        const adjustedValues = values.map(v => (v * value / 50).toFixed(2) + 'px');
+        return `${rgba}) ${adjustedValues.join(' ')}`;
+      }
+      return part;
+    });
+    const newShadow = newShadowParts.join(', ');
+    setEditorState((prev) => ({
+      ...prev,
+      imageShadow: newShadow,
+    }));
+  };
+
+  const getShadowIntensity = (shadowString: string): number => {
+    const parts = shadowString.split('),');
+    const firstPart = parts[0];
+    const match = firstPart.match(/(-?\d+(\.\d+)?px)/);
+    if (match) {
+      const pixelValue = parseFloat(match[1]);
+      return Math.round((pixelValue / 20) * 50); // Normalize to 0-100 range
+    }
+    return 50; // Default to 50% if no matches found
   };
 
   return (
@@ -177,7 +217,7 @@ export default function Sidebar({
       {/* Adjustments Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
-        {["padding", "inset", "shadow", "rotate"].map(
+        {["padding", "inset", "rotate"].map(
           (adjustment) => (
             <label key={adjustment} className="block mb-4">
               <span className="block text-gray-600 capitalize mb-1">
@@ -256,6 +296,34 @@ export default function Sidebar({
             Round
           </button>
         </div>
+      </section>
+
+      {/* Image Shadow Section */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Image Shadow</h3>
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {shadowTypes.map((shadow, index) => (
+            <button
+              key={index}
+              className={`w-full h-16 rounded-lg border-2 transition-all duration-300 ${
+                editorState.imageShadow === shadow ? 'border-blue-500' : 'border-gray-200'
+              }`}
+              style={{ boxShadow: shadow }}
+              onClick={() => setEditorState(prev => ({ ...prev, imageShadow: shadow }))}
+            />
+          ))}
+        </div>
+        <label className="block mb-4">
+          <span className="block text-gray-600 mb-1">Shadow Intensity</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={getShadowIntensity(editorState.imageShadow)}
+            onChange={(e) => handleShadowChange(Number(e.target.value))}
+            className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+          />
+        </label>
       </section>
 
       {showGradientModal && (
