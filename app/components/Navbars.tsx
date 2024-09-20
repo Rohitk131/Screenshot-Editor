@@ -13,13 +13,15 @@ export const MacOSNavbarLight: React.FC = () => (
 
 // 2. macOS Dark Theme
 export const MacOSNavbarDark: React.FC = () => (
-  <div className="flex items-center gap-2 p-2 bg-gray-800 rounded-t-lg">
-    <CircleIcon className="w-3 h-3 text-red-600 fill-current" />
-    <CircleIcon className="w-3 h-3 text-yellow-600 fill-current" />
-    <CircleIcon className="w-3 h-3 text-green-600 fill-current" />
+  <div className="w-full h-full flex flex-col">
+    <div className="flex items-center gap-2 p-2 bg-gray-800 rounded-t-lg">
+      <CircleIcon className="w-3 h-3 text-red-600 fill-current" />
+      <CircleIcon className="w-3 h-3 text-yellow-600 fill-current" />
+      <CircleIcon className="w-3 h-3 text-green-600 fill-current" />
+    </div>
+    <div className="flex-grow bg-transparent"></div>
   </div>
 )
-
 // 3. Safari Light Theme
 export const SafariNavbarLight: React.FC = () => (
   <div className="flex items-center justify-between p-2 bg-gray-100 rounded-t-lg">

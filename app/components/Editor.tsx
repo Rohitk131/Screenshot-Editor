@@ -190,6 +190,8 @@ const Editor = () => {
           insetWidth,
           insetHeight
         );
+  
+        // Draw the frame if selected
         if (editorState.frame) {
           const FrameComponent = editorState.frame.component;
           const frameElement = document.createElement('div');
