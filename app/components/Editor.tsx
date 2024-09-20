@@ -369,7 +369,6 @@ const Editor = () => {
     setEditorState(prev => ({
       ...prev,
       tempImageSize: size,
-      imageSize: size, // Update imageSize as well
     }));
   };
 
@@ -382,37 +381,11 @@ const Editor = () => {
   };
 
   const saveImageSize = () => {
-    if (editorState.image) {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        if (ctx) {
-          // Use the actual dimensions of the resized image
-          const actualWidth = img.width;
-          const actualHeight = img.height;
-          
-          canvas.width = actualWidth;
-          canvas.height = actualHeight;
-          
-          ctx.drawImage(img, 0, 0, actualWidth, actualHeight);
-          const resizedImage = canvas.toDataURL('image/png');
-          
-          console.log('Original size:', editorState.imageSize);
-          console.log('Temp size:', editorState.tempImageSize);
-          console.log('Actual size:', { width: actualWidth, height: actualHeight });
-          
-          setEditorState(prev => ({
-            ...prev,
-            isSizingImage: false,
-            imageSize: { width: actualWidth, height: actualHeight },
-            image: resizedImage,
-          }));
-        }
-      };
-      img.src = editorState.image;
-    }
+    setEditorState(prev => ({
+      ...prev,
+      isSizingImage: false,
+      imageSize: prev.tempImageSize,
+    }));
   };
 
   return (
@@ -604,7 +577,7 @@ const Editor = () => {
             )}
             {/* Bottom right corner icons */}
             {editorState.image && (
-              <div className="absolute bottom-0 left-0 right-0 flex justify-center ">
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center">
                 <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
                   <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
                     <Undo size={22} className="text-gray-700" />
