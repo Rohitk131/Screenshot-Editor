@@ -142,19 +142,34 @@ const Editor = () => {
         ctx.clip();
 
         // Apply shadow
-        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
-        ctx.shadowBlur = editorState.shadow * 0.5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = editorState.shadow * 0.2;
+      ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow / 100})`;
+      ctx.shadowBlur = editorState.shadow / 2;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = editorState.shadow / 5;
 
-        // Draw the image
-        ctx.drawImage(
-          image,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
-          insetWidth,
-          insetHeight
-        );
+      // Draw a white rectangle behind the image to create the shadow effect
+      ctx.fillStyle = "white";
+      ctx.fillRect(
+        totalInsetX + editorState.padding,
+        totalInsetY + editorState.padding,
+        insetWidth,
+        insetHeight
+      );
+
+      // Reset shadow for the actual image drawing
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Draw the image
+      ctx.drawImage(
+        image,
+        totalInsetX + editorState.padding,
+        totalInsetY + editorState.padding,
+        insetWidth,
+        insetHeight
+      );
 
         // Restore the context state (removes clipping, shadow, and rotation)
         ctx.restore();
@@ -339,13 +354,14 @@ const Editor = () => {
                 width: `${canvasSize.width}px`,
                 height: `${canvasSize.height}px`,
                 background: editorState.background,
-                borderRadius: `${editorState.cornerRadius}px`,
+              
               }}
-            >
+              >
               <canvas
                 ref={canvasRef}
                 className="absolute top-0 left-0 z-10"
                 style={{
+                  borderRadius: `${editorState.cornerRadius}px`,
                   filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
                   transform: get3DTransform(),
                   transition: "transform 0.3s ease-in-out",

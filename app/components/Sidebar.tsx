@@ -8,7 +8,6 @@ interface SidebarProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
 }
-
 export default function Sidebar({
   editorState,
   setEditorState,
@@ -58,7 +57,12 @@ export default function Sidebar({
       image: prev.image,
     }));
   };
-
+  const handleAdjustmentChange = (adjustment: string, value: number) => {
+    setEditorState((prev) => ({
+      ...prev,
+      [adjustment]: value,
+    }));
+  };
   const handleCustomGradient = (gradient: string) => {
     setEditorState((prev) => ({ ...prev, background: gradient }));
     setShowGradientModal(false);
@@ -77,11 +81,11 @@ export default function Sidebar({
         
         {/* Gradient backgrounds */}
         <h4 className="text-base font-medium mb-3 text-gray-700">Gradients</h4>
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-4 ">
           {gradients.map((gradient, index) => (
             <button
               key={index}
-              className="w-full h-24 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-14 h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -98,11 +102,11 @@ export default function Sidebar({
         
         {/* Plain color backgrounds */}
         <h4 className="text-base font-medium mb-3 text-gray-700">Plain Colors</h4>
-        <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-4 gap-3 mb-4">
           {plainColors.map((color, index) => (
             <button
               key={index}
-              className="w-full h-16 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-14 h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: color }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: color }))
@@ -121,11 +125,11 @@ export default function Sidebar({
       {/* Wallpaper Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Wallpaper</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {wallpapers.map((wallpaper, index) => (
             <button
               key={index}
-              className="w-full h-32 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-full h-16 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{
                 backgroundImage: `url(${wallpaper})`,
                 backgroundSize: "cover",
@@ -157,15 +161,13 @@ export default function Sidebar({
                 max={adjustment === "rotate" ? "360" : "100"}
                 value={editorState[adjustment as keyof EditorState] as number}
                 onChange={(e) =>
-                  adjustment === "padding"
-                    ? handlePaddingChange(Number(e.target.value))
-                    : setEditorState((prev) => ({
-                        ...prev,
-                        [adjustment]: Number(e.target.value),
-                      }))
+                  handleAdjustmentChange(adjustment, Number(e.target.value))
                 }
                 className="w-full bg-gray-200 rounded-lg appearance-none h-2"
               />
+              <span className="block text-right text-gray-500 text-xs mt-1">
+                {editorState[adjustment as keyof EditorState]}
+              </span>
             </label>
           )
         )}
