@@ -492,7 +492,7 @@ const Editor = () => {
             )}
             {/* Bottom right corner icons */}
             {editorState.image && (
-              <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+              <div className="absolute bottom-0 left-0 right-0 flex justify-center ">
                 <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
                   <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
                     <Undo size={22} className="text-gray-700" />
