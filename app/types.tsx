@@ -26,6 +26,10 @@ export interface EditorState {
   borderWidth: number;
   borderColor: string;
   borderStyle: 'curved' | 'sharp' | 'round';
+  imagePosition: { x: number; y: number };
+  imageSize: { width: number; height: number };
+  isSizingImage: boolean;
+  tempImageSize: { width: number; height: number };
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

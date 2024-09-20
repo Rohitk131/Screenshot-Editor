@@ -27,10 +27,13 @@ import {
   Eye,
   Share2,
   Share,
+  Save,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
+import ResizableImage from "./ImageSizer";
+import ImageSizer from "./ImageSizer";
 
 
 const Editor = () => {
@@ -66,6 +69,9 @@ const Editor = () => {
     borderWidth: 0,
     borderColor: '#000000',
     borderStyle: 'curved',
+    isSizingImage: false,
+    imageSize: { width: 0, height: 0 },
+    tempImageSize: { width: 0, height: 0 },
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,6 +89,15 @@ const Editor = () => {
       img.src = editorState.image;
     }
   }, [editorState.image]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setCanvasSize({
+        width: containerRef.current.clientWidth,
+        height: containerRef.current.clientHeight,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (image && canvasRef.current && containerRef.current) {
@@ -234,11 +249,31 @@ const Editor = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setEditorState((prev) => ({
-          ...prev,
-          image: e.target?.result as string,
-        }));
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const aspectRatio = img.width / img.height;
+          const maxWidth = canvasSize.width * 0.8;
+          const maxHeight = canvasSize.height * 0.8;
+          
+          let newWidth, newHeight;
+          if (aspectRatio > maxWidth / maxHeight) {
+            newWidth = maxWidth;
+            newHeight = newWidth / aspectRatio;
+          } else {
+            newHeight = maxHeight;
+            newWidth = newHeight * aspectRatio;
+          }
+
+          const newSize = { width: newWidth, height: newHeight };
+          setEditorState(prev => ({
+            ...prev,
+            image: event.target?.result as string,
+            imageSize: newSize,
+            tempImageSize: newSize,
+          }));
+        };
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -330,6 +365,56 @@ const Editor = () => {
     // Apply the filterString to your canvas or image element
   };
 
+  const handleImageSizeUpdate = (size: { width: number; height: number }) => {
+    setEditorState(prev => ({
+      ...prev,
+      tempImageSize: size,
+      imageSize: size, // Update imageSize as well
+    }));
+  };
+
+  const toggleImageSizing = () => {
+    setEditorState(prev => ({
+      ...prev,
+      isSizingImage: !prev.isSizingImage,
+      tempImageSize: prev.imageSize,
+    }));
+  };
+
+  const saveImageSize = () => {
+    if (editorState.image) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (ctx) {
+          // Use the actual dimensions of the resized image
+          const actualWidth = img.width;
+          const actualHeight = img.height;
+          
+          canvas.width = actualWidth;
+          canvas.height = actualHeight;
+          
+          ctx.drawImage(img, 0, 0, actualWidth, actualHeight);
+          const resizedImage = canvas.toDataURL('image/png');
+          
+          console.log('Original size:', editorState.imageSize);
+          console.log('Temp size:', editorState.tempImageSize);
+          console.log('Actual size:', { width: actualWidth, height: actualHeight });
+          
+          setEditorState(prev => ({
+            ...prev,
+            isSizingImage: false,
+            imageSize: { width: actualWidth, height: actualHeight },
+            image: resizedImage,
+          }));
+        }
+      };
+      img.src = editorState.image;
+    }
+  };
+
   return (
     <div className="h-screen w-full flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full h-full max-w-[calc(100%-50px)] max-h-[calc(100%-50px)] flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
@@ -338,7 +423,7 @@ const Editor = () => {
           <div className="w-[25%]"></div>
           <div className="flex items-center space-x-4 overflow-x-auto flex-grow">
             <button
-              onClick={handleUpload}
+              onClick={() => fileInputRef.current?.click()}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
             >
               <Upload size={18} />
@@ -412,6 +497,25 @@ const Editor = () => {
                 <Grid size={22} />
               </button>
             </div>
+            {editorState.image && (
+              <button
+                onClick={toggleImageSizing}
+                className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
+                  editorState.isSizingImage ? "bg-gray-200" : ""
+                }`}
+              >
+                <Move size={22} />
+              </button>
+            )}
+            {editorState.isSizingImage && (
+              <button
+                onClick={saveImageSize}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
+              >
+                <Save size={18} />
+                <span>Save Size</span>
+              </button>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm">
@@ -456,6 +560,14 @@ const Editor = () => {
                   <CropTool
                     image={editorState.image}
                     onCropComplete={handleCropComplete}
+                  />
+                ) : editorState.isSizingImage ? (
+                  <ImageSizer
+                    src={editorState.image}
+                    onUpdate={handleImageSizeUpdate}
+                    initialSize={editorState.imageSize}
+                    containerSize={canvasSize}
+                    onFinishResize={toggleImageSizing}
                   />
                 ) : (
                   <canvas
@@ -531,3 +643,4 @@ const Editor = () => {
 };
 
 export default Editor;
+

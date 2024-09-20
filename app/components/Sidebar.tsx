@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { EditorState, Filter } from "../types";
 import ColorPicker from "./ColorPicker";
 import CustomGradientModal from "./CustomGradientModal";
-import { Plus } from "lucide-react";
+import { Move, Plus } from "lucide-react";
 
 interface SidebarProps {
   editorState: EditorState;
