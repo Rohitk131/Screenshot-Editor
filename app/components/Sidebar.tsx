@@ -91,18 +91,18 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-full bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+    <div className="w-full bg-white px-6 py-2 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
       {/* Background Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Background</h3>
+      <section className="">
+        <h3 className="text-xl font-bold  text-gray-800">Background</h3>
         
         {/* Gradient backgrounds */}
-        <h4 className="text-base font-medium mb-3 text-gray-700">Gradients</h4>
-        <div className="grid grid-cols-4 gap-3 mb-4 ">
+        <h4 className="text-base font-medium mb-1 text-gray-700">Gradients</h4>
+        <div className="grid grid-cols-6 gap-3 mb-2">
           {gradients.map((gradient, index) => (
             <button
               key={index}
-              className="w-14 h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-8 h-8 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: gradient }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: gradient }))
@@ -110,20 +110,20 @@ export default function Sidebar({
             />
           ))}
           <button
-            className="w-full h-24 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            className="w-full h-10 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
             onClick={() => setShowGradientModal(true)}
           >
-            <Plus size={32} className="text-gray-400" />
+            <Plus size={16} className="text-gray-400" />
           </button>
         </div>
         
         {/* Plain color backgrounds */}
-        <h4 className="text-base font-medium mb-3 text-gray-700">Plain Colors</h4>
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <h4 className="text-base font-medium mb-1 text-gray-700">Plain Colors</h4>
+        <div className="grid grid-cols-6 gap-3 mb-2">
           {plainColors.map((color, index) => (
             <button
               key={index}
-              className="w-14 h-14 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-8 h-8 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{ background: color }}
               onClick={() =>
                 setEditorState((prev) => ({ ...prev, background: color }))
@@ -131,22 +131,22 @@ export default function Sidebar({
             />
           ))}
           <button
-            className="w-full h-16 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
+            className="w-full h-10 rounded-lg hover:ring-2 ring-blue-500 transition-all duration-300 flex items-center justify-center bg-white"
             onClick={() => setShowColorPicker(true)}
           >
-            <Plus size={24} className="text-gray-400" />
+            <Plus size={16} className="text-gray-400" />
           </button>
         </div>
       </section>
 
       {/* Wallpaper Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Wallpaper</h3>
-        <div className="grid grid-cols-3 gap-4">
+      <section className="mb-2">
+        <h3 className="text-xl font-bold mb-0 text-gray-800">Wallpaper</h3>
+        <div className="grid grid-cols-4 gap-4">
           {wallpapers.map((wallpaper, index) => (
             <button
               key={index}
-              className="w-full h-16 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
+              className="w-18 h-12 rounded-lg overflow-hidden hover:ring-2 ring-blue-500 transition-all duration-300"
               style={{
                 backgroundImage: `url(${wallpaper})`,
                 backgroundSize: "cover",
@@ -164,11 +164,11 @@ export default function Sidebar({
       </section>
 
       {/* Adjustments Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
+      <section className="mb-0">
+        <h3 className="text-xl font-bold mb-0 text-gray-800">Adjustments</h3>
         {["padding", "inset", "shadow", "cornerRadius", "rotate"].map(
           (adjustment) => (
-            <label key={adjustment} className="block mb-4">
+            <label key={adjustment} className="block mb-0">
               <span className="block text-gray-600 capitalize mb-1">
                 {adjustment}
               </span>

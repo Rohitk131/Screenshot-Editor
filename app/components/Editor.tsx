@@ -1,5 +1,6 @@
-"use client";
+'use client'
 import React, { useState, useRef, useEffect } from "react";
+import html2canvas from 'html2canvas';
 import { EditorState } from "../types";
 import {
   Upload,
@@ -30,6 +31,7 @@ import {
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
+
 
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
@@ -149,7 +151,19 @@ const Editor = () => {
         ctx.shadowBlur = editorState.shadow * 0.5;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = editorState.shadow * 0.2;
+        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
+        ctx.shadowBlur = editorState.shadow * 0.5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = editorState.shadow * 0.2;
 
+        // Draw the image
+        ctx.drawImage(
+          image,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight
+        );
         // Draw the image
         ctx.drawImage(
           image,
@@ -187,6 +201,29 @@ const Editor = () => {
       }
     }
   }, [image, editorState, canvasRef, containerRef]);
+
+  const handleDownload = async () => {
+    if (containerRef.current) {
+      try {
+        // Use html2canvas to capture the entire rendered view
+        const canvas = await html2canvas(containerRef.current, {
+          useCORS: true,
+          scale: 2, // Increase quality
+          backgroundColor: null // Preserve transparency
+        });
+        
+        // Convert to data URL and trigger download
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'edited-image.png';
+        link.href = dataUrl;
+        link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
+        // Handle error (e.g., show an error message to the user)
+      }
+    }
+  };
 
   const handleUpload = () => {
     fileInputRef.current?.click();
@@ -292,7 +329,7 @@ const Editor = () => {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full h-full max-w-[calc(100%-50px)] max-h-[calc(100%-50px)] flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-      {/* Topbar */}
+        {/* Topbar */}
         <div className="bg-white border-b border-gray-200 p-3 flex items-center justify-between">
           <div className="w-[25%]"></div>
           <div className="flex items-center space-x-4 overflow-x-auto flex-grow">
@@ -312,11 +349,21 @@ const Editor = () => {
               </button>
             </div>
             <div className="flex items-center space-x-2">
-              <button onClick={handleCropClick} className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${editorState.cropMode ? 'bg-gray-200' : ''}`}>
+              <button
+                onClick={handleCropClick}
+                className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
+                  editorState.cropMode ? "bg-gray-200" : ""
+                }`}
+              >
                 <Crop size={22} />
               </button>
               <button
-                onClick={() => setEditorState(prev => ({ ...prev, rotate: (prev.rotate + 90) % 360 }))}
+                onClick={() =>
+                  setEditorState((prev) => ({
+                    ...prev,
+                    rotate: (prev.rotate + 90) % 360,
+                  }))
+                }
                 className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out"
               >
                 <RotateCw size={22} />
@@ -367,7 +414,10 @@ const Editor = () => {
               <Share size={18} />
               <span>Share</span>
             </button>
-            <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm">
+            <button
+              onClick={handleDownload}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
+            >
               <Download size={18} />
               <span>Download</span>
             </button>
@@ -378,74 +428,81 @@ const Editor = () => {
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-r border-gray-200">
-            <Sidebar editorState={editorState} setEditorState={setEditorState} />
+            <Sidebar
+              editorState={editorState}
+              setEditorState={setEditorState}
+            />
           </div>
 
           {/* Editor canvas area */}
           <div
-          className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center relative"
-          ref={containerRef}
-        >
-          {editorState.image ? (
-            <div
-              className="relative"
-              style={{
-                width: `${canvasSize.width}px`,
-                height: `${canvasSize.height}px`,
-                background: editorState.background,
-              
-              }}
-              >
-              <canvas
-                ref={canvasRef}
-                className="absolute top-0 left-0 z-10"
+            className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center "
+            ref={containerRef}
+          >
+            {editorState.image ? (
+              <div
+                className="relative"
                 style={{
-                  borderRadius: `${editorState.cornerRadius}px`,
-                  filter: `${editorState.filter}(${editorState[editorState.filter as keyof EditorState] || ""})`,
-                  transform: get3DTransform(),
-                  transition: "transform 0.3s ease-in-out",
+                  width: `${canvasSize.width}px`,
+                  height: `${canvasSize.height}px`,
+                  background: editorState.background,
                 }}
-              />
-            </div>
-          ) : (
-            <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
-              <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
-                <img
-                  src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
-                  width={100}
-                  height={100}
+              >
+                <canvas
+                  ref={canvasRef}
+                  className="absolute top-0 left-0 z-10"
+                  style={{
+                    borderRadius: `${editorState.cornerRadius}px`,
+                    filter: `${editorState.filter}(${
+                      editorState[editorState.filter as keyof EditorState] || ""
+                    })`,
+                    transform: get3DTransform(),
+                    transition: "transform 0.3s ease-in-out",
+                  }}
                 />
-                <p className="text-gray-500 mb-4">Upload an image</p>
-                <button
-                  onClick={handleUpload}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
-                >
-                  Select Image
-                </button>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
+                <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
+                  <img
+                    src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
+                    width={100}
+                    height={100}
+                  />
+                  <p className="text-gray-500 mb-4">Upload an image</p>
+                  <button
+                    onClick={handleUpload}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
+                  >
+                    Select Image
+                  </button>
+                </div>
+              </div>
+            )}
             {/* Bottom right corner icons */}
             {editorState.image && (
-               <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-               <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
-                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                   <Undo size={22} className="text-gray-700" />
-                 </button>
-                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                   <Redo size={22} className="text-gray-700" />
-                 </button>
-                 <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
-                   <Eye size={22} className="text-gray-700" />
-                 </button>
-               </div>
-             </div>
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Undo size={22} className="text-gray-700" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Redo size={22} className="text-gray-700" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Eye size={22} className="text-gray-700" />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
 
           {/* Right Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-l border-gray-200">
-            <RightSidebar editorState={editorState} setEditorState={setEditorState} />
+            <RightSidebar
+              editorState={editorState}
+              setEditorState={setEditorState}
+            />
           </div>
         </div>
       </div>
