@@ -62,6 +62,9 @@ const Editor = () => {
     effect3D: { name: "None", transform: "" },
     cropMode: false,
     layout: "single",
+    borderWidth: 0,
+    borderColor: '#000000',
+    borderStyle: 'curved',
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -142,36 +145,44 @@ const Editor = () => {
         ctx.clip();
 
         // Apply shadow
-      ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow / 100})`;
-      ctx.shadowBlur = editorState.shadow / 2;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = editorState.shadow / 5;
+        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
+        ctx.shadowBlur = editorState.shadow * 0.5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = editorState.shadow * 0.2;
 
-      // Draw a white rectangle behind the image to create the shadow effect
-      ctx.fillStyle = "white";
-      ctx.fillRect(
-        totalInsetX + editorState.padding,
-        totalInsetY + editorState.padding,
-        insetWidth,
-        insetHeight
-      );
+        // Draw the image
+        ctx.drawImage(
+          image,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight
+        );
 
-      // Reset shadow for the actual image drawing
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+        // Draw border if borderWidth > 0
+        if (editorState.borderWidth > 0) {
+          ctx.strokeStyle = editorState.borderColor;
+          ctx.lineWidth = editorState.borderWidth;
 
-      // Draw the image
-      ctx.drawImage(
-        image,
-        totalInsetX + editorState.padding,
-        totalInsetY + editorState.padding,
-        insetWidth,
-        insetHeight
-      );
+          switch (editorState.borderStyle) {
+            case 'curved':
+              drawCurvedBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.cornerRadius);
+              break;
+            case 'sharp':
+              ctx.strokeRect(
+                totalInsetX + editorState.padding,
+                totalInsetY + editorState.padding,
+                insetWidth,
+                insetHeight
+              );
+              break;
+            case 'round':
+              drawRoundBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.borderWidth / 2);
+              break;
+          }
+        }
 
-        // Restore the context state (removes clipping, shadow, and rotation)
+        // Restore the context state
         ctx.restore();
       }
     }
@@ -248,6 +259,34 @@ const Editor = () => {
       default:
         return "";
     }
+  };
+
+  const drawCurvedBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  const drawRoundBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    ctx.beginPath();
+    ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
+    ctx.lineTo(x + width - radius, y);
+    ctx.arc(x + width - radius, y + radius, radius, 1.5 * Math.PI, 0);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.arc(x + width - radius, y + height - radius, radius, 0, 0.5 * Math.PI);
+    ctx.lineTo(x + radius, y + height);
+    ctx.arc(x + radius, y + height - radius, radius, 0.5 * Math.PI, Math.PI);
+    ctx.closePath();
+    ctx.stroke();
   };
 
   return (

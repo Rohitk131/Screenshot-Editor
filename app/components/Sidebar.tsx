@@ -14,6 +14,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const [showGradientModal, setShowGradientModal] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showBorderColorPicker, setShowBorderColorPicker] = useState(false);
 
   const gradients = [
     "linear-gradient(to right, #ff6e7f, #bfe9ff)",
@@ -71,6 +72,22 @@ export default function Sidebar({
   const handleCustomColor = (color: string) => {
     setEditorState(prev => ({ ...prev, background: color }));
     setShowColorPicker(false);
+  };
+
+  const handleBorderWidthChange = (value: number) => {
+    setEditorState((prev) => ({
+      ...prev,
+      borderWidth: value,
+    }));
+  };
+
+  const handleBorderColorChange = (color: string) => {
+    setEditorState(prev => ({ ...prev, borderColor: color }));
+    setShowBorderColorPicker(false);
+  };
+
+  const handleBorderStyleChange = (style: 'curved' | 'sharp' | 'round') => {
+    setEditorState(prev => ({ ...prev, borderStyle: style }));
   };
 
   return (
@@ -166,7 +183,7 @@ export default function Sidebar({
                 className="w-full bg-gray-200 rounded-lg appearance-none h-2"
               />
               <span className="block text-right text-gray-500 text-xs mt-1">
-                {editorState[adjustment as keyof EditorState]}
+                {String(editorState[adjustment as keyof EditorState])}
               </span>
             </label>
           )
@@ -210,6 +227,59 @@ export default function Sidebar({
         )}
       </section>
 
+      {/* Border Section */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Border</h3>
+        <label className="block mb-4">
+          <span className="block text-gray-600 mb-1">Border Width</span>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            value={editorState.borderWidth || 0}
+            onChange={(e) => handleBorderWidthChange(Number(e.target.value))}
+            className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+          />
+          <span className="block text-right text-gray-500 text-xs mt-1">
+            {editorState.borderWidth || 0}px
+          </span>
+        </label>
+        <div className="mb-4">
+          <span className="block text-gray-600 mb-1">Border Color</span>
+          <div className="flex items-center">
+            <div
+              className="w-10 h-10 rounded-lg mr-2 cursor-pointer"
+              style={{ backgroundColor: editorState.borderColor || '#000000' }}
+              onClick={() => setShowBorderColorPicker(true)}
+            ></div>
+            <span>{editorState.borderColor || '#000000'}</span>
+          </div>
+        </div>
+        <div className="mb-4">
+          <span className="block text-gray-600 mb-1">Border Style</span>
+          <div className="flex space-x-2">
+            <button
+              className={`px-3 py-1 rounded ${editorState.borderStyle === 'curved' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleBorderStyleChange('curved')}
+            >
+              Curved
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${editorState.borderStyle === 'sharp' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleBorderStyleChange('sharp')}
+            >
+              Sharp
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${editorState.borderStyle === 'round' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleBorderStyleChange('round')}
+            >
+              Round
+            </button>
+          </div>
+        </div>
+      </section>
+
       {showGradientModal && (
         <CustomGradientModal
           onClose={() => setShowGradientModal(false)}
@@ -221,6 +291,13 @@ export default function Sidebar({
         <ColorPicker
           onClose={() => setShowColorPicker(false)}
           onColorSelect={handleCustomColor}
+        />
+      )}
+
+      {showBorderColorPicker && (
+        <ColorPicker
+          onClose={() => setShowBorderColorPicker(false)}
+          onColorSelect={handleBorderColorChange}
         />
       )}
     </div>

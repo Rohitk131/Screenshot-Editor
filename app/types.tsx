@@ -24,6 +24,9 @@ export interface EditorState {
   theme: 'light' | 'dark';
   cropMode: boolean;
   layout: Layout;
+  borderWidth: number;
+  borderColor: string;
+  borderStyle: 'curved' | 'sharp' | 'round';
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
