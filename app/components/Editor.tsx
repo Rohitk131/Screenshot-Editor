@@ -47,7 +47,7 @@ const Editor = () => {
     crop: { x: 0, y: 0, width: 0, height: 0 },
     rotate: 0,
     filter: "none",
-    brightness: 0,
+    brightness: 100,
     contrast: 100,
     saturation: 100,
     hue: 0,
@@ -133,6 +133,26 @@ const Editor = () => {
         // Move back
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
+        // Draw shadow
+        ctx.save();
+        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
+        ctx.shadowBlur = editorState.shadow * 0.5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = editorState.shadow * 0.2;
+
+        // Draw a rectangle for the shadow
+        ctx.fillStyle = 'rgba(255, 255, 255, 0)'; // Transparent fill
+        roundedRect(
+          ctx,
+          totalInsetX + editorState.padding,
+          totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight,
+          editorState.cornerRadius
+        );
+        ctx.fill();
+        ctx.restore();
+
         // Create a clipping region for the image
         ctx.beginPath();
         roundedRect(
@@ -145,24 +165,6 @@ const Editor = () => {
         );
         ctx.clip();
 
-        // Apply shadow
-        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
-        ctx.shadowBlur = editorState.shadow * 0.5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = editorState.shadow * 0.2;
-        ctx.shadowColor = `rgba(0, 0, 0, ${editorState.shadow * 0.01})`;
-        ctx.shadowBlur = editorState.shadow * 0.5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = editorState.shadow * 0.2;
-
-        // Draw the image
-        ctx.drawImage(
-          image,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
-          insetWidth,
-          insetHeight
-        );
         // Draw the image
         ctx.drawImage(
           image,
@@ -261,11 +263,16 @@ const Editor = () => {
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
-    ctx.fill();
   };
 
   const handleCropClick = () => {
-    setEditorState((prev) => ({ ...prev, cropMode: !prev.cropMode }));
+    if (editorState.cropMode) {
+      // Exit crop mode
+      setEditorState(prev => ({ ...prev, cropMode: false }));
+    } else if (editorState.image) {
+      // Enter crop mode only if there's an image
+      setEditorState(prev => ({ ...prev, cropMode: true }));
+    }
   };
 
   const handleCropComplete = (croppedImage: string) => {
@@ -445,18 +452,25 @@ const Editor = () => {
                   background: editorState.background,
                 }}
               >
-                <canvas
-                  ref={canvasRef}
-                  className="absolute top-0 left-0 z-10"
-                  style={{
-                    borderRadius: `${editorState.cornerRadius}px`,
-                    filter: `${editorState.filter}(${
-                      editorState[editorState.filter as keyof EditorState] || ""
-                    })`,
-                    transform: getLayoutTransform(),
-                    transition: "transform 0.3s ease-in-out",
-                  }}
-                />
+                {editorState.cropMode ? (
+                  <CropTool
+                    image={editorState.image}
+                    onCropComplete={handleCropComplete}
+                  />
+                ) : (
+                  <canvas
+                    ref={canvasRef}
+                    className="absolute top-0 left-0 z-10"
+                    style={{
+                      borderRadius: `${editorState.cornerRadius}px`,
+                      filter: `${editorState.filter}(${
+                        editorState[editorState.filter as keyof EditorState] || ""
+                      })`,
+                      transform: getLayoutTransform(),
+                      transition: "transform 0.3s ease-in-out",
+                    }}
+                  />
+                )}
               </div>
             ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
