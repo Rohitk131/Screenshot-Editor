@@ -1,10 +1,12 @@
-import React , { useState} from "react";
-import { EditorState, Frame, Layout, Filter } from "../types";
-import { 
-  ChromeNavbarLight, 
-  ChromeNavbarDark 
-} from './Navbars';
-import safariLight from "./frames/safari-light.png";
+import React, { useState } from "react";
+import {
+  ChromeNavbarLight,
+  ChromeNavbarDark,
+  SafariNavbarLight,
+  SafariNavbarDark,
+  MacOSNavbarLight,
+  MacOSNavbarDark,
+} from "./Navbars";
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -16,9 +18,15 @@ export default function RightSidebar({
   setEditorState,
 }: RightSidebarProps) {
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
+  const [showFrameDropdown, setShowFrameDropdown] = useState(false);
 
   const frames: Frame[] = [
-    { src: safariLight, label: "Safari Light" },
+    { label: "Safari Light", component: SafariNavbarLight },
+    { label: "Safari Dark", component: SafariNavbarDark },
+    { label: "Chrome Light", component: ChromeNavbarLight },
+    { label: "Chrome Dark", component: ChromeNavbarDark },
+    { label: "macOS Light", component: MacOSNavbarLight },
+    { label: "macOS Dark", component: MacOSNavbarDark },
   ];
 
   const layoutOptions: Layout[] = [
@@ -29,9 +37,6 @@ export default function RightSidebar({
     { name: "Tilt Down", transform: "perspective(1000px) rotateX(-15deg)" },
     { name: "Rotate", transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)" },
   ];
-
-  const NavbarComponent =
-    editorState.theme === "light" ? ChromeNavbarLight : ChromeNavbarDark;
 
   const filters: Filter[] = [
     "none",
@@ -45,46 +50,35 @@ export default function RightSidebar({
 
   const handleFilterClick = (filter: Filter) => {
     if (filter === "none") {
-      setEditorState(prev => ({ ...prev, filter: "none", brightness: 100 }));
+      setEditorState((prev) => ({ ...prev, filter: "none", brightness: 100 }));
       setShowBrightnessSlider(false);
     } else if (filter === "brightness") {
-      setEditorState(prev => ({ ...prev, filter: "brightness" }));
+      setEditorState((prev) => ({ ...prev, filter: "brightness" }));
       setShowBrightnessSlider(!showBrightnessSlider);
     } else {
-      setEditorState(prev => ({ ...prev, filter }));
+      setEditorState((prev) => ({ ...prev, filter }));
       setShowBrightnessSlider(false);
     }
   };
 
   const handleBrightnessChange = (value: number) => {
-    setEditorState(prev => ({ ...prev, brightness: value }));
+    setEditorState((prev) => ({ ...prev, brightness: value }));
   };
 
   return (
     <div className="w-full bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar">
-      {/* Frames Section */}
+      {/* Frames Section (Dropdown) */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
         <div className="grid grid-cols-3 gap-4">
           {frames.map((frame, index) => (
             <div key={index} className="relative group">
-              <NavbarComponent />
               <button
                 className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
-                  editorState.frame?.src === frame.src
+                  editorState.frame?.label === frame.label
                     ? "scale-105 ring-2 ring-blue-500"
                     : ""
                 }`}
-                style={{
-                  backgroundImage: `url(${frame.src.src})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  transform: editorState.layout
-                    ? editorState.layout.transform
-                    : "",
-                  transition: "transform 0.5s ease",
-                }}
                 onClick={() =>
                   setEditorState((prev) => ({
                     ...prev,
@@ -92,8 +86,11 @@ export default function RightSidebar({
                   }))
                 }
               >
-                <span className="sr-only">{frame.label}</span>
+                <frame.component />
               </button>
+              <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
+                {frame.label}
+              </span>
             </div>
           ))}
         </div>
@@ -149,7 +146,9 @@ export default function RightSidebar({
                         min="0"
                         max="5"
                         value={editorState.brightness}
-                        onChange={(e) => handleBrightnessChange(Number(e.target.value))}
+                        onChange={(e) =>
+                          handleBrightnessChange(Number(e.target.value))
+                        }
                         className="flex-1"
                       />
                       <span>{editorState.brightness}%</span>
@@ -165,7 +164,9 @@ export default function RightSidebar({
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 >
-                  {filter === "none" ? "No Filter" : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  {filter === "none"
+                    ? "No Filter"
+                    : filter.charAt(0).toUpperCase() + filter.slice(1)}
                 </button>
               )}
             </React.Fragment>
