@@ -38,16 +38,6 @@ export default function Sidebar({
     "https://plus.unsplash.com/premium_photo-1663937576065-706a8d985379?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   ];
 
-  const filters: Filter[] = [
-    "none",
-    "grayscale",
-    "sepia",
-    "blur",
-    "invert",
-    "brightness",
-    "contrast",
-  ];
-
   const handlePaddingChange = (value: number) => {
     setEditorState((prev) => ({
       ...prev,
@@ -81,6 +71,10 @@ export default function Sidebar({
   const handleBorderColorChange = (color: string) => {
     setEditorState(prev => ({ ...prev, borderColor: color }));
     setShowBorderColorPicker(false);
+  };
+
+  const handleBorderStyleChange = (style: 'curved' | 'sharp' | 'round') => {
+    setEditorState(prev => ({ ...prev, borderStyle: style }));
   };
 
   return (
@@ -183,7 +177,7 @@ export default function Sidebar({
       {/* Adjustments Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
-        {["padding", "inset", "shadow", "cornerRadius", "rotate"].map(
+        {["padding", "inset", "shadow", "rotate"].map(
           (adjustment) => (
             <label key={adjustment} className="block mb-4">
               <span className="block text-gray-600 capitalize mb-1">
@@ -207,70 +201,60 @@ export default function Sidebar({
         )}
       </section>
 
-      {/* Filters Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Filters</h3>
-        <select
-          value={editorState.filter}
-          onChange={(e) =>
-            setEditorState((prev) => ({
-              ...prev,
-              filter: e.target.value as Filter,
-            }))
-          }
-          className="w-full bg-white p-2 rounded-md text-gray-700 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {filters.map((filter) => (
-            <option key={filter} value={filter}>
-              {filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </option>
-          ))}
-        </select>
-        {(editorState.filter === "brightness" ||
-          editorState.filter === "contrast") && (
-          <input
-            type="range"
-            min="0"
-            max="200"
-            value={editorState[editorState.filter]}
-            onChange={(e) =>
-              setEditorState((prev) => ({
-                ...prev,
-                [editorState.filter]: Number(e.target.value),
-              }))
-            }
-            className="w-full mt-3 bg-gray-200 rounded-lg appearance-none h-2"
-          />
-        )}
-      </section>
-
       {/* Border Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Border</h3>
-        <label className="block mb-4">
-          <span className="block text-gray-600 mb-1">Border Width</span>
-          <input
-            type="range"
-            min="0"
-            max="20"
-            value={editorState.borderWidth || 0}
-            onChange={(e) => handleBorderWidthChange(Number(e.target.value))}
-            className="w-full bg-gray-200 rounded-lg appearance-none h-2"
-          />
-          <span className="block text-right text-gray-500 text-xs mt-1">
-            {editorState.borderWidth || 0}px
-          </span>
-        </label>
-        <div className="mb-4">
-          <span className="block text-gray-600 mb-1">Border Color</span>
-          <div className="flex items-center">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="flex-1">
+            <label className="block mb-1 text-gray-600">Corner Radius</label>
+            <input
+              type="range"
+              min="0"
+              max="50"
+              value={editorState.cornerRadius || 0}
+              onChange={(e) => handleAdjustmentChange('cornerRadius', Number(e.target.value))}
+              className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block mb-1 text-gray-600">Border Width</label>
+            <input
+              type="range"
+              min="0"
+              max="20"
+              value={editorState.borderWidth || 0}
+              onChange={(e) => handleBorderWidthChange(Number(e.target.value))}
+              className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+            />
+          </div>
+          <div>
+            <label className="block mb-1 text-gray-600">Color</label>
             <div
-              className="w-10 h-10 rounded-lg mr-2 cursor-pointer"
+              className="w-10 h-10 rounded-lg cursor-pointer border border-gray-300"
               style={{ backgroundColor: editorState.borderColor || '#000000' }}
               onClick={() => setShowBorderColorPicker(true)}
             ></div>
-            <span>{editorState.borderColor || '#000000'}</span>
           </div>
+        </div>
+        <div className="flex space-x-2">
+          <button
+            className={`flex-1 px-3 py-2 rounded ${editorState.borderStyle === 'curved' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => handleBorderStyleChange('curved')}
+          >
+            Curved
+          </button>
+          <button
+            className={`flex-1 px-3 py-2 rounded ${editorState.borderStyle === 'sharp' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => handleBorderStyleChange('sharp')}
+          >
+            Sharp
+          </button>
+          <button
+            className={`flex-1 px-3 py-2 rounded ${editorState.borderStyle === 'round' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => handleBorderStyleChange('round')}
+          >
+            Round
+          </button>
         </div>
       </section>
 

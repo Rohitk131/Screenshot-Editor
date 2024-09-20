@@ -47,7 +47,7 @@ const Editor = () => {
     crop: { x: 0, y: 0, width: 0, height: 0 },
     rotate: 0,
     filter: "none",
-    brightness: 100,
+    brightness: 0,
     contrast: 100,
     saturation: 100,
     hue: 0,
@@ -61,9 +61,8 @@ const Editor = () => {
     penColor: "#000000",
     penSize: 5,
     frame: "",
-    effect3D: { name: "None", transform: "" },
+    layout: { name: "None", transform: "" },
     cropMode: false,
-    layout: "single",
     borderWidth: 0,
     borderColor: '#000000',
     borderStyle: 'curved',
@@ -278,24 +277,11 @@ const Editor = () => {
   };
 
   // Function to get 3D transform based on effect
-  const get3DTransform = () => {
-    if (!editorState.effect3D || editorState.effect3D.name === "None") {
+  const getLayoutTransform = () => {
+    if (!editorState.layout || editorState.layout.name === "None") {
       return "";
     }
-    switch (editorState.effect3D.name) {
-      case "Tilt Left":
-        return "perspective(1000px) rotateY(-15deg)";
-      case "Tilt Right":
-        return "perspective(1000px) rotateY(15deg)";
-      case "Tilt Up":
-        return "perspective(1000px) rotateX(15deg)";
-      case "Tilt Down":
-        return "perspective(1000px) rotateX(-15deg)";
-      case "Rotate":
-        return "perspective(1000px) rotate3d(1, 1, 1, 15deg)";
-      default:
-        return "";
-    }
+    return editorState.layout.transform;
   };
 
   const drawCurvedBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
@@ -324,6 +310,17 @@ const Editor = () => {
     ctx.arc(x + radius, y + height - radius, radius, 0.5 * Math.PI, Math.PI);
     ctx.closePath();
     ctx.stroke();
+  };
+
+  // In your useEffect hook or wherever you apply filters
+  const applyFilters = () => {
+    let filterString = "";
+    if (editorState.filter === "brightness") {
+      filterString = `brightness(${editorState.brightness}%)`;
+    } else if (editorState.filter !== "none") {
+      filterString = `${editorState.filter}(100%)`;
+    }
+    // Apply the filterString to your canvas or image element
   };
 
   return (
@@ -456,7 +453,7 @@ const Editor = () => {
                     filter: `${editorState.filter}(${
                       editorState[editorState.filter as keyof EditorState] || ""
                     })`,
-                    transform: get3DTransform(),
+                    transform: getLayoutTransform(),
                     transition: "transform 0.3s ease-in-out",
                   }}
                 />

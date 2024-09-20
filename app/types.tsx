@@ -1,7 +1,6 @@
 import { StaticImageData } from 'next/image';
 
 export interface EditorState {
-  effect3D: Effect3D;
   background: string;
   padding: number;
   inset: number;
@@ -33,7 +32,6 @@ export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brigh
 
 export type Tool = 'none' | 'upload' | 'screenshot' | 'annotate' | 'shape' | 'crop' | 'mosaic';
 
-export type Layout = "single" | "sideBySide" | "fourGrid";
 
 export interface Annotation {
   path: { x: number; y: number }[];
@@ -57,7 +55,7 @@ export interface Frame {
   label: string;
 }
 
-export interface Effect3D {
+export interface Layout {
   name: string;
   transform: string;
 }
