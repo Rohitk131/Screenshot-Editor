@@ -36,6 +36,10 @@ export interface EditorState {
   imageShadow: string;
   shadowIntensity: { [key: number]: number };
   saturation: number;
+  hue: number;
+  blur: number;
+  opacity: number;
+  grayscale: number;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
