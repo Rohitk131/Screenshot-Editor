@@ -10,6 +10,15 @@ import {
 
 import { EditorState, Filter, Frame, Layout } from "../types";
 
+const threeDEffects = [
+  { name: "Button 3D", className: "button-14" },
+  { name: "Tilt", className: "tilt-3d" },
+  { name: "Flip", className: "flip-3d" },
+  { name: "Rotate", className: "rotate-3d" },
+  { name: "Zoom", className: "zoom-3d" },
+  { name: "Skew", className: "skew-3d" },
+];
+
 interface RightSidebarProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
@@ -72,6 +81,13 @@ export default function RightSidebar({
     setEditorState((prev) => ({
       ...prev,
       frame: frame,
+    }));
+  };
+  const handleThreeDEffectSelect = (effectClassName: string) => {
+    setEditorState((prev) => ({
+      ...prev,
+      effect3D: true,
+      effect3DClassName: effectClassName,
     }));
   };
   return (
@@ -149,7 +165,7 @@ export default function RightSidebar({
                       <input
                         type="range"
                         min="0"
-                        max="5"
+                        max="200"
                         value={editorState.brightness}
                         onChange={(e) =>
                           handleBrightnessChange(Number(e.target.value))
@@ -177,6 +193,60 @@ export default function RightSidebar({
             </React.Fragment>
           ))}
         </div>
+      </section>
+
+      {/* 3D Effect Section */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effect</h3>
+        <div className="flex items-center justify-between mb-4">
+          <span>Enable 3D Effect</span>
+          <input
+            type="checkbox"
+            checked={editorState.effect3D}
+            onChange={(e) =>
+              setEditorState((prev) => ({ ...prev, effect3D: e.target.checked }))
+            }
+            className="form-checkbox h-5 w-5 text-blue-600"
+          />
+        </div>
+        {editorState.effect3D && (
+          <>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {threeDEffects.map((effect, index) => (
+                <button
+                  key={index}
+                  className={`p-2 rounded-lg transition-transform ${
+                    editorState.effect3DClassName === effect.className
+                      ? "bg-blue-600 text-white scale-105"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  onClick={() => handleThreeDEffectSelect(effect.className)}
+                >
+                  {effect.name}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="effect3DIntensity" className="text-sm text-gray-600">
+                3D Intensity
+              </label>
+              <input
+                type="range"
+                id="effect3DIntensity"
+                min="0"
+                max="100"
+                value={editorState.effect3DIntensity}
+                onChange={(e) =>
+                  setEditorState((prev) => ({
+                    ...prev,
+                    effect3DIntensity: Number(e.target.value),
+                  }))
+                }
+                className="w-full"
+              />
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

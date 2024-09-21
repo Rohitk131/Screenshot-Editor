@@ -4,6 +4,9 @@ export interface Frame {
   component: React.FC;
 }
 export interface EditorState {
+  effect3DOpacity: number;
+  effect3DClassName: string;
+  effect3DType: string;
   background: string;
   padding: number;
   inset: number;
@@ -40,6 +43,8 @@ export interface EditorState {
   blur: number;
   opacity: number;
   grayscale: number;
+  effect3D: boolean;
+  effect3DIntensity: number;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

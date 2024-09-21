@@ -300,7 +300,7 @@ export default function Sidebar({
 
       {/* Image Shadow Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Image Shadow</h3>
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Shadow</h3>
         <div className="grid grid-cols-3 gap-2 mb-4">
           {shadowTypes.map((shadow, index) => (
             <button
