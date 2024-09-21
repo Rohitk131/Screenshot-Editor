@@ -9,18 +9,29 @@ import {
 } from "./Navbars";
 
 import { EditorState, Filter, Frame, Layout } from "../types";
-
+import Image from "next/image";
 interface RightSidebarProps {
   editorState: EditorState;
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
 }
 
+const styles = [
+  { label: 'Hover Me', effect: 'hover' },
+  { label: '+3', effect: 'plus3' },
+  // Add more styles as needed
+];
 export default function RightSidebar({
   editorState,
   setEditorState,
 }: RightSidebarProps) {
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
   const [showFrameDropdown, setShowFrameDropdown] = useState(false);
+
+  const styles = [
+    { label: 'Hover Me', effect: 'hover' },
+    { label: '+3', effect: 'plus3' },
+    // Add more styles as needed
+  ];
 
   const frames: Frame[] = [
     { label: "Chrome Light", component: ChromeNavbarLight },
@@ -32,16 +43,25 @@ export default function RightSidebar({
   ];
   const layoutOptions: Layout[] = [
     { name: "None", transform: "" },
-    { name: "Tilt Left", transform: "perspective(1000px) rotateY(-15deg)" },
-    { name: "Tilt Right", transform: "perspective(1000px) rotateY(15deg)" },
-    { name: "Tilt Up", transform: "perspective(1000px) rotateX(15deg)" },
-    { name: "Tilt Down", transform: "perspective(1000px) rotateX(-15deg)" },
+    { name: "Tilt Left", transform: "perspective(1000px) rotateY(-20deg)" },
+    { name: "Tilt Right", transform: "perspective(1000px) rotateY(20deg)" },
+    { name: "Tilt Up", transform: "perspective(1000px) rotateX(20deg)" },
+    { name: "Tilt Down", transform: "perspective(1000px) rotateX(-20deg)" },
     {
       name: "Rotate",
       transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)",
     },
   ];
 
+  const filterStyles = {
+    none: {},
+    grayscale: { filter: 'grayscale(100%)' },
+    sepia: { filter: 'sepia(100%)' },
+    blur: { filter: 'blur(5px)' },
+    invert: { filter: 'invert(100%)' },
+    contrast: { filter: 'contrast(200%)' },
+    brightness: { filter: `brightness(${editorState.brightness}%)` },
+  };
   const filters: Filter[] = [
     "none",
     "grayscale",
@@ -100,33 +120,6 @@ export default function RightSidebar({
           ))}
         </div>
       </section>
-
-      {/* Layout Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {layoutOptions.map((layout, index) => (
-            <button
-              key={index}
-              className={`p-3 rounded-lg transition-transform ${
-                editorState.layout.name === layout.name
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-              onClick={() =>
-                setEditorState((prev) => ({
-                  ...prev,
-                  layout: layout,
-                }))
-              }
-            >
-              {layout.name}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Filters Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Filters</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -140,16 +133,24 @@ export default function RightSidebar({
                       editorState.filter === filter
                         ? "bg-blue-600 text-white scale-105"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    } border border-gray-300  overflow-hidden`}
                   >
-                    Brightness
+                    <div className="relative w-full h-20 flex items-center aspect-square">
+                      <img
+                        src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
+                        alt="Brightness"
+                        layout="fill"
+                        objectFit="cover"
+                        style={filterStyles.brightness}
+                      />
+                    </div>
                   </button>
                   {showBrightnessSlider && (
                     <div className="flex-1 flex items-center space-x-2">
                       <input
                         type="range"
                         min="0"
-                        max="5"
+                        max="200"
                         value={editorState.brightness}
                         onChange={(e) =>
                           handleBrightnessChange(Number(e.target.value))
@@ -167,17 +168,90 @@ export default function RightSidebar({
                     editorState.filter === filter
                       ? "bg-blue-600 text-white scale-105"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
                 >
-                  {filter === "none"
-                    ? "No Filter"
-                    : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <div className="relative w-20 aspect-square">
+                    <img
+                      src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
+                      alt={filter}
+                      layout="fill"
+                      objectFit="cover"
+                      style={filterStyles[filter]}
+                    />
+                  </div>
+                  <span className="mt-2 block">
+                    {filter === "none"
+                      ? "No Filter"
+                      : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </span>
                 </button>
               )}
             </React.Fragment>
           ))}
         </div>
       </section>
+      {/* Layout Section */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {layoutOptions.map((layout, index) => (
+            <button
+              key={index}
+              className={`p-3 rounded-lg transition-transform ${
+                editorState.layout.name === layout.name
+                  ? "bg-blue-600 text-white scale-105"
+                  : "bg-gray-700 text-gray-700 hover:bg-gray-300"
+              } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
+              onClick={() =>
+                setEditorState((prev) => ({
+                  ...prev,
+                  layout: layout,
+                }))
+              }
+            >
+              <div className="relative w-full aspect-square mb-2">
+                <img
+                  src="https://preview.redd.it/5klcymw4da831.jpg?width=7000&format=pjpg&auto=webp&s=6dd150387b7a0b56b8854ec65b8b508d87256e14"
+                  alt={layout.name}
+                  layout="fill"
+                  objectFit="cover"
+                  style={{ transform: layout.transform }}
+                />
+              </div>
+              <span className="block text-center">{layout.name}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      
+
+      <h3 className="text-xl font-bold mb-4 mt-8">Styles</h3>
+      <div className="grid grid-cols-2 gap-4">
+        {styles.map((style, index) => (
+          <div
+            key={index}
+            className={`relative group cursor-pointer bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 ${
+              editorState.selectedStyle?.label === style.label ? 'ring-2 ring-blue-500' : ''
+            }`}
+            onClick={() => handleStyleSelect(style)}
+          >
+            <div className="aspect-w-1 aspect-h-1 flex items-center justify-center p-4">
+              {style.effect === 'hover' ? (
+                <div className="bg-gray-700 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
+                  {style.label}
+                </div>
+              ) : style.effect === 'plus3' ? (
+                <div className="text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 p-4 rounded-lg">
+                  {style.label}
+                </div>
+              ) : (
+                <div>{style.label}</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  );
+  )
 }

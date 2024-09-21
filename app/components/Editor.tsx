@@ -1,8 +1,8 @@
-'use client'
+"use client";
 import React, { useState, useRef, useEffect } from "react";
-import ReactDOM from 'react-dom/client';
-import { createPortal } from 'react-dom';
-import html2canvas from 'html2canvas';
+import ReactDOM from "react-dom/client";
+import { createPortal } from "react-dom";
+import html2canvas from "html2canvas";
 import { EditorState } from "../types";
 import {
   Upload,
@@ -39,7 +39,9 @@ import ImageSizer from "./ImageSizer";
 import { Frame } from "../types";
 
 const Editor = () => {
-  const [framePortal, setFramePortal] = useState<React.ReactPortal | null>(null);
+  const [framePortal, setFramePortal] = useState<React.ReactPortal | null>(
+    null
+  );
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const defaultInset = 5; // Default inset value (5%)
 
@@ -70,8 +72,8 @@ const Editor = () => {
     layout: { name: "None", transform: "" },
     cropMode: false,
     borderWidth: 0,
-    borderColor: '#000000',
-    borderStyle: 'curved',
+    borderColor: "#000000",
+    borderStyle: "curved",
     isSizingImage: false,
     imageSize: { width: 0, height: 0 },
     tempImageSize: { width: 0, height: 0 },
@@ -155,10 +157,14 @@ const Editor = () => {
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
         // Apply shadow
-        ctx.shadowColor = editorState.imageShadow.split(')')[0] + ')';
-        ctx.shadowBlur = parseInt(editorState.imageShadow.split('px')[1]);
-        ctx.shadowOffsetX = parseInt(editorState.imageShadow.split('px')[0].split(' ').pop() || '0');
-        ctx.shadowOffsetY = parseInt(editorState.imageShadow.split('px')[1].split(' ').pop() || '0');
+        ctx.shadowColor = editorState.imageShadow.split(")")[0] + ")";
+        ctx.shadowBlur = parseInt(editorState.imageShadow.split("px")[1]);
+        ctx.shadowOffsetX = parseInt(
+          editorState.imageShadow.split("px")[0].split(" ").pop() || "0"
+        );
+        ctx.shadowOffsetY = parseInt(
+          editorState.imageShadow.split("px")[1].split(" ").pop() || "0"
+        );
 
         // Draw the image
 
@@ -171,42 +177,36 @@ const Editor = () => {
         );
 
         // Prepare frame rendering
-        
-    if (editorState.frame) {
-      const FrameComponent = editorState.frame.component;
-      const frameElement = document.createElement('div');
-      frameElement.style.position = 'absolute';
-      frameElement.style.top = '0';
-      frameElement.style.left = '0';
-      frameElement.style.width = `${canvasWidth}px`;
-      frameElement.style.height = `${canvasHeight}px`;
-      frameElement.style.pointerEvents = 'none';
-      
-      document.body.appendChild(frameElement);
-      
-      setFramePortal(createPortal(<FrameComponent />, frameElement));
 
-      // Use a setTimeout to ensure the component has been rendered
-      setTimeout(() => {
-        html2canvas(frameElement, {
-          backgroundColor: null,
-        }).then(frameCanvas => {
-          // Draw the frame on top of the image
-          ctx.drawImage(
-            frameCanvas,
-            0,
-            0,
-            canvasWidth,
-            canvasHeight
-          );
-          
-          // Clean up
-          document.body.removeChild(frameElement);
-          setFramePortal(null);
-        });
-      }, 100);
-    }
-  
+        if (editorState.frame) {
+          const FrameComponent = editorState.frame.component;
+          const frameElement = document.createElement("div");
+          frameElement.style.position = "absolute";
+          frameElement.style.top = "0";
+          frameElement.style.left = "0";
+          frameElement.style.width = `${canvasWidth}px`;
+          frameElement.style.height = `${canvasHeight}px`;
+          frameElement.style.pointerEvents = "none";
+
+          document.body.appendChild(frameElement);
+
+          setFramePortal(createPortal(<FrameComponent />, frameElement));
+
+          // Use a setTimeout to ensure the component has been rendered
+          setTimeout(() => {
+            html2canvas(frameElement, {
+              backgroundColor: null,
+            }).then((frameCanvas) => {
+              // Draw the frame on top of the image
+              ctx.drawImage(frameCanvas, 0, 0, canvasWidth, canvasHeight);
+
+              // Clean up
+              document.body.removeChild(frameElement);
+              setFramePortal(null);
+            });
+          }, 100);
+        }
+
         // Apply any other effects or drawings here
         // ...
       }
@@ -220,13 +220,13 @@ const Editor = () => {
         const canvas = await html2canvas(containerRef.current, {
           useCORS: true,
           scale: 2, // Increase quality
-          backgroundColor: null // Preserve transparency
+          backgroundColor: null, // Preserve transparency
         });
-        
+
         // Convert to data URL and trigger download
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = 'edited-image.png';
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "edited-image.png";
         link.href = dataUrl;
         link.click();
       } catch (error) {
@@ -250,7 +250,7 @@ const Editor = () => {
           const aspectRatio = img.width / img.height;
           const maxWidth = canvasSize.width * 0.8;
           const maxHeight = canvasSize.height * 0.8;
-          
+
           let newWidth, newHeight;
           if (aspectRatio > maxWidth / maxHeight) {
             newWidth = maxWidth;
@@ -261,7 +261,7 @@ const Editor = () => {
           }
 
           const newSize = { width: newWidth, height: newHeight };
-          setEditorState(prev => ({
+          setEditorState((prev) => ({
             ...prev,
             image: event.target?.result as string,
             imageSize: newSize,
@@ -298,10 +298,10 @@ const Editor = () => {
   const handleCropClick = () => {
     if (editorState.cropMode) {
       // Exit crop mode
-      setEditorState(prev => ({ ...prev, cropMode: false }));
+      setEditorState((prev) => ({ ...prev, cropMode: false }));
     } else if (editorState.image) {
       // Enter crop mode only if there's an image
-      setEditorState(prev => ({ ...prev, cropMode: true }));
+      setEditorState((prev) => ({ ...prev, cropMode: true }));
     }
   };
 
@@ -321,7 +321,14 @@ const Editor = () => {
     return editorState.layout.transform;
   };
 
-  const drawCurvedBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+  const drawCurvedBorder = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.lineTo(x + width - radius, y);
@@ -336,7 +343,14 @@ const Editor = () => {
     ctx.stroke();
   };
 
-  const drawRoundBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+  const drawRoundBorder = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
     ctx.beginPath();
     ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
     ctx.lineTo(x + width - radius, y);
@@ -361,14 +375,14 @@ const Editor = () => {
   };
 
   const handleImageSizeUpdate = (size: { width: number; height: number }) => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       tempImageSize: size,
     }));
   };
 
   const toggleImageSizing = () => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       isSizingImage: !prev.isSizingImage,
       tempImageSize: prev.imageSize,
@@ -376,7 +390,7 @@ const Editor = () => {
   };
 
   const saveImageSize = () => {
-    setEditorState(prev => ({
+    setEditorState((prev) => ({
       ...prev,
       isSizingImage: false,
       imageSize: prev.tempImageSize,
@@ -498,6 +512,7 @@ const Editor = () => {
               <span>Download</span>
             </button>
           </div>
+          z
         </div>
 
         {/* Main content area */}
@@ -511,55 +526,69 @@ const Editor = () => {
           </div>
 
           {/* Editor canvas area */}
-         <div
-        className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center"
-        ref={containerRef}
-      >
-        {editorState.image ? (
           <div
-            className="relative"
-            style={{
-              width: `${canvasSize.width}px`,
-              height: `${canvasSize.height}px`,
-              background: editorState.background,
-            }}
+            className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center"
+            ref={containerRef}
           >
-            {editorState.cropMode ? (
-              <CropTool
-                image={editorState.image}
-                onCropComplete={handleCropComplete}
-              />
-            ) : editorState.isSizingImage ? (
-              <ImageSizer
-                src={editorState.image}
-                onUpdate={handleImageSizeUpdate}
-                initialSize={editorState.imageSize}
-                containerSize={canvasSize}
-                onFinishResize={toggleImageSizing}
-              />
-            ) : (
-              <>
-                <canvas
-                  ref={canvasRef}
-                  className="absolute top-0 left-0 z-10"
-                  style={{
-                    borderRadius: `${editorState.cornerRadius}px`,
-                    filter: `${editorState.filter}(${
-                      editorState[editorState.filter as keyof EditorState] || ""
-                    })`,
-                    transform: getLayoutTransform(),
-                    transition: "transform 0.3s ease-in-out",
-                  }}
-                />
-                {FrameComponent && (
-                  <div className="relative top-0 left-0 w-full h-full pointer-events-none z-20">
-                    <FrameComponent />
-                  </div>
+            {editorState.image ? (
+              <div
+                className="relative"
+                style={{
+                  width: `${canvasSize.width}px`,
+                  height: `${canvasSize.height}px`,
+                  background: editorState.background,
+                }}
+              >
+                {editorState.cropMode ? (
+                  <CropTool
+                    image={editorState.image}
+                    onCropComplete={handleCropComplete}
+                  />
+                ) : editorState.isSizingImage ? (
+                  <ImageSizer
+                    src={editorState.image}
+                    onUpdate={handleImageSizeUpdate}
+                    initialSize={editorState.imageSize}
+                    containerSize={canvasSize}
+                    onFinishResize={toggleImageSizing}
+                  />
+                ) : (
+                  <>
+                    <canvas
+                      ref={canvasRef}
+                      className="absolute top-0 left-0 z-10"
+                      style={{
+                        borderRadius: `${editorState.cornerRadius}px`,
+                        filter: `${editorState.filter}(${
+                          editorState[
+                            editorState.filter as keyof EditorState
+                          ] || ""
+                        })`,
+                        transform: getLayoutTransform(),
+                        transition: "transform 0.3s ease-in-out",
+                      }}
+                    />
+                    {FrameComponent && (
+                      <div className="relative top-0 left-0 w-full h-full pointer-events-none z-20">
+                        <FrameComponent />
+                      </div>
+                    )}
+                    {editorState.selectedStyle?.effect === "hover" && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-gray-700 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
+                          Hover Me
+                        </div>
+                      </div>
+                    )}
+                    {editorState.selectedStyle?.effect === "plus3" && (
+                      <div className="absolute top-2 right-2 text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 p-2 rounded-lg">
+                        +3
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-          </div>
-        ) : (
+              </div>
+            ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
                 <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
                   <img
@@ -618,4 +647,3 @@ const Editor = () => {
 };
 
 export default Editor;
-
