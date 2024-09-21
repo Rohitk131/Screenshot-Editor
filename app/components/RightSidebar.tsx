@@ -7,6 +7,7 @@ import {
   MacOSNavbarLight,
   MacOSNavbarDark,
 } from "./Navbars";
+
 import { EditorState, Filter, Frame, Layout } from "../types";
 
 interface RightSidebarProps {
@@ -20,23 +21,25 @@ export default function RightSidebar({
 }: RightSidebarProps) {
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
   const [showFrameDropdown, setShowFrameDropdown] = useState(false);
-  
+
   const frames: Frame[] = [
-    { label: "Safari Light", component: SafariNavbarLight },
-    { label: "Safari Dark", component: SafariNavbarDark },
     { label: "Chrome Light", component: ChromeNavbarLight },
     { label: "Chrome Dark", component: ChromeNavbarDark },
+    { label: "Safari Light", component: SafariNavbarLight },
+    { label: "Safari Dark", component: SafariNavbarDark },
     { label: "macOS Light", component: MacOSNavbarLight },
     { label: "macOS Dark", component: MacOSNavbarDark },
   ];
-
   const layoutOptions: Layout[] = [
     { name: "None", transform: "" },
     { name: "Tilt Left", transform: "perspective(1000px) rotateY(-15deg)" },
     { name: "Tilt Right", transform: "perspective(1000px) rotateY(15deg)" },
     { name: "Tilt Up", transform: "perspective(1000px) rotateX(15deg)" },
     { name: "Tilt Down", transform: "perspective(1000px) rotateX(-15deg)" },
-    { name: "Rotate", transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)" },
+    {
+      name: "Rotate",
+      transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)",
+    },
   ];
 
   const filters: Filter[] = [
@@ -65,38 +68,37 @@ export default function RightSidebar({
   const handleBrightnessChange = (value: number) => {
     setEditorState((prev) => ({ ...prev, brightness: value }));
   };
-
+  const handleFrameSelect = (frame: Frame) => {
+    setEditorState((prev) => ({
+      ...prev,
+      frame: frame,
+    }));
+  };
   return (
     <div className="w-full bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar">
       {/* Frames Section (Dropdown) */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
+
         <div className="grid grid-cols-3 gap-4">
-  {frames.map((frame, index) => (
-    <div key={index} className="relative group">
-      <button
-        className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
-          editorState.frame?.label === frame.label
-            ? "scale-105 ring-2 ring-blue-500"
-            : ""
-        }`}
-        onClick={() =>
-          setEditorState((prev) => ({
-            ...prev,
-            frame: frame,
-          }))
-        }
-      >
-        <div className="w-full h-full bg-gray-200">
-          <frame.component />
+          {frames.map((frame, index) => (
+            <div key={index} className="relative group">
+              <button
+                className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
+                  editorState.frame?.label === frame.label
+                    ? "scale-105 ring-2 ring-blue-500"
+                    : ""
+                }`}
+                onClick={() => handleFrameSelect(frame)}
+              >
+                <frame.component />
+              </button>
+              <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
+                {frame.label}
+              </span>
+            </div>
+          ))}
         </div>
-      </button>
-      <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
-        {frame.label}
-      </span>
-    </div>
-  ))}
-</div>
       </section>
 
       {/* Layout Section */}

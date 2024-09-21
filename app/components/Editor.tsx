@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from 'react-dom/client';
-
+import { createPortal } from 'react-dom';
 import html2canvas from 'html2canvas';
 import { EditorState } from "../types";
 import {
@@ -39,6 +39,7 @@ import ImageSizer from "./ImageSizer";
 import { Frame } from "../types";
 
 const Editor = () => {
+  const [framePortal, setFramePortal] = useState<React.ReactPortal | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const defaultInset = 5; // Default inset value (5%)
 
@@ -103,6 +104,7 @@ const Editor = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Editor state changed:", editorState);
     if (image && canvasRef.current && containerRef.current) {
       const ctx = canvasRef.current.getContext("2d");
       if (ctx) {
@@ -159,6 +161,7 @@ const Editor = () => {
         ctx.shadowOffsetY = parseInt(editorState.imageShadow.split('px')[1].split(' ').pop() || '0');
 
         // Draw the image
+
         ctx.drawImage(
           image,
           totalInsetX + editorState.padding,
@@ -166,68 +169,50 @@ const Editor = () => {
           insetWidth,
           insetHeight
         );
+
+        // Prepare frame rendering
+        
+    if (editorState.frame) {
+      const FrameComponent = editorState.frame.component;
+      const frameElement = document.createElement('div');
+      frameElement.style.position = 'absolute';
+      frameElement.style.top = '0';
+      frameElement.style.left = '0';
+      frameElement.style.width = `${canvasWidth}px`;
+      frameElement.style.height = `${canvasHeight}px`;
+      frameElement.style.pointerEvents = 'none';
+      
+      document.body.appendChild(frameElement);
+      
+      setFramePortal(createPortal(<FrameComponent />, frameElement));
+
+      // Use a setTimeout to ensure the component has been rendered
+      setTimeout(() => {
+        html2canvas(frameElement, {
+          backgroundColor: null,
+        }).then(frameCanvas => {
+          // Draw the frame on top of the image
+          ctx.drawImage(
+            frameCanvas,
+            0,
+            0,
+            canvasWidth,
+            canvasHeight
+          );
+          
+          // Clean up
+          document.body.removeChild(frameElement);
+          setFramePortal(null);
+        });
+      }, 100);
+    }
   
-        // Draw the frame if selected
-        if (editorState.frame) {
-          const FrameComponent = editorState.frame.component;
-          const frameElement = document.createElement('div');
-          frameElement.style.width = `${canvasWidth}px`;
-          frameElement.style.height = `${canvasHeight}px`;
-          const root = ReactDOM.createRoot(frameElement);
-          root.render(<FrameComponent />);
-  
-          // Use a setTimeout to ensure the component has been rendered
-          setTimeout(() => {
-            html2canvas(frameElement).then(frameCanvas => {
-              ctx.drawImage(
-                frameCanvas,
-                0,
-                0,
-                canvasWidth,
-                canvasHeight
-              );
-            });
-          }, 0);
-        }
-
-        // Draw border if borderWidth > 0
-        if (editorState.borderWidth > 0) {
-          ctx.strokeStyle = editorState.borderColor;
-          ctx.lineWidth = editorState.borderWidth;
-
-          switch (editorState.borderStyle) {
-            case 'curved':
-              drawCurvedBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.cornerRadius);
-              break;
-            case 'sharp':
-              ctx.strokeRect(
-                totalInsetX + editorState.padding,
-                totalInsetY + editorState.padding,
-                insetWidth,
-                insetHeight
-              );
-              break;
-            case 'round':
-              drawRoundBorder(ctx, totalInsetX + editorState.padding, totalInsetY + editorState.padding, insetWidth, insetHeight, editorState.borderWidth / 2);
-              break;
-          }
-        }
-
-        // Reset shadow
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-
-        // Restore the context state
-        ctx.restore();
-
         // Apply any other effects or drawings here
         // ...
       }
     }
   }, [image, editorState, canvasRef, containerRef]);
-
+  const FrameComponent = editorState.frame?.component;
   const handleDownload = async () => {
     if (containerRef.current) {
       try {
@@ -526,48 +511,55 @@ const Editor = () => {
           </div>
 
           {/* Editor canvas area */}
+         <div
+        className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center"
+        ref={containerRef}
+      >
+        {editorState.image ? (
           <div
-            className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center "
-            ref={containerRef}
+            className="relative"
+            style={{
+              width: `${canvasSize.width}px`,
+              height: `${canvasSize.height}px`,
+              background: editorState.background,
+            }}
           >
-            {editorState.image ? (
-              <div
-                className="relative"
-                style={{
-                  width: `${canvasSize.width}px`,
-                  height: `${canvasSize.height}px`,
-                  background: editorState.background,
-                }}
-              >
-                {editorState.cropMode ? (
-                  <CropTool
-                    image={editorState.image}
-                    onCropComplete={handleCropComplete}
-                  />
-                ) : editorState.isSizingImage ? (
-                  <ImageSizer
-                    src={editorState.image}
-                    onUpdate={handleImageSizeUpdate}
-                    initialSize={editorState.imageSize}
-                    containerSize={canvasSize}
-                    onFinishResize={toggleImageSizing}
-                  />
-                ) : (
-                  <canvas
-                    ref={canvasRef}
-                    className="absolute top-0 left-0 z-10"
-                    style={{
-                      borderRadius: `${editorState.cornerRadius}px`,
-                      filter: `${editorState.filter}(${
-                        editorState[editorState.filter as keyof EditorState] || ""
-                      })`,
-                      transform: getLayoutTransform(),
-                      transition: "transform 0.3s ease-in-out",
-                    }}
-                  />
-                )}
-              </div>
+            {editorState.cropMode ? (
+              <CropTool
+                image={editorState.image}
+                onCropComplete={handleCropComplete}
+              />
+            ) : editorState.isSizingImage ? (
+              <ImageSizer
+                src={editorState.image}
+                onUpdate={handleImageSizeUpdate}
+                initialSize={editorState.imageSize}
+                containerSize={canvasSize}
+                onFinishResize={toggleImageSizing}
+              />
             ) : (
+              <>
+                <canvas
+                  ref={canvasRef}
+                  className="absolute top-0 left-0 z-10"
+                  style={{
+                    borderRadius: `${editorState.cornerRadius}px`,
+                    filter: `${editorState.filter}(${
+                      editorState[editorState.filter as keyof EditorState] || ""
+                    })`,
+                    transform: getLayoutTransform(),
+                    transition: "transform 0.3s ease-in-out",
+                  }}
+                />
+                {FrameComponent && (
+                  <div className="relative top-0 left-0 w-full h-full pointer-events-none z-20">
+                    <FrameComponent />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
                 <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
                   <img
