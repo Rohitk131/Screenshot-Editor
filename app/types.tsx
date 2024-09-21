@@ -4,6 +4,7 @@ export interface Frame {
   component: React.FC;
 }
 export interface EditorState {
+  selectedStyle: any;
   effect3DOpacity: number;
   effect3DClassName: string;
   effect3DType: string;
