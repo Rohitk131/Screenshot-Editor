@@ -1,0 +1,12 @@
+@keyframes wave {
+    0%, 100% {
+      transform: translate(-50%, -50%) rotateX(-30deg) translateZ(50px) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, -50%) rotateX(-30deg) translateZ(50px) translateY(20px);
+    }
+  }
+  
+  .wave-3d {
+    animation: wave 2s ease-in-out infinite;
+  }

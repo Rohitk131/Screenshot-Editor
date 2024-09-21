@@ -23,6 +23,8 @@ const styles = [
 export default function RightSidebar({
   editorState,
   setEditorState,
+  selectedEffect,
+  setSelectedEffect
 }: RightSidebarProps) {
   const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
   const [showFrameDropdown, setShowFrameDropdown] = useState(false);
@@ -97,6 +99,15 @@ export default function RightSidebar({
   function handleStyleSelect(style: { label: string; effect: string; }): void {
     throw new Error("Function not implemented.");
   }
+
+  const threeDEffects: ThreeDEffect[] = [
+    { name: "Tilt", className: "tilt-3d" },
+    { name: "Flip", className: "flip-3d" },
+    { name: "Rotate", className: "rotate-3d" },
+    { name: "Zoom", className: "zoom-3d" },
+    { name: "Skew", className: "skew-3d" },
+    { name: "Wave", className: "wave-3d" },
+  ];
 
   return (
     <div className="w-full bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar">
@@ -228,8 +239,6 @@ export default function RightSidebar({
         </div>
       </section>
 
-      
-
       <h3 className="text-xl font-bold mb-4 mt-8">Styles</h3>
       <div className="grid grid-cols-2 gap-4">
         {styles.map((style, index) => (
@@ -256,6 +265,26 @@ export default function RightSidebar({
           </div>
         ))}
       </div>
+
+      {/* 3D Effect Section */}
+      <section className="mb-8">
+        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effect</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {threeDEffects.map((effect) => (
+            <button
+              key={effect.className}
+              className={`p-4 rounded-lg transition-colors ${
+                selectedEffect?.className === effect.className
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+              onClick={() => setSelectedEffect(effect)}
+            >
+              {effect.name}
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, ChangeEvent } from "react";
 import html2canvas from 'html2canvas';
-import { EditorState } from "../types";
+import { EditorState, ThreeDEffect } from "../types";
 import {
   Upload, Camera, Pen, Square, Crop, Grid, Undo, Redo, Download,
   Type, Circle, Triangle, Image as ImageIcon, Scissors, Layers,
@@ -11,9 +11,9 @@ import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
 import ImageSizer from "./ImageSizer";
+import '../styles/ThreeDEffects.css';
 
 type FrameComponentType = React.ComponentType<any> | null;
-
 const Editor = () => {
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const defaultInset = 5; // Default inset value (5%)
@@ -60,6 +60,8 @@ const Editor = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  const [selectedEffect, setSelectedEffect] = useState<ThreeDEffect | null>(null);
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -114,6 +116,106 @@ const Editor = () => {
     }
   }, [editorState.frame]);
 
+  const getThreeDTransform = (effect: ThreeDEffect | null) => {
+    if (!effect) return '';
+
+    switch (effect.className) {
+      case 'tilt-3d':
+        return 'rotateX(-30deg) translateZ(50px)';
+      case 'flip-3d':
+        return 'rotateY(180deg)';
+      case 'rotate-3d':
+        return 'rotate3d(1, 1, 1, 45deg)';
+      case 'zoom-3d':
+        return 'scale3d(1.2, 1.2, 1.2)';
+      case 'skew-3d':
+        return 'skew(15deg, 15deg) rotateX(-30deg)';
+      case 'wave-3d':
+        return 'rotateX(-30deg) translateZ(50px)';
+      default:
+        return '';
+    }
+  };
+
+  const renderImage = () => {
+    if (!editorState.image) return null;
+
+    const applyEffect = selectedEffect !== null;
+
+    return (
+      <div
+        className="relative"
+        style={{
+          width: `${canvasSize.width}px`,
+          height: `${canvasSize.height}px`,
+          perspective: '1000px',
+        }}
+      >
+        <div
+          className="relative"
+          style={{
+            width: `${canvasSize.width}px`,
+            height: `${canvasSize.height}px`,
+            background: editorState.background,
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          <div
+            className={`absolute ${selectedEffect?.className || ''}`}
+            style={{
+              width: `${editorState.imageSize.width}px`,
+              height: `${editorState.imageSize.height}px`,
+              left: '50%',
+              top: '50%',
+              transform: `translate(-50%, -50%) ${getThreeDTransform(selectedEffect)}`,
+              transformOrigin: 'center',
+              boxShadow: applyEffect ? '0 20px 20px rgba(0,0,0,0.3)' : 'none',
+              transition: 'transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out',
+            }}
+          >
+            <canvas
+              ref={canvasRef}
+              className="absolute top-0 left-0 z-0"
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: `${editorState.cornerRadius}px`,
+                filter: `${editorState.filter}(${
+                  editorState[editorState.filter as keyof EditorState] || ""
+                })`,
+                transform: getLayoutTransform(),
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            />
+          </div>
+          {FrameComponent && (
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
+              <FrameComponent />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (selectedEffect?.className === 'wave-3d') {
+      const container = document.querySelector('.wave-3d');
+      if (container) {
+        let frame = 0;
+        const animate = () => {
+          frame = (frame + 1) % 360;
+          (container as HTMLElement).style.transform = `translate(-50%, -50%) rotateX(-30deg) translateZ(50px) translateY(${Math.sin(frame * Math.PI / 180) * 20}px)`;
+          requestAnimationFrame(animate);
+        };
+        animate();
+      }
+    }
+  }, [selectedEffect]);
+
   useEffect(() => {
     if (image && canvasRef.current && containerRef.current) {
       const ctx = canvasRef.current.getContext("2d");
@@ -147,16 +249,14 @@ const Editor = () => {
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
         // Apply shadow
-        const shadowParts = editorState.imageShadow.match(/rgba?\(.*?\)|\d+px/g) || [];
-        const shadowColor = shadowParts[0] || 'rgba(0,0,0,0.5)';
-        const shadowOffsetX = parseInt(shadowParts[1] || '0');
-        const shadowOffsetY = parseInt(shadowParts[2] || '0');
-        const shadowBlur = parseInt(shadowParts[3] || '0');
-
-        ctx.shadowColor = shadowColor;
-        ctx.shadowOffsetX = shadowOffsetX;
-        ctx.shadowOffsetY = shadowOffsetY;
-        ctx.shadowBlur = shadowBlur;
+        ctx.shadowColor = editorState.imageShadow.split(")")[0] + ")";
+        ctx.shadowBlur = parseInt(editorState.imageShadow.split("px")[1]);
+        ctx.shadowOffsetX = parseInt(
+          editorState.imageShadow.split("px")[0].split(" ").pop() || "0"
+        );
+        ctx.shadowOffsetY = parseInt(
+          editorState.imageShadow.split("px")[1].split(" ").pop() || "0"
+        );
 
         // Draw the image at the current position
         ctx.drawImage(
@@ -441,53 +541,22 @@ const Editor = () => {
             ref={containerRef}
           >
             {editorState.image ? (
-              <div
-                className="relative"
-                style={{
-                  width: `${canvasSize.width}px`,
-                  height: `${canvasSize.height}px`,
-                  background: editorState.background,
-                }}
-              >
-                {editorState.cropMode ? (
-                  <CropTool
-                    image={editorState.image}
-                    onCropComplete={handleCropComplete}
-                  />
-                ) : editorState.isSizingImage ? (
-                  <ImageSizer
-                    src={editorState.image}
-                    onUpdate={handleImageSizeUpdate}
-                    initialSize={editorState.imageSize}
-                    containerSize={canvasSize}
-                    onFinishResize={saveImageSize}
-                  />
-                ) : (
-                  <>
-                    <canvas
-                      ref={canvasRef}
-                      className="absolute top-0 left-0 z-10"
-                      style={{
-                        borderRadius: `${editorState.cornerRadius}px`,
-                        filter: `${editorState.filter}(${
-                          editorState[editorState.filter as keyof EditorState] || ""
-                        })`,
-                        transform: getLayoutTransform(),
-                        transition: "transform 0.3s ease-in-out",
-                      }}
-                      onMouseDown={handleMouseDown}
-                      onMouseMove={handleMouseMove}
-                      onMouseUp={handleMouseUp}
-                      onMouseLeave={handleMouseUp}
-                    />
-                    {FrameComponent && (
-                      <div className="relative top-0 left-0 w-full h-full pointer-events-none z-20">
-                        <FrameComponent />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+              editorState.cropMode ? (
+                <CropTool
+                  image={editorState.image}
+                  onCropComplete={handleCropComplete}
+                />
+              ) : editorState.isSizingImage ? (
+                <ImageSizer
+                  src={editorState.image}
+                  onUpdate={handleImageSizeUpdate}
+                  initialSize={editorState.imageSize}
+                  containerSize={canvasSize}
+                  onFinishResize={saveImageSize}
+                />
+              ) : (
+                renderImage()
+              )
             ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
                 <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
@@ -534,7 +603,12 @@ const Editor = () => {
 
           {/* Right Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-l border-gray-200">
-            <RightSidebar editorState={editorState} setEditorState={setEditorState} />
+            <RightSidebar 
+              editorState={editorState} 
+              setEditorState={setEditorState}
+              selectedEffect={selectedEffect}
+              setSelectedEffect={setSelectedEffect}
+            />
           </div>
         </div>
       </div>
@@ -550,5 +624,6 @@ const Editor = () => {
     </div>
   );
 };
+
 
 export default Editor;

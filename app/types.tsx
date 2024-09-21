@@ -46,6 +46,7 @@ export interface EditorState {
   grayscale: number;
   effect3D: boolean;
   effect3DIntensity: number;
+  selectedEffect: ThreeDEffect | null;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';
@@ -89,3 +90,7 @@ const applyEffect3D = (
   if (!ctx) return;
   // ... (rest of the function)
 };
+export interface ThreeDEffect {
+  name: string;
+  className: string;
+}
