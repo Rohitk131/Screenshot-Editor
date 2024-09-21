@@ -487,12 +487,12 @@ const Editor = () => {
           </div>
           <div className="flex items-center space-x-2">
             <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm">
-              <Share size={18} />
+              <Share2 size={18} />
               <span>Share</span>
             </button>
             <button
               onClick={handleDownload}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
             >
               <Download size={18} />
               <span>Download</span>
