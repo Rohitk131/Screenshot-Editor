@@ -1,47 +1,20 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import ReactDOM from "react-dom/client";
-import { createPortal } from "react-dom";
-import html2canvas from "html2canvas";
+import React, { useState, useRef, useEffect, ChangeEvent } from "react";
+import html2canvas from 'html2canvas';
 import { EditorState } from "../types";
 import {
-  Upload,
-  Camera,
-  Pen,
-  Square,
-  Crop,
-  Grid,
-  Undo,
-  Redo,
-  Download,
-  Type,
-  Circle,
-  Triangle,
-  Image as ImageIcon,
-  Scissors,
-  Layers,
-  Sliders,
-  Smile,
-  Eraser,
-  Move,
-  ZoomIn,
-  RotateCw,
-  Eye,
-  Share2,
-  Share,
-  Save,
+  Upload, Camera, Pen, Square, Crop, Grid, Undo, Redo, Download,
+  Type, Circle, Triangle, Image as ImageIcon, Scissors, Layers,
+  Sliders, Smile, Eraser, Move, ZoomIn, RotateCw, Eye, Share2, Share, Save,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
-import ResizableImage from "./ImageSizer";
 import ImageSizer from "./ImageSizer";
-import { Frame } from "../types";
+
+type FrameComponentType = React.ComponentType<any> | null;
 
 const Editor = () => {
-  const [framePortal, setFramePortal] = useState<React.ReactPortal | null>(
-    null
-  );
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const defaultInset = 5; // Default inset value (5%)
 
@@ -77,14 +50,51 @@ const Editor = () => {
     isSizingImage: false,
     imageSize: { width: 0, height: 0 },
     tempImageSize: { width: 0, height: 0 },
-    imageShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+    imageShadow: "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
+    imagePosition: { x: 0, y: 0 },
   });
 
+  const [FrameComponent, setFrameComponent] = useState<FrameComponentType>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setIsDragging(true);
+      setDragStart({ x, y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDragging && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      setEditorState(prev => ({
+        ...prev,
+        imagePosition: {
+          x: prev.imagePosition.x + dx,
+          y: prev.imagePosition.y + dy
+        }
+      }));
+      setDragStart({ x, y });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   useEffect(() => {
     if (editorState.image) {
@@ -97,40 +107,24 @@ const Editor = () => {
   }, [editorState.image]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      setCanvasSize({
-        width: containerRef.current.clientWidth,
-        height: containerRef.current.clientHeight,
-      });
+    if (editorState.frame) {
+      setFrameComponent(() => editorState.frame.component);
+    } else {
+      setFrameComponent(null);
     }
-  }, []);
+  }, [editorState.frame]);
 
   useEffect(() => {
-    console.log("Editor state changed:", editorState);
     if (image && canvasRef.current && containerRef.current) {
       const ctx = canvasRef.current.getContext("2d");
       if (ctx) {
-        const containerWidth = containerRef.current.clientWidth;
-        const containerHeight = containerRef.current.clientHeight;
-        const imgAspectRatio = image.width / image.height;
-        const containerAspectRatio = containerWidth / containerHeight;
-
-        let newWidth, newHeight;
-        let totalInsetX, totalInsetY, insetWidth, insetHeight;
-
-        if (imgAspectRatio > containerAspectRatio) {
-          newWidth = containerWidth * 0.8;
-          newHeight = newWidth / imgAspectRatio;
-        } else {
-          newHeight = containerHeight * 0.8;
-          newWidth = newHeight * imgAspectRatio;
-        }
+        const { width: newWidth, height: newHeight } = editorState.imageSize;
 
         // Calculate inset values
-        totalInsetX = (editorState.inset / 100) * newWidth;
-        totalInsetY = (editorState.inset / 100) * newHeight;
-        insetWidth = newWidth - 2 * totalInsetX;
-        insetHeight = newHeight - 2 * totalInsetY;
+        const totalInsetX = (editorState.inset / 100) * newWidth;
+        const totalInsetY = (editorState.inset / 100) * newHeight;
+        const insetWidth = newWidth - 2 * totalInsetX;
+        const insetHeight = newHeight - 2 * totalInsetY;
 
         // Add padding to canvas size
         const canvasWidth = newWidth + editorState.padding * 2;
@@ -147,210 +141,50 @@ const Editor = () => {
         // Save the context state
         ctx.save();
 
-        // Move to the center of the canvas
+        // Apply transformations
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
-
-        // Rotate the canvas
         ctx.rotate((editorState.rotate * Math.PI) / 180);
-
-        // Move back
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
         // Apply shadow
-        ctx.shadowColor = editorState.imageShadow.split(")")[0] + ")";
-        ctx.shadowBlur = parseInt(editorState.imageShadow.split("px")[1]);
-        ctx.shadowOffsetX = parseInt(
-          editorState.imageShadow.split("px")[0].split(" ").pop() || "0"
-        );
-        ctx.shadowOffsetY = parseInt(
-          editorState.imageShadow.split("px")[1].split(" ").pop() || "0"
-        );
+        const shadowParts = editorState.imageShadow.match(/rgba?\(.*?\)|\d+px/g) || [];
+        const shadowColor = shadowParts[0] || 'rgba(0,0,0,0.5)';
+        const shadowOffsetX = parseInt(shadowParts[1] || '0');
+        const shadowOffsetY = parseInt(shadowParts[2] || '0');
+        const shadowBlur = parseInt(shadowParts[3] || '0');
 
-        // Draw the image
+        ctx.shadowColor = shadowColor;
+        ctx.shadowOffsetX = shadowOffsetX;
+        ctx.shadowOffsetY = shadowOffsetY;
+        ctx.shadowBlur = shadowBlur;
 
+        // Draw the image at the current position
         ctx.drawImage(
           image,
-          totalInsetX + editorState.padding,
-          totalInsetY + editorState.padding,
+          editorState.imagePosition.x + totalInsetX + editorState.padding,
+          editorState.imagePosition.y + totalInsetY + editorState.padding,
           insetWidth,
           insetHeight
         );
 
-        // Prepare frame rendering
+        // Restore the context state
+        ctx.restore();
 
-        if (editorState.frame) {
-          const FrameComponent = editorState.frame.component;
-          const frameElement = document.createElement("div");
-          frameElement.style.position = "absolute";
-          frameElement.style.top = "0";
-          frameElement.style.left = "0";
-          frameElement.style.width = `${canvasWidth}px`;
-          frameElement.style.height = `${canvasHeight}px`;
-          frameElement.style.pointerEvents = "none";
-
-          document.body.appendChild(frameElement);
-
-          setFramePortal(createPortal(<FrameComponent />, frameElement));
-
-          // Use a setTimeout to ensure the component has been rendered
-          setTimeout(() => {
-            html2canvas(frameElement, {
-              backgroundColor: null,
-            }).then((frameCanvas) => {
-              // Draw the frame on top of the image
-              ctx.drawImage(frameCanvas, 0, 0, canvasWidth, canvasHeight);
-
-              // Clean up
-              document.body.removeChild(frameElement);
-              setFramePortal(null);
-            });
-          }, 100);
+        // Draw border if needed
+        if (editorState.borderWidth > 0) {
+          ctx.strokeStyle = editorState.borderColor;
+          ctx.lineWidth = editorState.borderWidth;
+          if (editorState.borderStyle === 'curved') {
+            drawCurvedBorder(ctx, editorState.padding, editorState.padding, canvasWidth - 2 * editorState.padding, canvasHeight - 2 * editorState.padding, editorState.cornerRadius);
+          } else {
+            drawRoundBorder(ctx, editorState.padding, editorState.padding, canvasWidth - 2 * editorState.padding, canvasHeight - 2 * editorState.padding, editorState.cornerRadius);
+          }
         }
-
-        // Apply any other effects or drawings here
-        // ...
       }
     }
   }, [image, editorState, canvasRef, containerRef]);
-  const FrameComponent = editorState.frame?.component;
-  const handleDownload = async () => {
-    if (containerRef.current) {
-      try {
-        // Use html2canvas to capture the entire rendered view
-        const canvas = await html2canvas(containerRef.current, {
-          useCORS: true,
-          scale: 2, // Increase quality
-          backgroundColor: null, // Preserve transparency
-        });
 
-        // Convert to data URL and trigger download
-        const dataUrl = canvas.toDataURL("image/png");
-        const link = document.createElement("a");
-        link.download = "edited-image.png";
-        link.href = dataUrl;
-        link.click();
-      } catch (error) {
-        console.error("Error generating image:", error);
-        // Handle error (e.g., show an error message to the user)
-      }
-    }
-  };
-
-  const handleUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const aspectRatio = img.width / img.height;
-          const maxWidth = canvasSize.width * 0.8;
-          const maxHeight = canvasSize.height * 0.8;
-
-          let newWidth, newHeight;
-          if (aspectRatio > maxWidth / maxHeight) {
-            newWidth = maxWidth;
-            newHeight = newWidth / aspectRatio;
-          } else {
-            newHeight = maxHeight;
-            newWidth = newHeight * aspectRatio;
-          }
-
-          const newSize = { width: newWidth, height: newHeight };
-          setEditorState((prev) => ({
-            ...prev,
-            image: event.target?.result as string,
-            imageSize: newSize,
-            tempImageSize: newSize,
-          }));
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const roundedRect = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number
-  ) => {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-  };
-
-  const handleCropClick = () => {
-    if (editorState.cropMode) {
-      // Exit crop mode
-      setEditorState((prev) => ({ ...prev, cropMode: false }));
-    } else if (editorState.image) {
-      // Enter crop mode only if there's an image
-      setEditorState((prev) => ({ ...prev, cropMode: true }));
-    }
-  };
-
-  const handleCropComplete = (croppedImage: string) => {
-    setEditorState((prev) => ({
-      ...prev,
-      image: croppedImage,
-      cropMode: false,
-    }));
-  };
-
-  // Function to get 3D transform based on effect
-  const getLayoutTransform = () => {
-    if (!editorState.layout || editorState.layout.name === "None") {
-      return "";
-    }
-    return editorState.layout.transform;
-  };
-
-  const drawCurvedBorder = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number
-  ) => {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.stroke();
-  };
-
-  const drawRoundBorder = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number
-  ) => {
+  const drawRoundBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
     ctx.beginPath();
     ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
     ctx.lineTo(x + width - radius, y);
@@ -363,34 +197,114 @@ const Editor = () => {
     ctx.stroke();
   };
 
-  // In your useEffect hook or wherever you apply filters
-  const applyFilters = () => {
-    let filterString = "";
-    if (editorState.filter === "brightness") {
-      filterString = `brightness(${editorState.brightness}%)`;
-    } else if (editorState.filter !== "none") {
-      filterString = `${editorState.filter}(100%)`;
+  const drawCurvedBorder = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  const handleCropClick = () => {
+    if (editorState.cropMode) {
+      setEditorState(prev => ({ ...prev, cropMode: false }));
+    } else if (editorState.image) {
+      setEditorState(prev => ({ ...prev, cropMode: true }));
     }
-    // Apply the filterString to your canvas or image element
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    setEditorState(prev => ({
+      ...prev,
+      image: croppedImage,
+      cropMode: false,
+    }));
+  };
+
+  const getLayoutTransform = () => {
+    if (!editorState.layout || editorState.layout.name === "None") {
+      return "";
+    }
+    return editorState.layout.transform;
+  };
+
+  const handleDownload = async () => {
+    if (containerRef.current) {
+      try {
+        const canvas = await html2canvas(containerRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: null
+        } as any);
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'edited-image.png';
+        link.href = dataUrl;
+        link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
+      }
+    }
+  };
+
+  const handleUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxWidth = window.innerWidth * 0.7; // 70% of window width
+          const maxHeight = window.innerHeight * 0.7; // 70% of window height
+          const padding = 40;
+          let newWidth = img.width;
+          let newHeight = img.height;
+          // Scale down the image if it's larger than the max dimensions
+          if (newWidth > maxWidth - 2 * padding || newHeight > maxHeight - 2 * padding) {
+            const ratio = Math.min(
+              (maxWidth - 2 * padding) / newWidth,
+              (maxHeight - 2 * padding) / newHeight
+            );
+            newWidth *= ratio;
+            newHeight *= ratio;
+          }
+          // Add padding
+          newWidth += 2 * padding;
+          newHeight += 2 * padding;
+          const newSize = { width: newWidth, height: newHeight };
+          setEditorState(prev => ({
+            ...prev,
+            image: event.target?.result as string,
+            imageSize: newSize,
+            tempImageSize: newSize,
+            imagePosition: { x: padding, y: padding },
+            padding: padding,
+          }));
+          // Update canvas size
+          setCanvasSize({ width: newWidth, height: newHeight });
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleImageSizeUpdate = (size: { width: number; height: number }) => {
-    setEditorState((prev) => ({
+    setEditorState(prev => ({
       ...prev,
       tempImageSize: size,
     }));
   };
 
-  const toggleImageSizing = () => {
-    setEditorState((prev) => ({
-      ...prev,
-      isSizingImage: !prev.isSizingImage,
-      tempImageSize: prev.imageSize,
-    }));
-  };
-
   const saveImageSize = () => {
-    setEditorState((prev) => ({
+    setEditorState(prev => ({
       ...prev,
       isSizingImage: false,
       imageSize: prev.tempImageSize,
@@ -430,7 +344,7 @@ const Editor = () => {
               </button>
               <button
                 onClick={() =>
-                  setEditorState((prev) => ({
+                  setEditorState(prev => ({
                     ...prev,
                     rotate: (prev.rotate + 90) % 360,
                   }))
@@ -481,12 +395,12 @@ const Editor = () => {
             </div>
             {editorState.image && (
               <button
-                onClick={toggleImageSizing}
+                onClick={() => setEditorState(prev => ({ ...prev, isSizingImage: !prev.isSizingImage, tempImageSize: prev.imageSize }))}
                 className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
                   editorState.isSizingImage ? "bg-gray-200" : ""
                 }`}
               >
-                <Move size={22} />
+                <ZoomIn size={22} />
               </button>
             )}
             {editorState.isSizingImage && (
@@ -512,17 +426,13 @@ const Editor = () => {
               <span>Download</span>
             </button>
           </div>
-          z
         </div>
 
         {/* Main content area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-r border-gray-200">
-            <Sidebar
-              editorState={editorState}
-              setEditorState={setEditorState}
-            />
+            <Sidebar editorState={editorState} setEditorState={setEditorState} />
           </div>
 
           {/* Editor canvas area */}
@@ -550,7 +460,7 @@ const Editor = () => {
                     onUpdate={handleImageSizeUpdate}
                     initialSize={editorState.imageSize}
                     containerSize={canvasSize}
-                    onFinishResize={toggleImageSizing}
+                    onFinishResize={saveImageSize}
                   />
                 ) : (
                   <>
@@ -560,29 +470,19 @@ const Editor = () => {
                       style={{
                         borderRadius: `${editorState.cornerRadius}px`,
                         filter: `${editorState.filter}(${
-                          editorState[
-                            editorState.filter as keyof EditorState
-                          ] || ""
+                          editorState[editorState.filter as keyof EditorState] || ""
                         })`,
                         transform: getLayoutTransform(),
                         transition: "transform 0.3s ease-in-out",
                       }}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onMouseLeave={handleMouseUp}
                     />
                     {FrameComponent && (
                       <div className="relative top-0 left-0 w-full h-full pointer-events-none z-20">
                         <FrameComponent />
-                      </div>
-                    )}
-                    {editorState.selectedStyle?.effect === "hover" && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-gray-700 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
-                          Hover Me
-                        </div>
-                      </div>
-                    )}
-                    {editorState.selectedStyle?.effect === "plus3" && (
-                      <div className="absolute top-2 right-2 text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 p-2 rounded-lg">
-                        +3
                       </div>
                     )}
                   </>
@@ -595,6 +495,7 @@ const Editor = () => {
                     src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
                     width={100}
                     height={100}
+                    alt="Upload icon"
                   />
                   <p className="text-gray-500 mb-4">Upload an image</p>
                   <button
@@ -606,10 +507,17 @@ const Editor = () => {
                 </div>
               </div>
             )}
-            {/* Bottom right corner icons */}
             {editorState.image && (
               <div className="absolute bottom-4 left-0 right-0 flex justify-center">
                 <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
+                  <button
+                    onClick={() => setEditorState(prev => ({ ...prev, isSizingImage: !prev.isSizingImage, tempImageSize: prev.imageSize }))}
+                    className={`p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out ${
+                      editorState.isSizingImage ? "bg-gray-200" : ""
+                    }`}
+                  >
+                    <ZoomIn size={22} className="text-gray-700" />
+                  </button>
                   <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
                     <Undo size={22} className="text-gray-700" />
                   </button>
@@ -626,10 +534,7 @@ const Editor = () => {
 
           {/* Right Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-l border-gray-200">
-            <RightSidebar
-              editorState={editorState}
-              setEditorState={setEditorState}
-            />
+            <RightSidebar editorState={editorState} setEditorState={setEditorState} />
           </div>
         </div>
       </div>
