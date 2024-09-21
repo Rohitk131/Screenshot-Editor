@@ -1,322 +1,707 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useRef, useEffect, ChangeEvent } from "react";
+import html2canvas from "html2canvas";
+import { EditorState } from "../types";
 import {
-  ChromeNavbarLight,
-  ChromeNavbarDark,
-  SafariNavbarLight,
-  SafariNavbarDark,
-  MacOSNavbarLight,
-  MacOSNavbarDark,
-} from "./Navbars";
+  Upload,
+  Camera,
+  Pen,
+  Square,
+  Crop,
+  Grid,
+  Undo,
+  Redo,
+  Download,
+  Type,
+  Circle,
+  Triangle,
+  Image as ImageIcon,
+  Scissors,
+  Layers,
+  Sliders,
+  Smile,
+  Eraser,
+  Move,
+  ZoomIn,
+  RotateCw,
+  Eye,
+  Share2,
+  Share,
+  Save,
+} from "lucide-react";
+import Sidebar from "./Sidebar";
+import RightSidebar from "./RightSidebar";
+import CropTool from "./CropTool";
+import ImageSizer from "./ImageSizer";
+import { ThreeDImage } from "./ThreeDImage";
 
-import { EditorState, Filter, Frame, Layout } from "../types";
-import Image from "next/image";
+type FrameComponentType = React.ComponentType<any> | null;
 
-const threeDEffects = [
-  { name: "Button 3D", className: "button-14" },
-  { name: "Tilt", className: "tilt-3d" },
-  { name: "Flip", className: "flip-3d" },
-  { name: "Rotate", className: "rotate-3d" },
-  { name: "Zoom", className: "zoom-3d" },
-  { name: "Skew", className: "skew-3d" },
-];
+const Editor = () => {
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const defaultInset = 5; // Default inset value (5%)
 
-interface RightSidebarProps {
-  editorState: EditorState;
-  setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
-}
+  const [editorState, setEditorState] = useState<EditorState>({
+    background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+    padding: 1,
+    inset: defaultInset,
+    shadow: 20,
+    cornerRadius: 12,
+    image: null,
+    crop: { x: 0, y: 0, width: 0, height: 0 },
+    rotate: 0,
+    filter: "none",
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    hue: 0,
+    blur: 0,
+    opacity: 100,
+    grayscale: 0,
+    sepia: 0,
+    invert: 0,
+    isAnnotating: false,
+    currentTool: "pen",
+    penColor: "#000000",
+    penSize: 5,
+    frame: null,
+    layout: { name: "None", transform: "" },
+    cropMode: false,
+    borderWidth: 0,
+    borderColor: "#000000",
+    borderStyle: "curved",
+    isSizingImage: false,
+    imageSize: { width: 0, height: 0 },
+    tempImageSize: { width: 0, height: 0 },
+    imageShadow:
+      "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
+    imagePosition: { x: 0, y: 0 },
+    effect3D: false,
+    effect3DIntensity: 50,
+    effect3DClassName: "",
+    effect3DOpacity: 50,
+  });
 
-const styles = [
-  { label: 'Hover Me', effect: 'hover' },
-  { label: '+3', effect: 'plus3' },
-  // Add more styles as needed
-];
-export default function RightSidebar({
-  editorState,
-  setEditorState,
-}: RightSidebarProps) {
-  const [showBrightnessSlider, setShowBrightnessSlider] = useState(false);
-  const [showFrameDropdown, setShowFrameDropdown] = useState(false);
+  const [FrameComponent, setFrameComponent] =
+    useState<FrameComponentType>(null);
 
-  const styles = [
-    { label: 'Hover Me', effect: 'hover' },
-    { label: '+3', effect: 'plus3' },
-    // Add more styles as needed
-  ];
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const frames: Frame[] = [
-    { label: "Chrome Light", component: ChromeNavbarLight },
-    { label: "Chrome Dark", component: ChromeNavbarDark },
-    { label: "Safari Light", component: SafariNavbarLight },
-    { label: "Safari Dark", component: SafariNavbarDark },
-    { label: "macOS Light", component: MacOSNavbarLight },
-    { label: "macOS Dark", component: MacOSNavbarDark },
-  ];
-  const layoutOptions: Layout[] = [
-    { name: "None", transform: "" },
-    { name: "Tilt Left", transform: "perspective(1000px) rotateY(-20deg)" },
-    { name: "Tilt Right", transform: "perspective(1000px) rotateY(20deg)" },
-    { name: "Tilt Up", transform: "perspective(1000px) rotateX(20deg)" },
-    { name: "Tilt Down", transform: "perspective(1000px) rotateX(-20deg)" },
-    {
-      name: "Rotate",
-      transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)",
-    },
-  ];
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
 
-  const filterStyles = {
-    none: {},
-    grayscale: { filter: 'grayscale(100%)' },
-    sepia: { filter: 'sepia(100%)' },
-    blur: { filter: 'blur(5px)' },
-    invert: { filter: 'invert(100%)' },
-    contrast: { filter: 'contrast(200%)' },
-    brightness: { filter: `brightness(${editorState.brightness}%)` },
-  };
-  const filters: Filter[] = [
-    "none",
-    "grayscale",
-    "sepia",
-    "blur",
-    "invert",
-    "contrast",
-    "brightness",
-  ];
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const handleFilterClick = (filter: Filter) => {
-    if (filter === "none") {
-      setEditorState((prev) => ({ ...prev, filter: "none", brightness: 100 }));
-      setShowBrightnessSlider(false);
-    } else if (filter === "brightness") {
-      setEditorState((prev) => ({ ...prev, filter: "brightness" }));
-      setShowBrightnessSlider(!showBrightnessSlider);
-    } else {
-      setEditorState((prev) => ({ ...prev, filter }));
-      setShowBrightnessSlider(false);
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setIsDragging(true);
+      setDragStart({ x, y });
     }
   };
 
-  const handleBrightnessChange = (value: number) => {
-    setEditorState((prev) => ({ ...prev, brightness: value }));
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDragging && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      setEditorState((prev) => ({
+        ...prev,
+        imagePosition: {
+          x: prev.imagePosition.x + dx,
+          y: prev.imagePosition.y + dy,
+        },
+      }));
+      setDragStart({ x, y });
+    }
   };
-  const handleFrameSelect = (frame: Frame) => {
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (editorState.image) {
+      const img = new Image();
+      img.onload = () => {
+        setImage(img);
+      };
+      img.src = editorState.image;
+    }
+  }, [editorState.image]);
+
+  useEffect(() => {
+    if (editorState.frame) {
+      setFrameComponent(() => editorState.frame.component);
+    } else {
+      setFrameComponent(null);
+    }
+  }, [editorState.frame]);
+
+  useEffect(() => {
+    if (image && canvasRef.current && containerRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        const { width: newWidth, height: newHeight } = editorState.imageSize;
+
+        // Calculate inset values
+        const totalInsetX = (editorState.inset / 100) * newWidth;
+        const totalInsetY = (editorState.inset / 100) * newHeight;
+        const insetWidth = newWidth - 2 * totalInsetX;
+        const insetHeight = newHeight - 2 * totalInsetY;
+
+        // Add padding to canvas size
+        const canvasWidth = newWidth + editorState.padding * 2;
+        const canvasHeight = newHeight + editorState.padding * 2;
+
+        // Set canvas size
+        setCanvasSize({ width: canvasWidth, height: canvasHeight });
+        canvasRef.current.width = canvasWidth;
+        canvasRef.current.height = canvasHeight;
+
+        // Clear the entire canvas
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        // Save the context state
+        ctx.save();
+
+        // Apply transformations
+        ctx.translate(canvasWidth / 2, canvasHeight / 2);
+        ctx.rotate((editorState.rotate * Math.PI) / 180);
+        ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
+
+        // Apply shadow
+        ctx.shadowColor = editorState.imageShadow.split(")")[0] + ")";
+        ctx.shadowBlur = parseInt(editorState.imageShadow.split("px")[1]);
+        ctx.shadowOffsetX = parseInt(
+          editorState.imageShadow.split("px")[0].split(" ").pop() || "0"
+        );
+        ctx.shadowOffsetY = parseInt(
+          editorState.imageShadow.split("px")[1].split(" ").pop() || "0"
+        );
+
+        // Draw the image at the current position
+        ctx.drawImage(
+          image,
+          editorState.imagePosition.x + totalInsetX + editorState.padding,
+          editorState.imagePosition.y + totalInsetY + editorState.padding,
+          insetWidth,
+          insetHeight
+        );
+
+        // If 3D effect is enabled, draw the 3D button effect
+        if (editorState.effect3D && editorState.effect3DClassName === "button-14") {
+          draw3DButtonEffect(
+            ctx,
+            insetWidth,
+            insetHeight,
+            editorState.cornerRadius,
+            editorState.effect3DOpacity / 100
+          );
+        }
+
+        // Restore the context state
+        ctx.restore();
+
+        // Draw border if needed
+        if (editorState.borderWidth > 0) {
+          ctx.strokeStyle = editorState.borderColor;
+          ctx.lineWidth = editorState.borderWidth;
+          if (editorState.borderStyle === "curved") {
+            drawCurvedBorder(
+              ctx,
+              editorState.padding,
+              editorState.padding,
+              canvasWidth - 2 * editorState.padding,
+              canvasHeight - 2 * editorState.padding,
+              editorState.cornerRadius
+            );
+          } else {
+            drawRoundBorder(
+              ctx,
+              editorState.padding,
+              editorState.padding,
+              canvasWidth - 2 * editorState.padding,
+              canvasHeight - 2 * editorState.padding,
+              editorState.cornerRadius
+            );
+          }
+        }
+      }
+    }
+  }, [image, editorState, canvasRef, containerRef]);
+
+  const drawRoundBorder = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
+    ctx.beginPath();
+    ctx.arc(x + radius, y + radius, radius, Math.PI, 1.5 * Math.PI);
+    ctx.lineTo(x + width - radius, y);
+    ctx.arc(x + width - radius, y + radius, radius, 1.5 * Math.PI, 0);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.arc(x + width - radius, y + height - radius, radius, 0, 0.5 * Math.PI);
+    ctx.lineTo(x + radius, y + height);
+    ctx.arc(x + radius, y + height - radius, radius, 0.5 * Math.PI, Math.PI);
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  const drawCurvedBorder = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  const handleCropClick = () => {
+    if (editorState.cropMode) {
+      setEditorState((prev) => ({ ...prev, cropMode: false }));
+    } else if (editorState.image) {
+      setEditorState((prev) => ({ ...prev, cropMode: true }));
+    }
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
     setEditorState((prev) => ({
       ...prev,
-      frame: frame,
+      image: croppedImage,
+      cropMode: false,
     }));
   };
+
+  const getLayoutTransform = () => {
+    if (!editorState.layout || editorState.layout.name === "None") {
+      return "";
+    }
+    return editorState.layout.transform;
+  };
+
+  const draw3DButtonEffect = (
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    cornerRadius: number,
+    opacity: number
+  ) => {
+    // Draw the base (slightly darker grey)
+    ctx.fillStyle = `rgba(180, 180, 180, ${0.2 * opacity})`;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, width, height, cornerRadius);
+    ctx.fill();
+  
+    // Draw the bottom layer (medium grey)
+    ctx.fillStyle = `rgba(200, 200, 200, ${0.3 * opacity})`;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, width, height, cornerRadius);
+    ctx.fill();
+  
+    // Draw the top layer (light grey gradient)
+    const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2);
+    gradient.addColorStop(0, `rgba(240, 240, 240, ${0.4 * opacity})`);
+    gradient.addColorStop(1, `rgba(220, 220, 220, ${0.4 * opacity})`);
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, width, height, cornerRadius);
+    ctx.fill();
+  
+    // Add a subtle highlight
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.1 * opacity})`;
+    ctx.beginPath();
+    ctx.roundRect(2, 2, width - 4, height / 2, cornerRadius);
+    ctx.fill();
+  };
+  const handleDownload = async () => {
+    if (containerRef.current) {
+      try {
+        const canvas = await html2canvas(containerRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: null,
+        } as any);
+
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "edited-image.png";
+        link.href = dataUrl;
+        link.click();
+      } catch (error) {
+        console.error("Error generating image:", error);
+      }
+    }
+  };
+
+  const handleUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxWidth = window.innerWidth * 0.7; // 70% of window width
+          const maxHeight = window.innerHeight * 0.7; // 70% of window height
+          const padding = 40;
+
+          let newWidth = img.width;
+          let newHeight = img.height;
+
+          // Scale down the image if it's larger than the max dimensions
+          if (
+            newWidth > maxWidth - 2 * padding ||
+            newHeight > maxHeight - 2 * padding
+          ) {
+            const ratio = Math.min(
+              (maxWidth - 2 * padding) / newWidth,
+              (maxHeight - 2 * padding) / newHeight
+            );
+            newWidth *= ratio;
+            newHeight *= ratio;
+          }
+
+          // Add padding
+          newWidth += 2 * padding;
+          newHeight += 2 * padding;
+
+          const newSize = { width: newWidth, height: newHeight };
+          setEditorState((prev) => ({
+            ...prev,
+            image: event.target?.result as string,
+            imageSize: newSize,
+            tempImageSize: newSize,
+            imagePosition: { x: padding, y: padding },
+            padding: padding,
+          }));
+
+          // Update canvas size
+          setCanvasSize({ width: newWidth, height: newHeight });
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageSizeUpdate = (size: { width: number; height: number }) => {
+    setEditorState((prev) => ({
+      ...prev,
+      tempImageSize: size,
+    }));
+  };
+
+  const saveImageSize = () => {
+    setEditorState((prev) => ({
+      ...prev,
+      isSizingImage: false,
+      imageSize: prev.tempImageSize,
+    }));
+  };
+
   return (
-    <div className="w-full bg-white p-6 text-sm text-gray-800 h-full overflow-y-auto hide-scrollbar">
-      {/* Frames Section (Dropdown) */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Frames</h3>
-
-        <div className="grid grid-cols-3 gap-4">
-          {frames.map((frame, index) => (
-            <div key={index} className="relative group">
-              <button
-                className={`w-full h-24 rounded-lg overflow-hidden transition-transform transform ${
-                  editorState.frame?.label === frame.label
-                    ? "scale-105 ring-2 ring-blue-500"
-                    : ""
-                }`}
-                onClick={() => handleFrameSelect(frame)}
-              >
-                <frame.component />
-              </button>
-              <span className="absolute bottom-1 left-1 right-1 text-xs text-center bg-black bg-opacity-50 text-white rounded">
-                {frame.label}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Filters</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {filters.map((filter) => (
-            <React.Fragment key={filter}>
-              {filter === "brightness" ? (
-                <div className="col-span-2 flex items-center space-x-2">
-                  <button
-                    onClick={() => handleFilterClick(filter)}
-                    className={`flex-1 p-3 rounded-lg transition-transform ${
-                      editorState.filter === filter
-                        ? "bg-blue-600 text-white scale-105"
-                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    } border border-gray-300  overflow-hidden`}
-                  >
-                    <div className="relative w-full h-20 flex items-center aspect-square">
-                      <img
-                        src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
-                        alt="Brightness"
-                        layout="fill"
-                        objectFit="cover"
-                        style={filterStyles.brightness}
-                      />
-                    </div>
-                  </button>
-                  {showBrightnessSlider && (
-                    <div className="flex-1 flex items-center space-x-2">
-                      <input
-                        type="range"
-                        min="0"
-                        max="200"
-                        max="200"
-                        value={editorState.brightness}
-                        onChange={(e) =>
-                          handleBrightnessChange(Number(e.target.value))
-                        }
-                        className="flex-1"
-                      />
-                      <span>{editorState.brightness}%</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleFilterClick(filter)}
-                  className={`p-3 rounded-lg transition-transform ${
-                    editorState.filter === filter
-                      ? "bg-blue-600 text-white scale-105"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
-                >
-                  <div className="relative w-20 aspect-square">
-                    <img
-                      src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
-                      alt={filter}
-                      layout="fill"
-                      objectFit="cover"
-                      style={filterStyles[filter]}
-                    />
-                  </div>
-                  <span className="mt-2 block">
-                    {filter === "none"
-                      ? "No Filter"
-                      : filter.charAt(0).toUpperCase() + filter.slice(1)}
-                  </span>
-                </button>
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </section>
-      {/* Layout Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {layoutOptions.map((layout, index) => (
+    <div className="h-screen w-full flex items-center justify-center bg-gray-100 p-6">
+      <div className="w-full h-full max-w-[calc(100%-50px)] max-h-[calc(100%-50px)] flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        {/* Topbar */}
+        <div className="bg-white border-b border-gray-200 p-3 flex items-center justify-between">
+          <div className="w-[25%]"></div>
+          <div className="flex items-center space-x-4 overflow-x-auto flex-grow">
             <button
-              key={index}
-              className={`p-3 rounded-lg transition-transform ${
-                editorState.layout.name === layout.name
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-700 text-gray-700 hover:bg-gray-300"
-              } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
-              onClick={() =>
-                setEditorState((prev) => ({
-                  ...prev,
-                  layout: layout,
-                }))
-              }
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
             >
-              <div className="relative w-full aspect-square mb-2">
-                <img
-                  src="https://preview.redd.it/5klcymw4da831.jpg?width=7000&format=pjpg&auto=webp&s=6dd150387b7a0b56b8854ec65b8b508d87256e14"
-                  alt={layout.name}
-                  layout="fill"
-                  objectFit="cover"
-                  style={{ transform: layout.transform }}
-                />
-              </div>
-              <span className="block text-center">{layout.name}</span>
+              <Upload size={18} />
+              <span>Upload</span>
             </button>
-          ))}
-        </div>
-      </section>
-
-      
-
-      <h3 className="text-xl font-bold mb-4 mt-8">Styles</h3>
-      <div className="grid grid-cols-2 gap-4">
-        {styles.map((style, index) => (
-          <div
-            key={index}
-            className={`relative group cursor-pointer bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 ${
-              editorState.selectedStyle?.label === style.label ? 'ring-2 ring-blue-500' : ''
-            }`}
-            onClick={() => handleStyleSelect(style)}
-          >
-            <div className="aspect-w-1 aspect-h-1 flex items-center justify-center p-4">
-              {style.effect === 'hover' ? (
-                <div className="bg-gray-700 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
-                  {style.label}
-                </div>
-              ) : style.effect === 'plus3' ? (
-                <div className="text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 p-4 rounded-lg">
-                  {style.label}
-                </div>
-              ) : (
-                <div>{style.label}</div>
-              )}
+            <div className="flex items-center space-x-2">
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <ImageIcon size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Camera size={22} />
+              </button>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* 3D Effect Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effect</h3>
-        <div className="flex items-center justify-between mb-4">
-          <span>Enable 3D Effect</span>
-          <input
-            type="checkbox"
-            checked={editorState.effect3D}
-            onChange={(e) =>
-              setEditorState((prev) => ({ ...prev, effect3D: e.target.checked }))
-            }
-            className="form-checkbox h-5 w-5 text-blue-600"
-          />
-        </div>
-        {editorState.effect3D && (
-          <>
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              {threeDEffects.map((effect, index) => (
-                <button
-                  key={index}
-                  className={`p-2 rounded-lg transition-transform ${
-                    editorState.effect3DClassName === effect.className
-                      ? "bg-blue-600 text-white scale-105"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  onClick={() => handleThreeDEffectSelect(effect.className)}
-                >
-                  {effect.name}
-                </button>
-              ))}
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label htmlFor="effect3DIntensity" className="text-sm text-gray-600">
-                3D Intensity
-              </label>
-              <input
-                type="range"
-                id="effect3DIntensity"
-                min="0"
-                max="100"
-                value={editorState.effect3DIntensity}
-                onChange={(e) =>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleCropClick}
+                className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
+                  editorState.cropMode ? "bg-gray-200" : ""
+                }`}
+              >
+                <Crop size={22} />
+              </button>
+              <button
+                onClick={() =>
                   setEditorState((prev) => ({
                     ...prev,
-                    effect3DIntensity: Number(e.target.value),
+                    rotate: (prev.rotate + 90) % 360,
                   }))
                 }
-                className="w-full"
-              />
+                className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out"
+              >
+                <RotateCw size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Sliders size={22} />
+              </button>
             </div>
-          </>
-        )}
-      </section>
+            <div className="flex items-center space-x-2">
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Layers size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Pen size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Eraser size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Type size={22} />
+              </button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Square size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Circle size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Triangle size={22} />
+              </button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Scissors size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Smile size={22} />
+              </button>
+              <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
+                <Grid size={22} />
+              </button>
+            </div>
+            {editorState.image && (
+              <button
+                onClick={() =>
+                  setEditorState((prev) => ({
+                    ...prev,
+                    isSizingImage: !prev.isSizingImage,
+                    tempImageSize: prev.imageSize,
+                  }))
+                }
+                className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
+                  editorState.isSizingImage ? "bg-gray-200" : ""
+                }`}
+              >
+                <Move size={22} />
+              </button>
+            )}
+            {editorState.isSizingImage && (
+              <button
+                onClick={saveImageSize}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
+              >
+                <Save size={18} />
+                <span>Save Size</span>
+              </button>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm">
+              <Share2 size={18} />
+              <span>Share</span>
+            </button>
+            <button
+              onClick={handleDownload}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
+            >
+              <Download size={18} />
+              <span>Download</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Sidebar */}
+          <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-r border-gray-200">
+            <Sidebar
+              editorState={editorState}
+              setEditorState={setEditorState}
+            />
+          </div>
+
+          {/* Main Content */}
+          <div
+            className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center"
+            ref={containerRef}
+          >
+            {editorState.image ? (
+              <div
+                className="relative"
+                style={{
+                  width: `${canvasSize.width}px`,
+                  height: `${canvasSize.height}px`,
+                  background: editorState.background,
+                }}
+              >
+                {editorState.cropMode ? (
+                  <CropTool
+                    image={editorState.image}
+                    onCropComplete={handleCropComplete}
+                  />
+                ) : editorState.isSizingImage ? (
+                  <ImageSizer
+                    src={editorState.image}
+                    onUpdate={handleImageSizeUpdate}
+                    initialSize={editorState.imageSize}
+                    containerSize={canvasSize}
+                    onFinishResize={saveImageSize}
+                  />
+                ) : (
+                  <>
+                    <ThreeDImage
+                      effect3D={editorState.effect3D}
+                      effect3DIntensity={editorState.effect3DIntensity}
+                      className="relative"
+                      style={{
+                        width: `${canvasSize.width}px`,
+                        height: `${canvasSize.height}px`,
+                      }}
+                    >
+                      <div
+                        className="relative"
+                        style={{
+                          width: `${canvasSize.width}px`,
+                          height: `${canvasSize.height}px`,
+                          background: editorState.background,
+                        }}
+                      >
+                        <div
+                          className="relative"
+                          style={{
+                            width: `${editorState.imageSize.width}px`,
+                            height: `${editorState.imageSize.height}px`,
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                          }}
+                        >
+                          <canvas
+                            ref={canvasRef}
+                            className="absolute top-0 left-0 z-0"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: `${editorState.cornerRadius}px`,
+                              filter: `${editorState.filter}(${
+                                editorState[
+                                  editorState.filter as keyof EditorState
+                                ] || ""
+                              })`,
+                              transform: getLayoutTransform(),
+                              transition: "transform 0.3s ease-in-out",
+                            }}
+                            onMouseDown={handleMouseDown}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                          />
+                        </div>
+                        {FrameComponent && (
+                          <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
+                            <FrameComponent />
+                          </div>
+                        )}
+                      </div>
+                    </ThreeDImage>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
+                <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
+                  <img
+                    src="https://media.lordicon.com/icons/wired/flat/198-upload-1.gif"
+                    width={100}
+                    height={100}
+                    alt="Upload icon"
+                  />
+                  <p className="text-gray-500 mb-4">Upload an image</p>
+                  <button
+                    onClick={handleUpload}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"
+                  >
+                    Select Image
+                  </button>
+                </div>
+              </div>
+            )}
+            {/* Bottom right corner icons */}
+            {editorState.image && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                <div className="flex space-x-2 bg-white bg-opacity-80 rounded-full p-1 shadow-md">
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Undo size={22} className="text-gray-700" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Redo size={22} className="text-gray-700" />
+                  </button>
+                  <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300 ease-in-out">
+                    <Eye size={22} className="text-gray-700" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-l border-gray-200">
+            <RightSidebar
+              editorState={editorState}
+              setEditorState={setEditorState}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
     </div>
-  )
-}
+  );
+};
+
+export default Editor;
