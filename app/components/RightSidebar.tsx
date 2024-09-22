@@ -15,11 +15,7 @@ interface RightSidebarProps {
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
 }
 
-const styles = [
-  { label: 'Hover Me', effect: 'hover' },
-  { label: '+3', effect: 'plus3' },
-  // Add more styles as needed
-];
+
 export default function RightSidebar({
   editorState,
   setEditorState,
