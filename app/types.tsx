@@ -46,7 +46,12 @@ export interface EditorState {
   effect3D: boolean;
   effect3DIntensity: number;
   selectedEffect: ThreeDEffect | null;
-  inset: number | 'auto';
+  inset: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

@@ -16,7 +16,6 @@ export default function Sidebar({
   const [showGradientModal, setShowGradientModal] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBorderColorPicker, setShowBorderColorPicker] = useState(false);
-  const [autoInset, setAutoInset] = useState(false);
 
   const gradients = [
     "linear-gradient(to right, #ff6e7f, #bfe9ff)",
@@ -119,30 +118,6 @@ export default function Sidebar({
     return 50; // Default to 50% if no matches found
   };
 
-  const handleInsetChange = (value: number) => {
-    setEditorState(prev => ({
-      ...prev,
-      inset: value,
-    }));
-  };
-
-  const toggleAutoInset = () => {
-    setAutoInset(!autoInset);
-    if (!autoInset) {
-      // When enabling auto inset, set a default value or calculate based on image size
-      setEditorState(prev => ({
-        ...prev,
-        inset: 'auto',
-      }));
-    } else {
-      // When disabling auto inset, set a default percentage value
-      setEditorState(prev => ({
-        ...prev,
-        inset: 5,
-      }));
-    }
-  };
-
   return (
     <div className="w-full bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
       {/* Background Section */}
@@ -243,7 +218,7 @@ export default function Sidebar({
       {/* Adjustments Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
-        {["padding", "rotate"].map(
+        {["padding", "inset", "rotate"].map(
           (adjustment) => (
             <label key={adjustment} className="block mb-4">
               <span className="block text-gray-600 capitalize mb-1">
@@ -265,40 +240,6 @@ export default function Sidebar({
             </label>
           )
         )}
-        {/* Inset Section */}
-        <div className="mb-4">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Inset</h3>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-gray-600">Auto Inset</label>
-            <Switch
-              checked={autoInset}
-              onChange={toggleAutoInset}
-              className={`${
-                autoInset ? 'bg-blue-600' : 'bg-gray-200'
-              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-            >
-              <span
-                className={`${
-                  autoInset ? 'translate-x-6' : 'translate-x-1'
-                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-              />
-            </Switch>
-          </div>
-          <div className="flex items-center space-x-4">
-            <input
-              type="range"
-              min="0"
-              max="50"
-              value={autoInset ? 0 : editorState.inset}
-              onChange={(e) => handleInsetChange(Number(e.target.value))}
-              disabled={autoInset}
-              className={`w-full ${autoInset ? 'opacity-50 cursor-not-allowed' : ''}`}
-            />
-            <span className="block text-right text-gray-500 text-xs mt-1 w-10">
-              {autoInset ? 'Auto' : `${editorState.inset}%`}
-            </span>
-          </div>
-        </div>
       </section>
 
       {/* Border Section */}
