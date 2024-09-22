@@ -1,7 +1,7 @@
 import { StaticImageData } from 'next/image';
 export interface Frame {
   label: string;
-  component: React.FC;
+  component: React.ComponentType<any> | null;
 }
 export interface EditorState {
   selectedStyle: any;
@@ -76,11 +76,7 @@ export interface Shape {
   strokeWidth: number;
 }
 
-export interface Frame {
-  src?: StaticImageData; 
-  label: string;
-  component: React.FC;
-}
+
 
 export interface Layout {
   name: string;

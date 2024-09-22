@@ -30,6 +30,7 @@ export default function RightSidebar({
   ];
 
   const frames: Frame[] = [
+    
     { label: "Chrome Light", component: ChromeNavbarLight },
     { label: "Chrome Dark", component: ChromeNavbarDark },
     { label: "Safari Light", component: SafariNavbarLight },

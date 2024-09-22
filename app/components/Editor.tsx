@@ -75,23 +75,18 @@ const Editor = () => {
     pixelDensity: 2
   });
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setIsDragging(true);
-      setDragStart({ x, y });
-    }
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDragging && canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const dx = x - dragStart.x;
-      const dy = y - dragStart.y;
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDragging) {
+      e.preventDefault();
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+
       setEditorState(prev => ({
         ...prev,
         imagePosition: {
@@ -99,7 +94,8 @@ const Editor = () => {
           y: prev.imagePosition.y + dy
         }
       }));
-      setDragStart({ x, y });
+
+      setDragStart({ x: e.clientX, y: e.clientY });
     }
   };
 
@@ -147,6 +143,18 @@ const Editor = () => {
     }
   };
 
+  const renderNavbar = () => {
+    if (editorState.frame && editorState.frame.component) {
+      const FrameComponent = editorState.frame.component;
+      return (
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-10">
+          <FrameComponent />
+        </div>
+      );
+    }
+    return null;
+  };
+
   const renderImage = () => {
     if (!editorState.image) return null;
 
@@ -175,36 +183,45 @@ const Editor = () => {
             style={{
               width: `${editorState.imageSize.width}px`,
               height: `${editorState.imageSize.height}px`,
-              left: '45%',
-              top: '45%',
-              transform: `translate(-50%, -50%) ${getThreeDTransform(selectedEffect)}`,
+              left: `${editorState.imagePosition.x}px`,
+              top: `${editorState.imagePosition.y}px`,
+              transform: `${getThreeDTransform(selectedEffect)}`,
               transformOrigin: 'center',
               transition: 'transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out',
             }}
           >
-            <canvas
-              ref={canvasRef}
-              className="absolute top-0 left-0 z-0"
+            <div
               style={{
                 width: '100%',
                 height: '100%',
                 borderRadius: `${editorState.cornerRadius}px`,
-                filter: `${editorState.filter}(${
-                  editorState[editorState.filter as keyof EditorState] || ""
-                })`,
+                overflow: 'hidden',
                 transform: getLayoutTransform(),
               }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
-            />
-          </div>
-          {FrameComponent && (
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
-              <FrameComponent />
+            >
+              <canvas
+                ref={canvasRef}
+                width={editorState.imageSize.width}
+                height={editorState.imageSize.height}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  filter: `${editorState.filter}(${
+                    editorState[editorState.filter as keyof EditorState] || ""
+                  })`,
+                }}
+              />
+              {editorState.frame && editorState.frame.component && (
+                <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
+                  {React.createElement(editorState.frame.component)}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
