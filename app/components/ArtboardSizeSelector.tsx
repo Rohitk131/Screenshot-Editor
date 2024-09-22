@@ -33,7 +33,20 @@ const ArtboardSizeSelector: React.FC<ArtboardSizeSelectorProps> = ({
 
   const handleOptionSelect = (option: typeof sizeOptions[0]) => {
     setSelectedOption(option);
-    const [width, height] = option.size.split('×').map(s => parseInt(s));
+    let [width, height] = option.size.split('×').map(s => parseFloat(s));
+    
+    // Convert to pixels if necessary
+    if (option.size.includes('in')) {
+      width *= 96; // 96 pixels per inch
+      height *= 96;
+    } else if (option.size.includes('mm')) {
+      width *= 3.7795275591; // Convert mm to pixels
+      height *= 3.7795275591;
+    }
+
+    width = Math.round(width);
+    height = Math.round(height);
+
     if (!isNaN(width) && !isNaN(height)) {
       onSizeChange(width, height);
     }
