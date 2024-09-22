@@ -144,15 +144,15 @@ export default function RightSidebar({
                 <div className="col-span-2 flex items-center space-x-2">
                   <button
                     onClick={() => handleFilterClick(filter)}
-                    className={`flex-1 p-3 rounded-lg transition-transform ${
+                    className={`flex-1  rounded-lg  transition-transform ${
                       editorState.filter === filter
                         ? "bg-blue-600 text-white scale-105"
                         : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     } border border-gray-300  overflow-hidden`}
                   >
-                    <div className="relative w-full h-20 flex items-center aspect-square">
+                    <div className="relative w-full h-10 flex items-center aspect-square">
                       <img
-                        src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
+                        src="https://t3.ftcdn.net/jpg/02/47/02/84/360_F_247028431_yPo8nwG9HuQN6oHyix8YnhYBeOXtF0c4.jpg"
                         alt="Brightness"
                         layout="fill"
                         objectFit="cover"
@@ -179,15 +179,15 @@ export default function RightSidebar({
               ) : (
                 <button
                   onClick={() => handleFilterClick(filter)}
-                  className={`p-3 rounded-lg transition-transform ${
+                  className={` rounded-lg transition-transform h-16 ${
                     editorState.filter === filter
                       ? "bg-blue-600 text-white scale-105"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
                 >
-                  <div className="relative w-20 aspect-square">
+                  <div className="relative w-30 aspect-square">
                     <img
-                      src="https://static.vecteezy.com/system/resources/thumbnails/008/497/286/small/3d-beach-ball-object-with-transparent-background-png.png"
+                      src="https://t3.ftcdn.net/jpg/02/47/02/84/360_F_247028431_yPo8nwG9HuQN6oHyix8YnhYBeOXtF0c4.jpg"
                       alt={filter}
                       layout="fill"
                       objectFit="cover"
@@ -207,37 +207,37 @@ export default function RightSidebar({
       </section>
       {/* Layout Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {layoutOptions.map((layout, index) => (
-            <button
-              key={index}
-              className={`p-3 rounded-lg transition-transform ${
-                editorState.layout.name === layout.name
-                  ? "bg-blue-600 text-white scale-105"
-                  : "bg-gray-700 text-gray-700 hover:bg-gray-300"
-              } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 overflow-hidden`}
-              onClick={() =>
-                setEditorState((prev) => ({
-                  ...prev,
-                  layout: layout,
-                }))
-              }
-            >
-              <div className="relative w-full aspect-square mb-2">
-                <img
-                  src="https://preview.redd.it/5klcymw4da831.jpg?width=7000&format=pjpg&auto=webp&s=6dd150387b7a0b56b8854ec65b8b508d87256e14"
-                  alt={layout.name}
-                  layout="fill"
-                  objectFit="cover"
-                  style={{ transform: layout.transform }}
-                />
-              </div>
-              <span className="block text-center">{layout.name}</span>
-            </button>
-          ))}
+  <h3 className="text-xl font-bold mb-4 text-gray-800">Layout</h3>
+  <div className="grid grid-cols-2 gap-6">
+    {layoutOptions.map((layout, index) => (
+      <button
+        key={index}
+        className={`p-4 rounded-lg transition-all transform ${
+          editorState.layout.name === layout.name
+            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-105 shadow-lg"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        onClick={() =>
+          setEditorState((prev) => ({
+            ...prev,
+            layout: layout,
+          }))
+        }
+      >
+        <div className="relative w-20 h-14 flex items-center justify-center">
+          <img
+            src="https://www.transparentpng.com/download/credit-card/8p4jX1-blank-credit-card-pic.png"
+            alt={layout.name}
+            className="object-contain w-full h-full"
+            style={{ transform: layout.transform }}
+          />
         </div>
-      </section>
+        <span className="block text-center font-medium">{layout.name}</span>
+      </button>
+    ))}
+  </div>
+</section>
+
 
       <h3 className="text-xl font-bold mb-4 mt-8">Styles</h3>
       <div className="grid grid-cols-2 gap-4">
