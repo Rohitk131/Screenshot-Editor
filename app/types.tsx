@@ -10,7 +10,6 @@ export interface EditorState {
   effect3DType: string;
   background: string;
   padding: number;
-  inset: number;
   shadow: number;
   cornerRadius: number;
   image: string | null;
@@ -47,6 +46,7 @@ export interface EditorState {
   effect3D: boolean;
   effect3DIntensity: number;
   selectedEffect: ThreeDEffect | null;
+  inset: number | 'auto';
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

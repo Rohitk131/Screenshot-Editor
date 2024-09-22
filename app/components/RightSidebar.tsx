@@ -8,7 +8,7 @@ import {
   MacOSNavbarDark,
 } from "./Navbars";
 
-import { EditorState, Filter, Frame, Layout } from "../types";
+import { EditorState, Filter, Frame, Layout, ThreeDEffect } from "../types";
 import Image from "next/image";
 interface RightSidebarProps {
   editorState: EditorState;

@@ -16,53 +16,19 @@ export function ThreeDImage({
   children,
   className = '',
   effect3D,
-  effect3DIntensity,
   style,
-  onMouseDown,
-  onMouseMove,
-  onMouseUp,
-  onMouseLeave
 }: ThreeDImageProps) {
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!effect3D) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const rotateX = (y / rect.height - 0.5) * 20 * (effect3DIntensity / 100);
-    const rotateY = (x / rect.width - 0.5) * 20 * (effect3DIntensity / 100);
-    setRotation({ x: rotateX, y: rotateY });
-    onMouseMove && onMouseMove(e);
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    setRotation({ x: 0, y: 0 });
-    onMouseLeave && onMouseLeave(e);
-  };
-
   return (
     <div
-      ref={containerRef}
-      className={`perspective-1000 ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
+      className={`three-d-wrapper ${className} ${effect3D ? 'three-d-effect' : ''}`}
       style={{
-        perspective: '1000px',
+        ...style,
+        position: 'relative',
         transformStyle: 'preserve-3d',
-        ...style
+        transition: 'transform 150ms cubic-bezier(0, 0, 0.58, 1)',
       }}
     >
-      <div
-        style={{
-          transform: effect3D ? `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` : 'none',
-          transition: 'transform 0.2s ease-out',
-          transformStyle: 'preserve-3d',
-        }}
-      >
+      <div className="three-d-container">
         {children}
       </div>
     </div>
