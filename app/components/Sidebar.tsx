@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { EditorState, Filter } from "../types";
+import React, { useState, useEffect} from "react";
+import { EditorState } from "../types";
+
 import ColorPicker from "./ColorPicker";
 import CustomGradientModal from "./CustomGradientModal";
 import { Move, Plus } from "lucide-react";
@@ -11,7 +12,11 @@ interface SidebarProps {
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
   editorDimensions: { width: number; height: number };
 }
-export default function Sidebar({ editorState, setEditorState }: SidebarProps) {
+export default function Sidebar({
+  editorState,
+  setEditorState,
+}: SidebarProps) {
+  const [autoInset, setAutoInset] = useState(false);
   const [showGradientModal, setShowGradientModal] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBorderColorPicker, setShowBorderColorPicker] = useState(false);
@@ -44,6 +49,48 @@ export default function Sidebar({ editorState, setEditorState }: SidebarProps) {
     "rgba(0, 0, 0, 0.2) 0px 60px 40px -7px",
     "rgba(0, 0, 0, 0.56) 0px 22px 70px 4px",
   ];
+  
+  
+  const handleInsetChange = (value: number) => {
+    setEditorState((prev) => {
+      const newInset = value;
+      const newScale = 1 - (newInset / 100) * 0.15; // Reduce max scale to 0.85
+      const shadowIntensity = newInset / 100;
+      const newBoxShadow = `inset 0 0 ${newInset * 0.5}px rgba(0,0,0,${shadowIntensity})`;
+      
+      return {
+        ...prev,
+        inset: newInset,
+        transform: `scale(${newScale})`,
+        boxShadow: newBoxShadow,
+        padding: `${newInset * 0.5}px`, // Add padding to prevent image from touching edges
+      };
+    });
+  };
+
+  const handleAutoInsetToggle = (enabled: boolean) => {
+    setAutoInset(enabled);
+    if (enabled) {
+      handleInsetChange(50); // Apply a default inset effect
+    } else {
+      handleInsetChange(0); // Reset inset effect
+    }
+  };
+
+  // Smooth transition for auto-inset
+  useEffect(() => {
+    if (autoInset) {
+      const interval = setInterval(() => {
+        setEditorState((prev) => {
+          const newInset = Math.min(prev.inset + 2, 50);
+          if (newInset === 50) clearInterval(interval);
+          return handleInsetChange(newInset);
+        });
+      }, 20);
+      return () => clearInterval(interval);
+    }
+  }, [autoInset]);
+
 
   const handlePaddingChange = (value: number) => {
     setEditorState((prev) => ({
@@ -237,26 +284,65 @@ export default function Sidebar({ editorState, setEditorState }: SidebarProps) {
       {/* Adjustments Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
-        {["padding", "inset", "rotate"].map((adjustment) => (
-          <label key={adjustment} className="block mb-4">
-            <span className="block text-gray-600 capitalize mb-1">
-              {adjustment}
-            </span>
-            <input
-              type="range"
-              min="0"
-              max={adjustment === "rotate" ? "360" : "100"}
-              value={editorState[adjustment as keyof EditorState] as number}
-              onChange={(e) =>
-                handleAdjustmentChange(adjustment, Number(e.target.value))
-              }
-              className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+          {/* Auto Inset Toggle */}
+          <div className="flex items-center justify-between mb-4">
+          <span className="text-gray-600">Auto Inset</span>
+          <Switch
+            checked={autoInset}
+            onChange={handleAutoInsetToggle}
+            className={`${
+              autoInset ? 'bg-blue-600' : 'bg-gray-200'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+          >
+            <span
+              className={`${
+                autoInset ? 'translate-x-6' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
             />
-            <span className="block text-right text-gray-500 text-xs mt-1">
-              {String(editorState[adjustment as keyof EditorState])}
-            </span>
-          </label>
-        ))}
+          </Switch>
+        </div>
+
+        {/* Inset Slider */}
+        <label className="block mb-4">
+          <span className="block text-gray-600 capitalize mb-1">Inset</span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={editorState.inset}
+            onChange={(e) => handleInsetChange(Number(e.target.value))}
+            disabled={autoInset}
+            className={`w-full bg-gray-200 rounded-lg appearance-none h-2 ${
+              autoInset ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          />
+          <span className="block text-right text-gray-500 text-xs mt-1">
+            {editorState.inset}
+          </span>
+        </label>
+
+        {["padding", "rotate"].map(
+          (adjustment) => (
+            <label key={adjustment} className="block mb-4">
+              <span className="block text-gray-600 capitalize mb-1">
+                {adjustment}
+              </span>
+              <input
+                type="range"
+                min="0"
+                max={adjustment === "rotate" ? "360" : "100"}
+                value={editorState[adjustment as keyof EditorState] as number}
+                onChange={(e) =>
+                  handleAdjustmentChange(adjustment, Number(e.target.value))
+                }
+                className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+              />
+              <span className="block text-right text-gray-500 text-xs mt-1">
+                {String(editorState[adjustment as keyof EditorState])}
+              </span>
+            </label>
+          )
+        )}
       </section>
 
       {/* Border Section */}

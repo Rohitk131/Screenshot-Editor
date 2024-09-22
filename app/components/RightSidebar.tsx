@@ -39,15 +39,18 @@ export default function RightSidebar({
   ];
 
   const layoutOptions: Layout[] = [
-    { name: "None", transform: "" },
-    { name: "Tilt Left", transform: "perspective(1000px) rotateY(-20deg)" },
-    { name: "Tilt Right", transform: "perspective(1000px) rotateY(20deg)" },
-    { name: "Tilt Up", transform: "perspective(1000px) rotateX(20deg)" },
-    { name: "Tilt Down", transform: "perspective(1000px) rotateX(-20deg)" },
-    {
-      name: "Rotate",
-      transform: "perspective(1000px) rotate3d(1, 1, 1, 15deg)",
-    },
+    { name: "Default", transform: "none" },
+    { name: "Isometric", transform: "perspective(1000px) rotateX(45deg) rotateZ(-45deg)" },
+    { name: "Dramatic Tilt", transform: "perspective(1000px) rotateX(-15deg) rotateY(20deg) scale(0.95)" },
+    { name: "Page Curl", transform: "perspective(1000px) rotateY(-30deg) translateZ(-100px) translateX(50px)" },
+    { name: "Hover Float", transform: "perspective(1000px) translateY(-20px) rotateX(10deg) scale(1.1)" },
+    { name: "Cinematic Pan", transform: "perspective(2000px) rotateX(10deg) translateZ(-100px) translateY(-30px)" },
+    { name: "Isometric Pop", transform: "perspective(1000px) rotateX(30deg) rotateZ(-45deg) translateZ(50px)" },
+    { name: "Origami Unfold", transform: "perspective(1000px) rotateY(-35deg) rotateX(15deg) translateX(-50px) scale(0.9)" },
+    { name: "Ripple Effect", transform: "perspective(1000px) rotateX(10deg) skew(-5deg, 5deg) translateZ(30px)" },
+    { name: "Dynamic Swing", transform: "perspective(1000px) rotateY(45deg) rotateZ(-10deg) translateZ(-50px) scale(0.9)" },
+  { name: "Spiral", transform: "perspective(1000px) rotateY(45deg) rotateX(45deg) "},
+    { name: "Parallax Depth", transform: "perspective(2000px) translateZ(-200px) rotateX(20deg) scale(1.2)" }
   ];
 
   const handleFrameSelect = (frame: Frame) => {
