@@ -11,7 +11,9 @@ import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
 import CropTool from "./CropTool";
 import ImageSizer from "./ImageSizer";
+import DownloadOptionsCard from "./DownloadOptionsCard";
 import '../styles/ThreeDEffects.css';
+import ArtboardSizeSelector from "./ArtboardSizeSelector";
 
 type FrameComponentType = React.ComponentType<any> | null;
 const Editor = () => {
@@ -65,6 +67,13 @@ const Editor = () => {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+  const [downloadOptions, setDownloadOptions] = useState({
+    width: canvasSize.width,
+    height: canvasSize.height,
+    pixelDensity: 2
+  });
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (canvasRef.current) {
@@ -331,24 +340,46 @@ const Editor = () => {
     return editorState.layout.transform;
   };
 
-  const handleDownload = async () => {
+  const handleDownloadClick = () => {
+    setDownloadOptions({
+      width: canvasSize.width,
+      height: canvasSize.height,
+      pixelDensity: 2
+    });
+    setShowDownloadOptions(true);
+  };
+
+  const handleDownload = async (options: { width: number; height: number; pixelDensity: number }) => {
     if (containerRef.current) {
       try {
         const canvas = await html2canvas(containerRef.current, {
           useCORS: true,
-          scale: 2,
-          backgroundColor: null
-        } as any);
+          scale: options.pixelDensity,
+          width: options.width,
+          height: options.height,
+          backgroundColor: null,
+          logging: true, // Enable logging for debugging
+        });
         
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = 'edited-image.png';
-        link.href = dataUrl;
-        link.click();
+        // Ensure the canvas has content
+        if (canvas.width > 0 && canvas.height > 0) {
+          const dataUrl = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.download = 'edited-image.png';
+          link.href = dataUrl;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          console.error("Generated canvas is empty");
+        }
       } catch (error) {
         console.error("Error generating image:", error);
       }
+    } else {
+      console.error("Container ref is null");
     }
+    setShowDownloadOptions(false);
   };
 
   const handleUpload = () => {
@@ -520,7 +551,7 @@ const Editor = () => {
               <span>Share</span>
             </button>
             <button
-              onClick={handleDownload}
+              onClick={handleDownloadClick}
               className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm"
             >
               <Download size={18} />
@@ -622,9 +653,16 @@ const Editor = () => {
         accept="image/*"
         className="hidden"
       />
+
+      {showDownloadOptions && (
+        <DownloadOptionsCard
+          defaultOptions={downloadOptions}
+          onDownload={handleDownload}
+          onCancel={() => setShowDownloadOptions(false)}
+        />
+      )}
     </div>
   );
 };
-
 
 export default Editor;
