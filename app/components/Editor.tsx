@@ -97,16 +97,17 @@ const Editor = () => {
   const handleMouseUp = () => {
     setIsDragging(false);
   };
-
   useEffect(() => {
-    if (editorState.image) {
+    if (editorState?.image) {
       const img = new Image();
       img.onload = () => {
         setImage(img);
       };
       img.src = editorState.image;
+    } else {
+      setImage(null);
     }
-  }, [editorState.image]);
+  }, [editorState?.image]);
 
   useEffect(() => {
     if (editorState.frame) {
@@ -540,24 +541,24 @@ const Editor = () => {
             className="flex-1 mx-4 rounded-2xl overflow-hidden flex items-center justify-center"
             ref={containerRef}
           >
-            {editorState.image ? (
-              editorState.cropMode ? (
-                <CropTool
-                  image={editorState.image}
-                  onCropComplete={handleCropComplete}
-                />
-              ) : editorState.isSizingImage ? (
-                <ImageSizer
-                  src={editorState.image}
-                  onUpdate={handleImageSizeUpdate}
-                  initialSize={editorState.imageSize}
-                  containerSize={canvasSize}
-                  onFinishResize={saveImageSize}
-                />
-              ) : (
-                renderImage()
-              )
-            ) : (
+             {editorState.image ? (
+          editorState.cropMode ? (
+            <CropTool
+              image={editorState.image}
+              onCropComplete={handleCropComplete}
+            />
+          ) : editorState.isSizingImage ? (
+            <ImageSizer
+              src={editorState.image}
+              onUpdate={handleImageSizeUpdate}
+              initialSize={editorState.imageSize}
+              containerSize={canvasSize}
+              onFinishResize={saveImageSize}
+            />
+          ) : (
+            renderImage()
+          )
+        ) : (
               <div className="text-center p-4 bg-white rounded-2xl shadow-md justify-center items-center">
                 <div className="border-2 border-blue-400 border-dashed p-6 rounded-2xl justify-center items-center flex flex-col px-14">
                   <img
