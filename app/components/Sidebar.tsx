@@ -12,6 +12,17 @@ interface SidebarProps {
   setEditorState: React.Dispatch<React.SetStateAction<EditorState>>;
   editorDimensions: { width: number; height: number };
 }
+
+const calculateAutoInset = (imageWidth: number, imageHeight: number) => {
+  const maxInset = Math.min(imageWidth, imageHeight) * 0.1; // 10% of the smaller dimension
+  return {
+    top: Math.round(maxInset),
+    bottom: Math.round(maxInset),
+    left: Math.round(maxInset),
+    right: Math.round(maxInset)
+  };
+};
+
 export default function Sidebar({
   editorState,
   setEditorState,
@@ -51,46 +62,41 @@ export default function Sidebar({
   ];
   
   
-  const handleInsetChange = (value: number) => {
-    setEditorState((prev) => {
-      const newInset = value;
-      const newScale = 1 - (newInset / 100) * 0.15; // Reduce max scale to 0.85
-      const shadowIntensity = newInset / 100;
-      const newBoxShadow = `inset 0 0 ${newInset * 0.5}px rgba(0,0,0,${shadowIntensity})`;
-      
-      return {
-        ...prev,
-        inset: newInset,
-        transform: `scale(${newScale})`,
-        boxShadow: newBoxShadow,
-        padding: `${newInset * 0.5}px`, // Add padding to prevent image from touching edges
-      };
-    });
+  const handleInsetChange = (direction: 'top' | 'bottom' | 'left' | 'right', value: number) => {
+    setEditorState((prev) => ({
+      ...prev,
+      inset: {
+        ...prev.inset,
+        [direction]: value
+      },
+      imagePosition: {
+        ...prev.imagePosition,
+        x: direction === 'left' ? value : (direction === 'right' ? -value : prev.imagePosition.x),
+        y: direction === 'top' ? value : (direction === 'bottom' ? -value : prev.imagePosition.y)
+      }
+    }));
   };
 
   const handleAutoInsetToggle = (enabled: boolean) => {
     setAutoInset(enabled);
-    if (enabled) {
-      handleInsetChange(50); // Apply a default inset effect
+    if (enabled && editorState.image) {
+      const img = new Image();
+      img.onload = () => {
+        const autoInset = calculateAutoInset(img.width, img.height);
+        setEditorState(prev => ({
+          ...prev,
+          inset: autoInset
+        }));
+      };
+      img.src = editorState.image;
     } else {
-      handleInsetChange(0); // Reset inset effect
+      // Reset inset effect
+      setEditorState(prev => ({
+        ...prev,
+        inset: { top: 0, bottom: 0, left: 0, right: 0 }
+      }));
     }
   };
-
-  // Smooth transition for auto-inset
-  useEffect(() => {
-    if (autoInset) {
-      const interval = setInterval(() => {
-        setEditorState((prev) => {
-          const newInset = Math.min(prev.inset + 2, 50);
-          if (newInset === 50) clearInterval(interval);
-          return handleInsetChange(newInset);
-        });
-      }, 20);
-      return () => clearInterval(interval);
-    }
-  }, [autoInset]);
-
 
   const handlePaddingChange = (value: number) => {
     setEditorState((prev) => ({
@@ -302,24 +308,44 @@ export default function Sidebar({
           </Switch>
         </div>
 
-        {/* Inset Slider */}
-        <label className="block mb-4">
-          <span className="block text-gray-600 capitalize mb-1">Inset</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={editorState.inset}
-            onChange={(e) => handleInsetChange(Number(e.target.value))}
-            disabled={autoInset}
-            className={`w-full bg-gray-200 rounded-lg appearance-none h-2 ${
-              autoInset ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          />
-          <span className="block text-right text-gray-500 text-xs mt-1">
-            {editorState.inset}
-          </span>
-        </label>
+        {/* Inset Section */}
+        <section className="mb-8">
+          <h3 className="text-xl font-bold mb-4 text-gray-800">Inset</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {['Top', 'Bottom', 'Left', 'Right'].map((direction) => (
+              <div key={direction} className="flex flex-col">
+                <label className="mb-1 text-gray-600">{direction}</label>
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset]}
+                    onChange={(e) => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', Number(e.target.value))}
+                    className="w-full px-2 py-1 border border-gray-300 rounded-l-md"
+                    disabled={autoInset}
+                  />
+                  <div className="flex flex-col border border-l-0 border-gray-300 rounded-r-md">
+                    <button
+                      onClick={() => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', (editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset] || 0) + 1)}
+                      className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 border-b border-gray-300"
+                      disabled={autoInset}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      onClick={() => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', Math.max((editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset] || 0) - 1, 0))}
+                      className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200"
+                      disabled={autoInset}
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {["padding", "rotate"].map(
           (adjustment) => (

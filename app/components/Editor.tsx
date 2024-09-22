@@ -23,7 +23,7 @@ const Editor = () => {
   const [editorState, setEditorState] = useState<EditorState>({
     background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
     padding: 1,
-    inset: defaultInset,
+    inset: { top: 0, bottom: 0, left: 0, right: 0 },
     shadow: 20,
     cornerRadius: 12,
     image: null,
@@ -175,11 +175,10 @@ const Editor = () => {
             style={{
               width: `${editorState.imageSize.width}px`,
               height: `${editorState.imageSize.height}px`,
-              left: '50%',
-              top: '50%',
+              left: '45%',
+              top: '45%',
               transform: `translate(-50%, -50%) ${getThreeDTransform(selectedEffect)}`,
               transformOrigin: 'center',
-              boxShadow: applyEffect ? '0 20px 20px rgba(0,0,0,0.3)' : 'none',
               transition: 'transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out',
             }}
           >
@@ -233,10 +232,10 @@ const Editor = () => {
         const { width: newWidth, height: newHeight } = editorState.imageSize;
 
         // Calculate inset values
-        const totalInsetX = (editorState.inset / 100) * newWidth;
-        const totalInsetY = (editorState.inset / 100) * newHeight;
-        const insetWidth = newWidth - 2 * totalInsetX;
-        const insetHeight = newHeight - 2 * totalInsetY;
+        const totalInsetX = (editorState.inset.left / 100) * newWidth;
+        const totalInsetY = (editorState.inset.top / 100) * newHeight;
+        const insetWidth = newWidth - (editorState.inset.left + editorState.inset.right) / 100 * newWidth;
+        const insetHeight = newHeight - (editorState.inset.top + editorState.inset.bottom) / 100 * newHeight;
 
         // Add padding to canvas size
         const canvasWidth = newWidth + editorState.padding * 2;
