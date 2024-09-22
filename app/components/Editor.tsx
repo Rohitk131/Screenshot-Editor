@@ -13,6 +13,7 @@ import CropTool from "./CropTool";
 import ImageSizer from "./ImageSizer";
 import DownloadOptionsCard from "./DownloadOptionsCard";
 import '../styles/ThreeDEffects.css';
+import ArtboardSizeSelector from "./ArtboardSizeSelector";
 
 type FrameComponentType = React.ComponentType<any> | null;
 const Editor = () => {

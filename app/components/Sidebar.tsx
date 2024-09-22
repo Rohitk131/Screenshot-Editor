@@ -4,6 +4,7 @@ import ColorPicker from "./ColorPicker";
 import CustomGradientModal from "./CustomGradientModal";
 import { Move, Plus } from "lucide-react";
 import { Switch } from "@headlessui/react";
+import ArtboardSizeSelector from './ArtboardSizeSelector';
 
 interface SidebarProps {
   editorState: EditorState;
@@ -118,8 +119,34 @@ export default function Sidebar({
     return 50; // Default to 50% if no matches found
   };
 
+  const handleSizeChange = (width: number, height: number) => {
+    setEditorState(prev => ({
+      ...prev,
+      imageSize: { width, height },
+      tempImageSize: { width, height }
+    }));
+  };
+
+  const handleOrientationChange = (isPortrait: boolean) => {
+    const { width, height } = editorState.imageSize;
+    if ((isPortrait && width > height) || (!isPortrait && height > width)) {
+      setEditorState(prev => ({
+        ...prev,
+        imageSize: { width: height, height: width },
+        tempImageSize: { width: height, height: width }
+      }));
+    }
+  };
+
   return (
     <div className="w-full bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+      <ArtboardSizeSelector
+        size={editorState.imageSize}
+        isPortrait={editorState.imageSize.width <= editorState.imageSize.height}
+        onSizeChange={handleSizeChange}
+        onOrientationChange={handleOrientationChange}
+      />
+
       {/* Background Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Background</h3>
