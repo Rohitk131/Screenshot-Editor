@@ -31,6 +31,7 @@ export default function Sidebar({
   const [showGradientModal, setShowGradientModal] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showBorderColorPicker, setShowBorderColorPicker] = useState(false);
+  const [shadowEnabled, setShadowEnabled] = useState(true);
 
   const gradients = [
     "linear-gradient(to right, #ff6e7f, #bfe9ff)",
@@ -98,7 +99,6 @@ export default function Sidebar({
     setEditorState((prev) => ({
       ...prev,
       padding: value,
-      image: prev.image,
     }));
   };
   const handleAdjustmentChange = (adjustment: string, value: number) => {
@@ -180,6 +180,23 @@ export default function Sidebar({
         ...prev,
         imageSize: { width: height, height: width },
         tempImageSize: { width: height, height: width },
+      }));
+    }
+  };
+
+  const handleShadowToggle = (enabled: boolean) => {
+    setShadowEnabled(enabled);
+    if (!enabled) {
+      setEditorState((prev) => ({
+        ...prev,
+        imageShadow: "none",
+      }));
+    } else {
+      // Restore the last selected shadow or use a default one
+      const lastShadow = shadowTypes[0]; // You can store the last selected shadow in state if needed
+      setEditorState((prev) => ({
+        ...prev,
+        imageShadow: lastShadow,
       }));
     }
   };
@@ -440,34 +457,53 @@ export default function Sidebar({
 
       {/* Image Shadow Section */}
       <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Shadow</h3>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {shadowTypes.map((shadow, index) => (
-            <button
-              key={index}
-              className={`w-full h-16 rounded-lg border-2 transition-all duration-300 ${
-                editorState.imageShadow === shadow
-                  ? "border-blue-500"
-                  : "border-gray-200"
-              }`}
-              style={{ boxShadow: shadow }}
-              onClick={() =>
-                setEditorState((prev) => ({ ...prev, imageShadow: shadow }))
-              }
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-800">Shadow</h3>
+          <Switch
+            checked={shadowEnabled}
+            onChange={handleShadowToggle}
+            className={`${
+              shadowEnabled ? 'bg-blue-600' : 'bg-gray-200'
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+          >
+            <span
+              className={`${
+                shadowEnabled ? 'translate-x-6' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
             />
-          ))}
+          </Switch>
         </div>
-        <label className="block mb-4">
-          <span className="block text-gray-600 mb-1">Shadow Intensity</span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={getShadowIntensity(editorState.imageShadow)}
-            onChange={(e) => handleShadowChange(Number(e.target.value))}
-            className="w-full bg-gray-200 rounded-lg appearance-none h-2"
-          />
-        </label>
+        {shadowEnabled && (
+          <>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {shadowTypes.map((shadow, index) => (
+                <button
+                  key={index}
+                  className={`w-full h-16 rounded-lg border-2 transition-all duration-300 ${
+                    editorState.imageShadow === shadow
+                      ? "border-blue-500"
+                      : "border-gray-200"
+                  }`}
+                  style={{ boxShadow: shadow }}
+                  onClick={() =>
+                    setEditorState((prev) => ({ ...prev, imageShadow: shadow }))
+                  }
+                />
+              ))}
+            </div>
+            <label className="block mb-4">
+              <span className="block text-gray-600 mb-1">Shadow Intensity</span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={getShadowIntensity(editorState.imageShadow)}
+                onChange={(e) => handleShadowChange(Number(e.target.value))}
+                className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+              />
+            </label>
+          </>
+        )}
       </section>
       <ArtboardSizeSelector
         size={editorState.imageSize}
