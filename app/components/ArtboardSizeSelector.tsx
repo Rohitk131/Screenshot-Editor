@@ -9,16 +9,16 @@ interface ArtboardSizeSelectorProps {
 }
 
 const sizeOptions = [
-  { name: 'Custom', size: '960px × 960px' },
-  { name: 'Standard', size: '1200px × 1200px' },
-  { name: 'Postcard', size: '4in × 6in' },
-  { name: 'Business Card', size: '2in × 3.5in' },
-  { name: 'A4', size: '210mm × 297mm' },
-  { name: 'A5', size: '148mm × 210mm' },
-  { name: 'Poster Small', size: '16in × 20in' },
-  { name: 'Poster Big', size: '24in × 36in' },
-  { name: 'Instagram Post', size: '1080px × 1080px' },
-  { name: 'Facebook Post', size: '1200px × 1200px' },
+  { name: 'Custom', size: '960px × 960px', img: 'https://via.placeholder.com/50' },
+  { name: 'Standard', size: '1200px × 1200px', img: 'https://via.placeholder.com/50' },
+  { name: 'Postcard', size: '4in × 6in', img: 'https://via.placeholder.com/50' },
+  { name: 'Business Card', size: '2in × 3.5in', img: 'https://via.placeholder.com/50' },
+  { name: 'A4', size: '210mm × 297mm', img: 'https://via.placeholder.com/50' },
+  { name: 'A5', size: '148mm × 210mm', img: 'https://via.placeholder.com/50' },
+  { name: 'Poster Small', size: '16in × 20in', img: 'https://via.placeholder.com/50' },
+  { name: 'Poster Big', size: '24in × 36in', img: 'https://via.placeholder.com/50' },
+  { name: 'Instagram Post', size: '1080px × 1080px', img: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png' },
+  { name: 'Facebook Post', size: '1200px × 1200px', img: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg' },
 ];
 
 const ArtboardSizeSelector: React.FC<ArtboardSizeSelectorProps> = ({
@@ -79,13 +79,16 @@ const ArtboardSizeSelector: React.FC<ArtboardSizeSelectorProps> = ({
         {sizeOptions.map((option, index) => (
           <button
             key={index}
-            className={`p-2 text-left border rounded-md ${
+            className={`chip p-2 text-left border rounded-full flex items-center space-x-2 ${
               selectedOption.name === option.name ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
             }`}
             onClick={() => handleOptionSelect(option)}
           >
-            <div className="font-medium">{option.name}</div>
-            <div className="text-sm text-gray-500">{option.size}</div>
+            <img src={option.img} alt={option.name} className="h-10 w-10 rounded-full" />
+            <div>
+              <div className="font-medium">{option.name}</div>
+              <div className="text-sm text-gray-500">({option.size})</div>
+            </div>
           </button>
         ))}
       </div>

@@ -9,6 +9,7 @@ import {
 } from "./Navbars";
 
 import { EditorState, Frame, Layout, ThreeDEffect } from "../types";
+import { Layers } from "lucide-react";
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -24,13 +25,15 @@ export default function RightSidebar({
   setSelectedEffect
 }: RightSidebarProps) {
   const styles = [
-    { label: 'Hover Me', effect: 'hover' },
-    { label: '+3', effect: 'plus3' },
-    // Add more styles as needed
+    { label: 'Style 1', effect: 'style1' },
+    { label: 'Style 2', effect: 'style2' },
+    { label: 'Style 3', effect: 'style3' },
+    { label: 'Style 4', effect: 'style4' },
+    { label: 'Style 5', effect: 'style5' },
+    { label: 'Style 6', effect: 'style6' },
   ];
 
   const frames: Frame[] = [
-    
     { label: "Chrome Light", component: ChromeNavbarLight },
     { label: "Chrome Dark", component: ChromeNavbarDark },
     { label: "Safari Light", component: SafariNavbarLight },
@@ -50,7 +53,7 @@ export default function RightSidebar({
     { name: "Origami Unfold", transform: "perspective(1000px) rotateY(-35deg) rotateX(15deg) translateX(-50px) scale(0.9)" },
     { name: "Ripple Effect", transform: "perspective(1000px) rotateX(10deg) skew(-5deg, 5deg) translateZ(30px)" },
     { name: "Dynamic Swing", transform: "perspective(1000px) rotateY(45deg) rotateZ(-10deg) translateZ(-50px) scale(0.9)" },
-  { name: "Spiral", transform: "perspective(1000px) rotateY(45deg) rotateX(45deg) "},
+    { name: "Spiral", transform: "perspective(1000px) rotateY(45deg) rotateX(45deg) "},
     { name: "Parallax Depth", transform: "perspective(2000px) translateZ(-200px) rotateX(20deg) scale(1.2)" }
   ];
 
@@ -61,9 +64,24 @@ export default function RightSidebar({
     }));
   };
 
-  function handleStyleSelect(style: { label: string; effect: string; }): void {
-    // Implement style selection logic here
-  }
+  const handleStyleSelect = (style: { label: string; effect: string; }) => {
+    if (style.effect === 'style1') {
+      setEditorState((prev) => ({
+        ...prev,
+        selectedStyle: style,
+        customStyle: 'card-style1',
+        showStacks: true,
+        stackCount: 3 // You can adjust this number as needed
+      }));
+    } else {
+      setEditorState((prev) => ({
+        ...prev,
+        selectedStyle: style,
+        customStyle: '',
+        showStacks: false
+      }));
+    }
+  };
 
   const threeDEffects: ThreeDEffect[] = [
     { name: "Tilt", className: "tilt-3d" },
@@ -146,16 +164,18 @@ export default function RightSidebar({
               onClick={() => handleStyleSelect(style)}
             >
               <div className="aspect-w-1 aspect-h-1 flex items-center justify-center p-4">
-                {style.effect === 'hover' ? (
-                  <div className="bg-gray-700 text-white px-4 py-2 rounded-md shadow-md hover:shadow-lg transition-all duration-300">
-                    {style.label}
+                {style.effect === 'style1' ? (
+                  <div className="relative">
+                    <div className="absolute -top-2 -left-2 w-full h-full bg-blue-500 rounded-lg"></div>
+                    <div className="absolute -top-1 -left-1 w-full h-full bg-green-500 rounded-lg"></div>
+                    <div className="relative w-full h-full bg-white rounded-lg flex items-center justify-center">
+                      <Layers size={24} className="text-gray-800" />
+                    </div>
                   </div>
-                ) : style.effect === 'plus3' ? (
+                ) : (
                   <div className="text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-blue-500 p-4 rounded-lg">
                     {style.label}
                   </div>
-                ) : (
-                  <div>{style.label}</div>
                 )}
               </div>
             </div>

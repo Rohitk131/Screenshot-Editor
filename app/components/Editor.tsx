@@ -54,6 +54,10 @@ const Editor = () => {
     tempImageSize: { width: 0, height: 0 },
     imageShadow: "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
     imagePosition: { x: 0, y: 0 },
+    customStyle: '',
+    selectedStyle: null,
+    showStacks: false,
+    stackCount: 3,
   });
 
   const [FrameComponent, setFrameComponent] = useState<FrameComponentType>(null);
@@ -162,7 +166,7 @@ const Editor = () => {
 
     return (
       <div
-        className="relative"
+        className={`relative ${editorState.customStyle || ''}`}
         style={{
           width: `${canvasSize.width}px`,
           height: `${canvasSize.height}px`,
@@ -170,7 +174,7 @@ const Editor = () => {
         }}
       >
         <div
-          className="relative"
+          className="relative content"
           style={{
             width: `${canvasSize.width}px`,
             height: `${canvasSize.height}px`,
@@ -178,6 +182,36 @@ const Editor = () => {
             transformStyle: 'preserve-3d',
           }}
         >
+          {editorState.showStacks && (
+            <>
+              <div
+                className="absolute"
+                style={{
+                  width: `${editorState.imageSize.width}px`,
+                  height: `${editorState.imageSize.height}px`,
+                  left: `${editorState.imagePosition.x - 8}px`,
+                  top: `${editorState.imagePosition.y - 8}px`,
+                  background: 'rgba(59, 130, 246, 0.5)', // Blue with 50% opacity
+                  borderRadius: `${editorState.cornerRadius}px`,
+                  transform: `${getThreeDTransform(selectedEffect)}`,
+                  boxShadow: editorState.imageShadow,
+                }}
+              ></div>
+              <div
+                className="absolute"
+                style={{
+                  width: `${editorState.imageSize.width}px`,
+                  height: `${editorState.imageSize.height}px`,
+                  left: `${editorState.imagePosition.x - 4}px`,
+                  top: `${editorState.imagePosition.y - 4}px`,
+                  background: 'rgba(16, 185, 129, 0.5)', // Green with 50% opacity
+                  borderRadius: `${editorState.cornerRadius}px`,
+                  transform: `${getThreeDTransform(selectedEffect)}`,
+                  boxShadow: editorState.imageShadow,
+                }}
+              ></div>
+            </>
+          )}
           <div
             className={`absolute ${selectedEffect?.className || ''}`}
             style={{
@@ -492,8 +526,8 @@ const Editor = () => {
               </button>
               <button
                 onClick={() =>
-                  setEditorState(prev => ({
-                    ...prev,
+      setEditorState(prev => ({
+        ...prev,
                     rotate: (prev.rotate + 90) % 360,
                   }))
                 }
@@ -504,7 +538,7 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
                 <Sliders size={22} />
               </button>
-            </div>
+                </div>
             <div className="flex items-center space-x-2">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
                 <Layers size={22} />
@@ -529,7 +563,7 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
                 <Triangle size={22} />
               </button>
-            </div>
+          </div>
             <div className="flex items-center space-x-2">
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
                 <Scissors size={22} />
@@ -540,9 +574,9 @@ const Editor = () => {
               <button className="text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out">
                 <Grid size={22} />
               </button>
-            </div>
+        </div>
             {editorState.image && (
-              <button
+            <button
                 onClick={() => setEditorState(prev => ({ ...prev, isSizingImage: !prev.isSizingImage, tempImageSize: prev.imageSize }))}
                 className={`text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition duration-300 ease-in-out ${
                   editorState.isSizingImage ? "bg-gray-200" : ""
@@ -559,8 +593,8 @@ const Editor = () => {
                 <Save size={18} />
                 <span>Save Size</span>
               </button>
-            )}
-          </div>
+              )}
+            </div>
           <div className="flex items-center space-x-2">
             <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out flex items-center space-x-2 shadow-sm">
               <Share2 size={18} />
@@ -581,7 +615,7 @@ const Editor = () => {
           {/* Left Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-r border-gray-200">
             <Sidebar editorState={editorState} setEditorState={setEditorState} />
-          </div>
+        </div>
 
           {/* Editor canvas area */}
           <div
@@ -645,9 +679,9 @@ const Editor = () => {
                     <Eye size={22} className="text-gray-700" />
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
 
           {/* Right Sidebar */}
           <div className="w-96 bg-white overflow-y-auto hide-scrollbar border-l border-gray-200">

@@ -68,14 +68,10 @@ export default function Sidebar({
       inset: {
         ...prev.inset,
         [direction]: value
-      },
-      imagePosition: {
-        ...prev.imagePosition,
-        x: direction === 'left' ? value : (direction === 'right' ? -value : prev.imagePosition.x),
-        y: direction === 'top' ? value : (direction === 'bottom' ? -value : prev.imagePosition.y)
       }
     }));
   };
+  
 
   const handleAutoInsetToggle = (enabled: boolean) => {
     setAutoInset(enabled);
