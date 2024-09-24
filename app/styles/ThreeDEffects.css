@@ -91,3 +91,132 @@
   padding: 10px;
   box-sizing: border-box;
 }
+.card-style2 {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card-style2 .img-container {
+  width: 100%;
+  height: 60%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+}
+
+.card-style2 .img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 0;
+}
+
+.card-style2 .save {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.card-style2 .text {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-style2 .h3 {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.card-style2 .p {
+  font-family: 'Arial', sans-serif;
+  color: #666;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.card-style2 .icon-box {
+  background-color: #E8F3FF;
+  border-radius: 12px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+}
+
+.card-style2 .icon-box svg {
+  margin-right: 8px;
+}
+
+.card-style2 .icon-box .span {
+  font-family: 'Arial', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: #4A90E2;
+}
+
+.card-style2:hover {
+  cursor: pointer;
+  box-shadow: 0px 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-style2 .save:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+
+/* New style for multicolor frame */
+.card-multicolor-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-multicolor-frame::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 10px solid transparent;
+  border-image: linear-gradient(45deg, #ff6b6b, #f06595, #cc5de8, #845ef7, #5c7cfa, #339af0, #22b8cf, #20c997, #51cf66, #94d82d, #fcc419, #ff922b) 1;
+  border-radius: 12px;
+  z-index: 1; /* Ensure the border is above the inner frame */
+}
+
+.card-multicolor-frame .inner-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 0; /* Ensure the inner frame is below the border */
+  border: 10px solid; /* Add this to allow dynamic color changes */
+}
