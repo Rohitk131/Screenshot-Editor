@@ -45,10 +45,16 @@ export default function RightSidebar({
   const layoutOptions: Layout[] = [
     { name: "Default", transform: "none", shadow: "none" },
     {
-      name: "IntenseIsometric",
+      name: "Isometric",
       transform: "perspective(800px) rotateX(55deg) rotateZ(-45deg)",
       shadow:
         "0 80px 120px rgba(0, 0, 0, 0.9), 15px 15px 40px rgba(0, 0, 0, 0.7)",
+    },
+    {
+      name: "Isometric",
+      transform: "perspective(900px) rotateX(60deg) rotateZ(-120deg)",
+      shadow:
+        "-10 10px 20px rgba(0, 0, 0, 22), 15px 15px 4px rgba(0, 0, 0, 15)",
     },
     {
       name: "Dramatic Tilt",
