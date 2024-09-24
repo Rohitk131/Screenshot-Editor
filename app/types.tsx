@@ -52,6 +52,10 @@ export interface EditorState {
     bottom: number;
     left: number;
   };
+  editableText: string;
+  editableSubText: string;
+  editableTag: string;
+  
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

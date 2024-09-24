@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ChromeNavbarLight,
   ChromeNavbarDark,
@@ -10,6 +10,7 @@ import {
 
 import { EditorState, Frame, Layout, ThreeDEffect } from "../types";
 import { Layers } from "lucide-react";
+import { SketchPicker } from "react-color"; // Add this import
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -24,8 +25,12 @@ export default function RightSidebar({
   selectedEffect,
   setSelectedEffect
 }: RightSidebarProps) {
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
+  const [currentStyle, setCurrentStyle] = useState<string | null>(null);
+
   const styles = [
     { label: 'Style 1', effect: 'style1' },
+    { label: 'Multicolor Frame', effect: 'multicolor-frame' }, // New style
     { label: 'Style 2', effect: 'style2' },
     { label: 'Style 3', effect: 'style3' },
     { label: 'Style 4', effect: 'style4' },
@@ -73,12 +78,28 @@ export default function RightSidebar({
         showStacks: true,
         stackCount: 3 // You can adjust this number as needed
       }));
+    } else if (style.effect === 'multicolor-frame') {
+      setEditorState((prev) => ({
+        ...prev,
+        selectedStyle: style,
+        customStyle: 'card-multicolor-frame',
+        showStacks: false
+      }));
     } else {
       setEditorState((prev) => ({
         ...prev,
         selectedStyle: style,
         customStyle: '',
         showStacks: false
+      }));
+    }
+  };
+
+  const handleColorChange = (color: any) => {
+    if (currentStyle === 'multicolor-frame') {
+      setEditorState((prev) => ({
+        ...prev,
+        frameColor: color.hex,
       }));
     }
   };
@@ -178,6 +199,16 @@ export default function RightSidebar({
                   </div>
                 )}
               </div>
+              <button
+                className="absolute top-2 right-2 bg-white p-1 rounded-full shadow-md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentStyle(style.effect);
+                  setColorPickerVisible(true);
+                }}
+              >
+                <span className="text-xs text-gray-800">Edit</span>
+              </button>
             </div>
           ))}
         </div>
@@ -202,6 +233,23 @@ export default function RightSidebar({
           ))}
         </div>
       </section>
+
+      {colorPickerVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-4 rounded-lg shadow-lg">
+            <SketchPicker
+              color={editorState.frameColor || "#000"}
+              onChangeComplete={handleColorChange}
+            />
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              onClick={() => setColorPickerVisible(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

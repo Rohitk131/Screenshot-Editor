@@ -26,6 +26,7 @@ const calculateAutoInset = (imageWidth: number, imageHeight: number) => {
 export default function Sidebar({
   editorState,
   setEditorState,
+  editorDimensions,
 }: SidebarProps) {
   const [autoInset, setAutoInset] = useState(false);
   const [showGradientModal, setShowGradientModal] = useState(false);
@@ -63,12 +64,14 @@ export default function Sidebar({
   ];
   
   
-  const handleInsetChange = (direction: 'top' | 'bottom' | 'left' | 'right', value: number) => {
+  const handleInsetChange = (value: number) => {
     setEditorState((prev) => ({
       ...prev,
       inset: {
-        ...prev.inset,
-        [direction]: value
+        top: value,
+        bottom: value,
+        left: value,
+        right: value
       }
     }));
   };
@@ -79,10 +82,15 @@ export default function Sidebar({
     if (enabled && editorState.image) {
       const img = new Image();
       img.onload = () => {
-        const autoInset = calculateAutoInset(img.width, img.height);
+        const autoInset = Math.min(img.width, img.height) * 0.1; // 10% of the smaller dimension
         setEditorState(prev => ({
           ...prev,
-          inset: autoInset
+          inset: {
+            top: autoInset,
+            bottom: autoInset,
+            left: autoInset,
+            right: autoInset
+          }
         }));
       };
       img.src = editorState.image;
@@ -202,7 +210,7 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-full bg-white p-6 overflow-y-auto text-sm text-gray-800 h-full hide-scrollbar">
+    <div className="w-80 bg-white p-6 overflow-y-auto hide-scrollbar">
       {/* Background Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Background</h3>
@@ -303,60 +311,37 @@ export default function Sidebar({
       {/* Adjustments Section */}
       <section className="mb-8">
         <h3 className="text-xl font-bold mb-4 text-gray-800">Adjustments</h3>
-          {/* Auto Inset Toggle */}
-          <div className="flex items-center justify-between mb-4">
-          <span className="text-gray-600">Auto Inset</span>
-          <Switch
-            checked={autoInset}
-            onChange={handleAutoInsetToggle}
-            className={`${
-              autoInset ? 'bg-blue-600' : 'bg-gray-200'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
-          >
-            <span
-              className={`${
-                autoInset ? 'translate-x-6' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </Switch>
-        </div>
-
         {/* Inset Section */}
         <section className="mb-8">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Inset</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {['Top', 'Bottom', 'Left', 'Right'].map((direction) => (
-              <div key={direction} className="flex flex-col">
-                <label className="mb-1 text-gray-600">{direction}</label>
-                <div className="flex items-center">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset]}
-                    onChange={(e) => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', Number(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-300 rounded-l-md"
-                    disabled={autoInset}
-                  />
-                  <div className="flex flex-col border border-l-0 border-gray-300 rounded-r-md">
-                    <button
-                      onClick={() => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', (editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset] || 0) + 1)}
-                      className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 border-b border-gray-300"
-                      disabled={autoInset}
-                    >
-                      ▲
-                    </button>
-                    <button
-                      onClick={() => handleInsetChange(direction.toLowerCase() as 'top' | 'bottom' | 'left' | 'right', Math.max((editorState.inset[direction.toLowerCase() as keyof typeof editorState.inset] || 0) - 1, 0))}
-                      className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200"
-                      disabled={autoInset}
-                    >
-                      ▼
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800">Inset</h3>
+            <Switch
+              checked={autoInset}
+              onChange={handleAutoInsetToggle}
+              className={`${
+                autoInset ? 'bg-blue-600' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+            >
+              <span
+                className={`${
+                  autoInset ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
+          <div className="flex flex-col">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={editorState.inset.top}
+              onChange={(e) => handleInsetChange(Number(e.target.value))}
+              className="w-full bg-gray-200 rounded-lg appearance-none h-2 mb-2"
+              disabled={autoInset}
+            />
+            <span className="text-right text-gray-500 text-xs">
+              {editorState.inset.top}px
+            </span>
           </div>
         </section>
 

@@ -81,6 +81,7 @@ const Editor = () => {
     selectedStyle: null,
     showStacks: false,
     stackCount: 3,
+    frameColor: "#000000", // New property for frame color
   });
 
   const [FrameComponent, setFrameComponent] =
@@ -218,7 +219,7 @@ const Editor = () => {
                   width: `${editorState.imageSize.width}px`,
                   height: `${editorState.imageSize.height}px`,
                   left: `${editorState.imagePosition.x - 8}px`,
-                  top: `${editorState.imagePosition.y - 8}px`,
+                  top: `${editorState.imagePosition.y - 30}px`,
                   background: "rgba(59, 130, 246, 0.5)", // Blue with 50% opacity
                   borderRadius: `${editorState.cornerRadius}px`,
                   transform: `${getThreeDTransform(selectedEffect)}`,
@@ -231,7 +232,7 @@ const Editor = () => {
                   width: `${editorState.imageSize.width}px`,
                   height: `${editorState.imageSize.height}px`,
                   left: `${editorState.imagePosition.x - 4}px`,
-                  top: `${editorState.imagePosition.y - 4}px`,
+                  top: `${editorState.imagePosition.y - 20}px`,
                   background: "rgba(16, 185, 129, 0.5)", // Green with 50% opacity
                   borderRadius: `${editorState.cornerRadius}px`,
                   transform: `${getThreeDTransform(selectedEffect)}`,
@@ -283,18 +284,35 @@ const Editor = () => {
                   }}
                 />
                 {editorState.frame && editorState.frame.component && (
-  <div 
-    className="absolute pointer-events-none"
-    style={{
-      top: 0,
-      left: 0,
-      width: `${editorState.imageSize.width}px`,
-      height: `${editorState.imageSize.height}px`,
-    }}
-  >
-    {React.createElement(editorState.frame.component)}
-  </div>
-)}
+                  <div 
+                    className="absolute pointer-events-none"
+                    style={{
+                      top: 0,
+                      left: 0,
+                      width: `${editorState.imageSize.width}px`,
+                      height: `${editorState.imageSize.height}px`,
+                    }}
+                  >
+                    {React.createElement(editorState.frame.component)}
+                  </div>
+                )}
+                {editorState.customStyle === 'card-multicolor-frame' && (
+                  <div className="inner-frame" style={{ borderColor: editorState.frameColor }}>
+                    <img
+                      src={editorState.image}
+                      alt="Uploaded"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        borderRadius: `${editorState.cornerRadius}px`,
+                        transform: `${getThreeDTransform(selectedEffect)}`,
+                        boxShadow: editorState.imageShadow,
+                        transition: "transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
