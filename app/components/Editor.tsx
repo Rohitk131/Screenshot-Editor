@@ -116,7 +116,7 @@ const Editor = () => {
       e.preventDefault();
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-  
+
       setEditorState((prev) => ({
         ...prev,
         imagePosition: {
@@ -124,7 +124,7 @@ const Editor = () => {
           y: prev.imagePosition.y + dy,
         },
       }));
-  
+
       setDragStart({ x: e.clientX, y: e.clientY });
     }
   };
@@ -190,6 +190,14 @@ const Editor = () => {
 
     const applyEffect = selectedEffect !== null;
 
+    const imageStyle: React.CSSProperties = {
+      width: `${editorState.imageSize.width}px`,
+      height: `${editorState.imageSize.height}px`,
+      transform: `${editorState.layout?.transform || "none"}`,
+      boxShadow: editorState.layout?.shadow || "none",
+      transition: "all 0.3s ease-in-out",
+    };
+
     return (
       <div
         className={`relative ${editorState.customStyle || ""}`}
@@ -200,6 +208,7 @@ const Editor = () => {
           background: editorState.background,
         }}
       >
+        
         <div
           className="absolute"
           style={{
@@ -283,18 +292,18 @@ const Editor = () => {
                   }}
                 />
                 {editorState.frame && editorState.frame.component && (
-  <div 
-    className="absolute pointer-events-none"
-    style={{
-      top: 0,
-      left: 0,
-      width: `${editorState.imageSize.width}px`,
-      height: `${editorState.imageSize.height}px`,
-    }}
-  >
-    {React.createElement(editorState.frame.component)}
-  </div>
-)}
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      top: 0,
+                      left: 0,
+                      width: `${editorState.imageSize.width}px`,
+                      height: `${editorState.imageSize.height}px`,
+                    }}
+                  >
+                    {React.createElement(editorState.frame.component)}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -340,8 +349,8 @@ const Editor = () => {
             newHeight;
 
         // Add padding to canvas size
-        const canvasWidth = newWidth 
-        const canvasHeight = newHeight 
+        const canvasWidth = newWidth;
+        const canvasHeight = newHeight;
 
         // Set canvas size
         setCanvasSize({ width: canvasWidth, height: canvasHeight });
@@ -360,24 +369,28 @@ const Editor = () => {
         ctx.translate(-canvasWidth / 2, -canvasHeight / 2);
 
         // Apply shadow
-if (editorState.imageShadow !== "none") {
-  const shadowParts = editorState.imageShadow.split("),").map(part => part.trim());
-  if (shadowParts.length > 0) {
-    const [rgba, rest] = shadowParts[0].split(") ");
-    if (rgba && rest) {
-      ctx.shadowColor = rgba + ")";
-      const [offsetX, offsetY, blur] = rest.split(" ").map(v => parseFloat(v));
-      ctx.shadowOffsetX = offsetX || 0;
-      ctx.shadowOffsetY = offsetY || 0;
-      ctx.shadowBlur = blur || 0;
-    }
-  }
-} else {
-  ctx.shadowColor = 'transparent';
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
-  ctx.shadowBlur = 0;
-}
+        if (editorState.imageShadow !== "none") {
+          const shadowParts = editorState.imageShadow
+            .split("),")
+            .map((part) => part.trim());
+          if (shadowParts.length > 0) {
+            const [rgba, rest] = shadowParts[0].split(") ");
+            if (rgba && rest) {
+              ctx.shadowColor = rgba + ")";
+              const [offsetX, offsetY, blur] = rest
+                .split(" ")
+                .map((v) => parseFloat(v));
+              ctx.shadowOffsetX = offsetX || 0;
+              ctx.shadowOffsetY = offsetY || 0;
+              ctx.shadowBlur = blur || 0;
+            }
+          }
+        } else {
+          ctx.shadowColor = "transparent";
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.shadowBlur = 0;
+        }
 
         // Draw the image at the current position
         ctx.drawImage(
@@ -572,7 +585,6 @@ if (editorState.imageShadow !== "none") {
       reader.readAsDataURL(file);
     }
   };
-
 
   const handleImageSizeUpdate = (size: { width: number; height: number }) => {
     setEditorState((prev) => ({
