@@ -9,17 +9,15 @@ interface ArtboardSizeSelectorProps {
 }
 
 const sizeOptions = [
-  { name: 'Custom', size: '960px × 960px', img: 'https://via.placeholder.com/50' },
-  { name: 'Standard', size: '1200px × 1200px', img: 'https://via.placeholder.com/50' },
-  { name: 'Postcard', size: '4in × 6in', img: 'https://via.placeholder.com/50' },
-  { name: 'Business Card', size: '2in × 3.5in', img: 'https://via.placeholder.com/50' },
-  { name: 'A4', size: '210mm × 297mm', img: 'https://via.placeholder.com/50' },
-  { name: 'A5', size: '148mm × 210mm', img: 'https://via.placeholder.com/50' },
-  { name: 'Poster Small', size: '16in × 20in', img: 'https://via.placeholder.com/50' },
-  { name: 'Poster Big', size: '24in × 36in', img: 'https://via.placeholder.com/50' },
-  { name: 'Instagram Post', size: '1080px × 1080px', img: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png' },
-  { name: 'Facebook Post', size: '1200px × 1200px', img: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg' },
+  { ratio: '16:9', size: '1200px × 675px', img: 'https://static.vecteezy.com/system/resources/previews/027/395/710/non_2x/twitter-brand-new-logo-3-d-with-new-x-shaped-graphic-of-the-world-s-most-popular-social-media-free-png.png' }, // Twitter Post
+  { ratio: '1.91:1', size: '1200px × 628px', img: 'https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png' }, // LinkedIn Post
+  { ratio: '1:1', size: '1080px × 1080px', img: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png' }, // Instagram Post
+  { ratio: '5:4', size: '1350px x 1080px', img: 'https://www.iconpacks.net/icons/2/free-reddit-logo-icon-2436-thumb.png' }, //reddit post
+  { ratio: '1:1', size: '1200px × 1200px', img: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg' }, // Facebook Post
+  { ratio: '16:9', size: '1280px × 720px', img: 'https://upload.wikimedia.org/wikipedia/commons/4/42/YouTube_icon_%282013-2017%29.png' }, // YouTube Thumbnail
 ];
+
+
 
 const ArtboardSizeSelector: React.FC<ArtboardSizeSelectorProps> = ({
   size,
@@ -75,24 +73,23 @@ const ArtboardSizeSelector: React.FC<ArtboardSizeSelectorProps> = ({
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 mb-2">
+      <div className="grid grid-cols-3 gap-2 mb-2">
         {sizeOptions.map((option, index) => (
           <button
-            key={index}
-            className={`chip p-2 text-left border rounded-full flex items-center space-x-2 ${
-              selectedOption.name === option.name ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-            }`}
-            onClick={() => handleOptionSelect(option)}
-          >
-            <img src={option.img} alt={option.name} className="h-10 w-10 rounded-full" />
-            <div>
-              <div className="font-medium">{option.name}</div>
-              <div className="text-sm text-gray-500">({option.size})</div>
-            </div>
-          </button>
+          key={option.ratio}
+          className={`chip p-1 text-left border rounded-full flex items-center space-x-2 ${
+            selectedOption.ratio === option.ratio ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+          }`}
+          onClick={() => handleOptionSelect(option)}
+        >
+          <img src={option.img} alt={option.ratio} className="h-10 w-10 rounded-full" />
+          <div className="font-medium">{option.ratio}</div>
+        </button>
         ))}
       </div>
+      <h1 className='text-sm text-gray-500'>Custom size(px)</h1>
       <div className="flex mt-2 space-x-2">
+       
         <input
           type="number"
           value={customWidth}

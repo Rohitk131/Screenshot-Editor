@@ -23,7 +23,7 @@ export default function RightSidebar({
   editorState,
   setEditorState,
   selectedEffect,
-  setSelectedEffect
+  setSelectedEffect,
 }: RightSidebarProps) {
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
   const [currentStyle, setCurrentStyle] = useState<string | null>(null);
@@ -48,18 +48,78 @@ export default function RightSidebar({
   ];
 
   const layoutOptions: Layout[] = [
-    { name: "Default", transform: "none" },
-    { name: "Isometric", transform: "perspective(1000px) rotateX(45deg) rotateZ(-45deg)" },
-    { name: "Dramatic Tilt", transform: "perspective(1000px) rotateX(-15deg) rotateY(20deg) scale(0.95)" },
-    { name: "Page Curl", transform: "perspective(1000px) rotateY(-30deg) translateZ(-100px) translateX(50px)" },
-    { name: "Hover Float", transform: "perspective(1000px) translateY(-20px) rotateX(10deg) scale(1.1)" },
-    { name: "Cinematic Pan", transform: "perspective(2000px) rotateX(10deg) translateZ(-100px) translateY(-30px)" },
-    { name: "Isometric Pop", transform: "perspective(1000px) rotateX(30deg) rotateZ(-45deg) translateZ(50px)" },
-    { name: "Origami Unfold", transform: "perspective(1000px) rotateY(-35deg) rotateX(15deg) translateX(-50px) scale(0.9)" },
-    { name: "Ripple Effect", transform: "perspective(1000px) rotateX(10deg) skew(-5deg, 5deg) translateZ(30px)" },
-    { name: "Dynamic Swing", transform: "perspective(1000px) rotateY(45deg) rotateZ(-10deg) translateZ(-50px) scale(0.9)" },
-    { name: "Spiral", transform: "perspective(1000px) rotateY(45deg) rotateX(45deg) "},
-    { name: "Parallax Depth", transform: "perspective(2000px) translateZ(-200px) rotateX(20deg) scale(1.2)" }
+    { name: "Default", transform: "none", shadow: "none" },
+    {
+      name: "Isometric",
+      transform: "perspective(800px) rotateX(55deg) rotateZ(-45deg)",
+      shadow:
+        "0 80px 120px rgba(0, 0, 0, 0.9), 15px 15px 40px rgba(0, 0, 0, 0.7)",
+    },
+    {
+      name: "Isometric",
+      transform: "perspective(900px) rotateX(60deg) rotateZ(-120deg)",
+      shadow:
+        "-10 10px 20px rgba(0, 0, 0, 22), 15px 15px 4px rgba(0, 0, 0, 15)",
+    },
+    {
+      name: "Dramatic Tilt",
+      transform:
+        "perspective(1000px) rotateX(-15deg) rotateY(20deg) scale(0.95)",
+      shadow: "0 60px 120px rgba(0,0,0,0.6), -30px 30px 80px rgba(0,0,0,0.4)",
+    },
+    {
+      name: "Page Curl",
+      transform:
+        "perspective(1000px) rotateY(-30deg) translateZ(-100px) translateX(50px)",
+      shadow: "50px 50px 100px rgba(0,0,0,0.5), 0 30px 60px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Hover Float",
+      transform:
+        "perspective(1000px) translateY(-20px) rotateX(10deg) scale(1.1)",
+      shadow: "0 70px 140px rgba(0,0,0,0.4), 0 30px 60px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Cinematic Pan",
+      transform:
+        "perspective(2000px) rotateX(10deg) translateZ(-100px) translateY(-30px)",
+      shadow: "0 80px 160px rgba(0,0,0,0.5), 0 40px 80px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Isometric Pop",
+      transform:
+        "perspective(1000px) rotateX(30deg) rotateZ(-45deg) translateZ(50px)",
+      shadow: "50px 50px 100px rgba(0,0,0,0.6), 20px 20px 60px rgba(0,0,0,0.4)",
+    },
+    {
+      name: "Origami Unfold",
+      transform:
+        "perspective(1000px) rotateY(-35deg) rotateX(15deg) translateX(-50px) scale(0.9)",
+      shadow: "60px 60px 120px rgba(0,0,0,0.5), 30px 30px 80px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Ripple Effect",
+      transform:
+        "perspective(1000px) rotateX(10deg) skew(-5deg, 5deg) translateZ(30px)",
+      shadow: "40px 40px 80px rgba(0,0,0,0.5), 20px 20px 40px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Dynamic Swing",
+      transform:
+        "perspective(1000px) rotateY(45deg) rotateZ(-10deg) translateZ(-50px) scale(0.9)",
+      shadow: "70px 70px 140px rgba(0,0,0,0.6), 35px 35px 70px rgba(0,0,0,0.4)",
+    },
+    {
+      name: "Spiral",
+      transform: "perspective(1000px) rotateY(45deg) rotateX(45deg)",
+      shadow: "60px 60px 120px rgba(0,0,0,0.5), 30px 30px 60px rgba(0,0,0,0.3)",
+    },
+    {
+      name: "Parallax Depth",
+      transform:
+        "perspective(2000px) translateZ(-200px) rotateX(20deg) scale(1.2)",
+      shadow: "0 100px 200px rgba(0,0,0,0.6), 0 50px 100px rgba(0,0,0,0.4)",
+    },
   ];
 
   const handleFrameSelect = (frame: Frame) => {
@@ -69,12 +129,12 @@ export default function RightSidebar({
     }));
   };
 
-  const handleStyleSelect = (style: { label: string; effect: string; }) => {
-    if (style.effect === 'style1') {
+  const handleStyleSelect = (style: { label: string; effect: string }) => {
+    if (style.effect === "style1") {
       setEditorState((prev) => ({
         ...prev,
         selectedStyle: style,
-        customStyle: 'card-style1',
+        customStyle: "card-style1",
         showStacks: true,
         stackCount: 3 // You can adjust this number as needed
       }));
@@ -147,7 +207,7 @@ export default function RightSidebar({
             <button
               key={index}
               className={`p-4 rounded-lg transition-all transform ${
-                editorState.layout.name === layout.name
+                editorState.layout?.name === layout.name
                   ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-105 shadow-lg"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               } border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -163,10 +223,15 @@ export default function RightSidebar({
                   src="https://www.transparentpng.com/download/credit-card/8p4jX1-blank-credit-card-pic.png"
                   alt={layout.name}
                   className="object-contain w-full h-full"
-                  style={{ transform: layout.transform }}
+                  style={{
+                    transform: layout.transform,
+                    boxShadow: layout.shadow,
+                  }}
                 />
               </div>
-              <span className="block text-center font-medium">{layout.name}</span>
+              <span className="block text-center font-medium mt-2">
+                {layout.name}
+              </span>
             </button>
           ))}
         </div>
@@ -180,12 +245,14 @@ export default function RightSidebar({
             <div
               key={index}
               className={`relative group cursor-pointer bg-gray-800 rounded-lg overflow-hidden transition-all duration-300 ${
-                editorState.selectedStyle?.label === style.label ? 'ring-2 ring-blue-500' : ''
+                editorState.selectedStyle?.label === style.label
+                  ? "ring-2 ring-blue-500"
+                  : ""
               }`}
               onClick={() => handleStyleSelect(style)}
             >
               <div className="aspect-w-1 aspect-h-1 flex items-center justify-center p-4">
-                {style.effect === 'style1' ? (
+                {style.effect === "style1" ? (
                   <div className="relative">
                     <div className="absolute -top-2 -left-2 w-full h-full bg-blue-500 rounded-lg"></div>
                     <div className="absolute -top-1 -left-1 w-full h-full bg-green-500 rounded-lg"></div>
