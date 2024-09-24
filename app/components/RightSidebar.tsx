@@ -46,77 +46,92 @@ export default function RightSidebar({
     { name: "Default", transform: "none", shadow: "none" },
     {
       name: "Isometric",
-      transform: "perspective(800px) rotateX(55deg) rotateZ(-45deg)",
+      transform: "perspective(1000px) rotateX(60deg) rotateZ(-45deg) translateZ(20px)",
       shadow:
-        "0 80px 120px rgba(0, 0, 0, 0.9), 15px 15px 40px rgba(0, 0, 0, 0.7)",
+        "0 90px 130px rgba(0, 0, 0, 0.95), 20px 20px 50px rgba(0, 0, 0, 0.75)",
     },
     {
-      name: "Isometric",
+      name: "Isometric Reverse",
       transform: "perspective(900px) rotateX(60deg) rotateZ(-120deg)",
       shadow:
-        "-10 10px 20px rgba(0, 0, 0, 22), 15px 15px 4px rgba(0, 0, 0, 15)",
+        "-15px 20px 30px rgba(0, 0, 0, 0.9), 20px 20px 50px rgba(0, 0, 0, 0.8)",
     },
     {
       name: "Dramatic Tilt",
       transform:
-        "perspective(1000px) rotateX(-15deg) rotateY(20deg) scale(0.95)",
-      shadow: "0 60px 120px rgba(0,0,0,0.6), -30px 30px 80px rgba(0,0,0,0.4)",
+        "perspective(1200px) rotateX(-20deg) rotateY(25deg) scale(0.9)",
+      shadow:
+        "0 80px 140px rgba(0,0,0,0.75), -40px 40px 100px rgba(0,0,0,0.5)",
     },
     {
       name: "Page Curl",
       transform:
-        "perspective(1000px) rotateY(-30deg) translateZ(-100px) translateX(50px)",
-      shadow: "50px 50px 100px rgba(0,0,0,0.5), 0 30px 60px rgba(0,0,0,0.3)",
+        "perspective(1200px) rotateY(-40deg) translateZ(-120px) translateX(60px)",
+      shadow: "60px 60px 120px rgba(0,0,0,0.6), 0 40px 80px rgba(0,0,0,0.35)",
     },
     {
       name: "Hover Float",
       transform:
-        "perspective(1000px) translateY(-20px) rotateX(10deg) scale(1.1)",
-      shadow: "0 70px 140px rgba(0,0,0,0.4), 0 30px 60px rgba(0,0,0,0.3)",
+        "perspective(1200px) translateY(-30px) rotateX(15deg) scale(1.2)",
+      shadow: "0 90px 160px rgba(0,0,0,0.5), 0 50px 100px rgba(0,0,0,0.4)",
     },
     {
       name: "Cinematic Pan",
       transform:
-        "perspective(2000px) rotateX(10deg) translateZ(-100px) translateY(-30px)",
-      shadow: "0 80px 160px rgba(0,0,0,0.5), 0 40px 80px rgba(0,0,0,0.3)",
+        "perspective(2500px) rotateX(12deg) translateZ(-150px) translateY(-40px)",
+      shadow: "0 100px 180px rgba(0,0,0,0.65), 0 50px 100px rgba(0,0,0,0.45)",
     },
     {
       name: "Isometric Pop",
       transform:
-        "perspective(1000px) rotateX(30deg) rotateZ(-45deg) translateZ(50px)",
-      shadow: "50px 50px 100px rgba(0,0,0,0.6), 20px 20px 60px rgba(0,0,0,0.4)",
+        "perspective(1200px) rotateX(35deg) rotateZ(-50deg) translateZ(70px)",
+      shadow:
+        "60px 60px 120px rgba(0,0,0,0.7), 25px 25px 80px rgba(0,0,0,0.5)",
     },
     {
       name: "Origami Unfold",
       transform:
-        "perspective(1000px) rotateY(-35deg) rotateX(15deg) translateX(-50px) scale(0.9)",
-      shadow: "60px 60px 120px rgba(0,0,0,0.5), 30px 30px 80px rgba(0,0,0,0.3)",
+        "perspective(1200px) rotateY(-40deg) rotateX(20deg) translateX(-60px) scale(0.85)",
+      shadow: "70px 70px 140px rgba(0,0,0,0.55), 40px 40px 90px rgba(0,0,0,0.4)",
     },
     {
       name: "Ripple Effect",
       transform:
-        "perspective(1000px) rotateX(10deg) skew(-5deg, 5deg) translateZ(30px)",
-      shadow: "40px 40px 80px rgba(0,0,0,0.5), 20px 20px 40px rgba(0,0,0,0.3)",
+        "perspective(1200px) rotateX(15deg) skew(-10deg, 10deg) translateZ(40px)",
+      shadow: "50px 50px 100px rgba(0,0,0,0.55), 30px 30px 70px rgba(0,0,0,0.4)",
     },
     {
       name: "Dynamic Swing",
       transform:
-        "perspective(1000px) rotateY(45deg) rotateZ(-10deg) translateZ(-50px) scale(0.9)",
-      shadow: "70px 70px 140px rgba(0,0,0,0.6), 35px 35px 70px rgba(0,0,0,0.4)",
+        "perspective(1200px) rotateY(50deg) rotateZ(-15deg) translateZ(-60px) scale(0.85)",
+      shadow: "80px 80px 160px rgba(0,0,0,0.65), 40px 40px 90px rgba(0,0,0,0.45)",
     },
     {
       name: "Spiral",
-      transform: "perspective(1000px) rotateY(45deg) rotateX(45deg)",
-      shadow: "60px 60px 120px rgba(0,0,0,0.5), 30px 30px 60px rgba(0,0,0,0.3)",
+      transform: "perspective(1200px) rotateY(50deg) rotateX(50deg)",
+      shadow: "70px 70px 140px rgba(0,0,0,0.6), 40px 40px 80px rgba(0,0,0,0.4)",
     },
     {
       name: "Parallax Depth",
       transform:
-        "perspective(2000px) translateZ(-200px) rotateX(20deg) scale(1.2)",
-      shadow: "0 100px 200px rgba(0,0,0,0.6), 0 50px 100px rgba(0,0,0,0.4)",
+        "perspective(2500px) translateZ(-250px) rotateX(25deg) scale(1.3)",
+      shadow: "0 120px 220px rgba(0,0,0,0.7), 0 60px 120px rgba(0,0,0,0.5)",
+    },
+    {
+      name: "Hyper Twist",
+      transform:
+        "perspective(1400px) rotateX(70deg) rotateY(-20deg) translateZ(100px)",
+      shadow: "100px 100px 200px rgba(0,0,0,0.8), 50px 50px 100px rgba(0,0,0,0.5)",
+    },
+    {
+      name: "Super Deep Dive",
+      transform:
+        "perspective(3000px) rotateX(30deg) translateZ(-300px) scale(1.4)",
+      shadow:
+        "0 150px 300px rgba(0,0,0,0.75), 0 75px 150px rgba(0,0,0,0.5)",
     },
   ];
-
+  
   const handleFrameSelect = (frame: Frame) => {
     setEditorState((prev) => ({
       ...prev,
