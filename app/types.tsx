@@ -55,7 +55,10 @@ export interface EditorState {
   editableText: string;
   editableSubText: string;
   editableTag: string;
-  
+  cardTitle?: string;
+  cardDescription?: string;
+  instagramUsername?: string;
+  instagramCaption?: string;
 }
 
 export type Filter = 'none' | 'grayscale' | 'sepia' | 'blur' | 'invert' | 'brightness' | 'contrast';

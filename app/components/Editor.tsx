@@ -188,9 +188,9 @@ const Editor = () => {
 
   const renderImage = () => {
     if (!editorState.image) return null;
-
+  
     const applyEffect = selectedEffect !== null;
-
+  
     const imageStyle: React.CSSProperties = {
       width: `${editorState.imageSize.width}px`,
       height: `${editorState.imageSize.height}px`,
@@ -198,7 +198,7 @@ const Editor = () => {
       boxShadow: editorState.layout?.shadow || "none",
       transition: "all 0.3s ease-in-out",
     };
-
+  
     return (
       <div
         className={`relative ${editorState.customStyle || ""}`}
@@ -209,7 +209,6 @@ const Editor = () => {
           background: editorState.background,
         }}
       >
-        
         <div
           className="absolute"
           style={{
@@ -250,35 +249,10 @@ const Editor = () => {
               ></div>
             </>
           )}
-          <div
-            className={`absolute ${selectedEffect?.className || ""}`}
-            style={{
-              width: `${editorState.imageSize.width}px`,
-              height: `${editorState.imageSize.height}px`,
-              left: `${editorState.imagePosition.x}px`,
-              top: `${editorState.imagePosition.y}px`,
-              transform: `${getThreeDTransform(selectedEffect)}`,
-              transformOrigin: "center",
-              transition:
-                "transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out",
-            }}
-          >
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: `${editorState.cornerRadius}px`,
-                overflow: "hidden",
-                transform: getLayoutTransform(),
-              }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <div
-                style={{ position: "relative", width: "100%", height: "100%" }}
-              >
+  
+          {editorState.customStyle === 'image-card' ? (
+            <div className="image-card">
+              <div className="image-container">
                 <canvas
                   ref={canvasRef}
                   width={editorState.imageSize.width}
@@ -286,28 +260,98 @@ const Editor = () => {
                   style={{
                     width: "100%",
                     height: "100%",
-                    borderRadius: `${editorState.cornerRadius}px`,
                     filter: `${editorState.filter}(${
                       editorState[editorState.filter as keyof EditorState] || ""
                     })`,
                   }}
                 />
-                {editorState.frame && editorState.frame.component && (
-  <div 
-    className="absolute pointer-events-none"
-    style={{
-      top: 0,
-      left: 0,
-      width: `${editorState.imageSize.width}px`,
-      height: `${editorState.imageSize.height}px`,
-    }}
-  >
-    {React.createElement(editorState.frame.component)}
-  </div>
-)}
+              </div>
+              <div className="card-content">
+                <input
+                  type="text"
+                  className="card-title"
+                  value={editorState.cardTitle}
+                  onChange={(e) =>
+                    setEditorState((prev) => ({
+                      ...prev,
+                      cardTitle: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter title"
+                />
+                <textarea
+                  className="card-description"
+                  value={editorState.cardDescription}
+                  onChange={(e) =>
+                    setEditorState((prev) => ({
+                      ...prev,
+                      cardDescription: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter description"
+                />
               </div>
             </div>
-          </div>
+          ) : (
+            <div
+              className={`absolute ${selectedEffect?.className || ""}`}
+              style={{
+                width: `${editorState.imageSize.width}px`,
+                height: `${editorState.imageSize.height}px`,
+                left: `${editorState.imagePosition.x}px`,
+                top: `${editorState.imagePosition.y}px`,
+                transform: `${getThreeDTransform(selectedEffect)}`,
+                transformOrigin: "center",
+                transition:
+                  "transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out",
+              }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: `${editorState.cornerRadius}px`,
+                  overflow: "hidden",
+                  transform: getLayoutTransform(),
+                }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <div
+                  style={{ position: "relative", width: "100%", height: "100%" }}
+                >
+                  <canvas
+                    ref={canvasRef}
+                    width={editorState.imageSize.width}
+                    height={editorState.imageSize.height}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: `${editorState.cornerRadius}px`,
+                      filter: `${editorState.filter}(${
+                        editorState[editorState.filter as keyof EditorState] || ""
+                      })`,
+                    }}
+                  />
+                  {editorState.frame && editorState.frame.component && (
+                    <div
+                      className="absolute pointer-events-none"
+                      style={{
+                        top: 0,
+                        left: 0,
+                        width: `${editorState.imageSize.width}px`,
+                        height: `${editorState.imageSize.height}px`,
+                      }}
+                    >
+                      {React.createElement(editorState.frame.component)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

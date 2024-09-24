@@ -30,12 +30,8 @@ export default function RightSidebar({
 
   const styles = [
     { label: 'Style 1', effect: 'style1' },
-    { label: 'Multicolor Frame', effect: 'multicolor-frame' }, // New style
-    { label: 'Style 2', effect: 'style2' },
-    { label: 'Style 3', effect: 'style3' },
-    { label: 'Style 4', effect: 'style4' },
-    { label: 'Style 5', effect: 'style5' },
-    { label: 'Style 6', effect: 'style6' },
+    { label: 'Multicolor Frame', effect: 'multicolor-frame' },
+    { label: 'Image Card', effect: 'image-card' }, // Add this new style
   ];
 
   const frames: Frame[] = [
@@ -159,6 +155,15 @@ export default function RightSidebar({
         selectedStyle: style,
         customStyle: 'card-multicolor-frame',
         showStacks: false
+      }));
+    } else if (style.effect === 'image-card') {
+      setEditorState((prev) => ({
+        ...prev,
+        selectedStyle: style,
+        customStyle: 'image-card',
+        showStacks: false,
+        cardTitle: 'Enter title here', // Add a default title
+        cardDescription: 'Enter description here' // Add a default description
       }));
     } else {
       setEditorState((prev) => ({
