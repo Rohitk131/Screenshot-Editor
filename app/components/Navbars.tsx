@@ -1,5 +1,5 @@
 import React from 'react'
-import { CircleIcon, XIcon, MinusIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, RefreshCwIcon, HomeIcon, LockIcon, SearchIcon, HeartIcon, MenuIcon, BellIcon, UserIcon } from 'lucide-react'
+import { CircleIcon, XIcon, MinusIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, RefreshCwIcon, HomeIcon, LockIcon, SearchIcon, HeartIcon, MenuIcon, BellIcon, UserIcon, SettingsIcon, ChevronDownIcon, MoonIcon, SunIcon } from 'lucide-react'
 
 // 1. macOS Light Theme
 export const MacOSNavbarLight: React.FC = () => (
@@ -226,3 +226,55 @@ export const PinkHeartTopFrame: React.FC<{ children?: React.ReactNode }> = ({ ch
   </div>
 );
 
+export const ModernDashboardFrame: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex flex-col overflow-hidden rounded-lg shadow-2xl">
+    <div className="bg-white bg-opacity-10 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+            <MenuIcon className="w-6 h-6 text-indigo-600" />
+          </div>
+          <span className="font-bold text-white text-xl">Dashboard</span>
+        </div>
+        <div className="flex items-center space-x-4">
+          <SearchIcon className="w-5 h-5 text-white" />
+          <BellIcon className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <UserIcon className="w-5 h-5 text-indigo-600" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="flex-grow bg-white m-4 rounded-lg p-4 overflow-hidden">
+      {children}
+    </div>
+  </div>
+);
+
+export const ElegantCardFrame: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  <div className="w-full h-full bg-gradient-to-r from-emerald-400 to-cyan-400 p-1 rounded-lg shadow-xl">
+    <div className="bg-white rounded-lg flex flex-col h-full">
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <SunIcon className="w-6 h-6 text-yellow-500" />
+            <MoonIcon className="w-6 h-6 text-indigo-600" />
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-600">Theme</span>
+            <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+          </div>
+        </div>
+      </div>
+      <div className="flex-grow p-4 overflow-hidden">
+        {children}
+      </div>
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-gray-600">Settings</span>
+          <SettingsIcon className="w-5 h-5 text-gray-400" />
+        </div>
+      </div>
+    </div>
+  </div>
+);

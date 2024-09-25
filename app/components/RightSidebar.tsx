@@ -13,6 +13,8 @@ import {
   BlueRoundedFrame,
   GraySquareFrame,
   PinkHeartTopFrame,
+  ModernDashboardFrame,
+  ElegantCardFrame,
 } from "./Navbars";
 
 import { EditorState, Frame, Layout, ThreeDEffect } from "../types";
@@ -55,6 +57,8 @@ export default function RightSidebar({
     { label: "Blue Rounded", component: BlueRoundedFrame },
     { label: "Gray Square", component: GraySquareFrame },
     { label: "Pink Heart Top", component: PinkHeartTopFrame },
+    { label: "Modern Dashboard", component: ModernDashboardFrame },
+    { label: "Elegant Card", component: ElegantCardFrame },
   ];
 
   const layoutOptions: Layout[] = [
