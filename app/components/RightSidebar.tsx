@@ -10,11 +10,14 @@ import {
   RedHeartFrame,
   PurpleRoundedFrame,
   PinkHeartFrame,
+  BlueRoundedFrame,
+  GraySquareFrame,
+  PinkHeartTopFrame,
 } from "./Navbars";
 
 import { EditorState, Frame, Layout, ThreeDEffect } from "../types";
 import { Layers } from "lucide-react";
-import { SketchPicker } from "react-color"; // Add this import
+import { SketchPicker } from "react-color";
 
 interface RightSidebarProps {
   editorState: EditorState;
@@ -35,7 +38,7 @@ export default function RightSidebar({
   const styles = [
     { label: 'Style 1', effect: 'style1' },
     { label: 'Multicolor Frame', effect: 'multicolor-frame' },
-    { label: 'Image Card', effect: 'image-card' }, // Add this new style
+    { label: 'Image Card', effect: 'image-card' },
   ];
 
   const frames: Frame[] = [
@@ -49,6 +52,9 @@ export default function RightSidebar({
     { label: "Red Heart", component: RedHeartFrame },
     { label: "Purple Rounded", component: PurpleRoundedFrame },
     { label: "Pink Heart", component: PinkHeartFrame },
+    { label: "Blue Rounded", component: BlueRoundedFrame },
+    { label: "Gray Square", component: GraySquareFrame },
+    { label: "Pink Heart Top", component: PinkHeartTopFrame },
   ];
 
   const layoutOptions: Layout[] = [
