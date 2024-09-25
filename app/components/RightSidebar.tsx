@@ -309,25 +309,7 @@ export default function RightSidebar({
         </div>
       </section>
 
-      {/* 3D Effect Section */}
-      <section className="mb-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">3D Effect</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {threeDEffects.map((effect) => (
-            <button
-              key={effect.className}
-              className={`p-4 rounded-lg transition-colors ${
-                selectedEffect?.className === effect.className
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-              onClick={() => setSelectedEffect(effect)}
-            >
-              {effect.name}
-            </button>
-          ))}
-        </div>
-      </section>
+      
 
       {colorPickerVisible && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
