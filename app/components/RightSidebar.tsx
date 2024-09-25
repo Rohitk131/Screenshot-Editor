@@ -6,6 +6,10 @@ import {
   SafariNavbarDark,
   MacOSNavbarLight,
   MacOSNavbarDark,
+  SimpleWhiteFrame,
+  RedHeartFrame,
+  PurpleRoundedFrame,
+  PinkHeartFrame,
 } from "./Navbars";
 
 import { EditorState, Frame, Layout, ThreeDEffect } from "../types";
@@ -41,6 +45,10 @@ export default function RightSidebar({
     { label: "Safari Dark", component: SafariNavbarDark },
     { label: "macOS Light", component: MacOSNavbarLight },
     { label: "macOS Dark", component: MacOSNavbarDark },
+    { label: "Simple White", component: SimpleWhiteFrame },
+    { label: "Red Heart", component: RedHeartFrame },
+    { label: "Purple Rounded", component: PurpleRoundedFrame },
+    { label: "Pink Heart", component: PinkHeartFrame },
   ];
 
   const layoutOptions: Layout[] = [

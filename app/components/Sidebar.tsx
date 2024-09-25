@@ -54,6 +54,7 @@ export default function Sidebar({
   ];
 
   const shadowTypes = [
+    "none",
     "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
     "rgb(38, 57, 77) 0px 20px 30px -10px",
     "rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px",
@@ -61,7 +62,16 @@ export default function Sidebar({
     "rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset",
     "rgba(0, 0, 0, 0.2) 0px 60px 40px -7px",
     "rgba(0, 0, 0, 0.56) 0px 22px 70px 4px",
+    "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px",
+    "rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset",
+    "rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset",
+    "rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px",
+    "rgba(240, 46, 170, 0.4) 0px 5px, rgba(240, 46, 170, 0.3) 0px 10px, rgba(240, 46, 170, 0.2) 0px 15px, rgba(240, 46, 170, 0.1) 0px 20px, rgba(240, 46, 170, 0.05) 0px 25px",
+    "rgba(240, 46, 170, 0.4) -5px 5px, rgba(240, 46, 170, 0.3) -10px 10px, rgba(240, 46, 170, 0.2) -15px 15px, rgba(240, 46, 170, 0.1) -20px 20px, rgba(240, 46, 170, 0.05) -25px 25px",
+    "rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset",
+    "rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;"
   ];
+  
   
   
   const handleInsetChange = (value: number) => {
@@ -442,54 +452,62 @@ export default function Sidebar({
 
       {/* Image Shadow Section */}
       <section className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800">Shadow</h3>
-          <Switch
-            checked={shadowEnabled}
-            onChange={handleShadowToggle}
-            className={`${
-              shadowEnabled ? 'bg-blue-600' : 'bg-gray-200'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-xl font-bold text-gray-800">Shadow</h3>
+    <Switch
+      checked={shadowEnabled}
+      onChange={handleShadowToggle}
+      className={`${
+        shadowEnabled ? 'bg-blue-600' : 'bg-gray-200'
+      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+    >
+      <span
+        className={`${
+          shadowEnabled ? 'translate-x-6' : 'translate-x-1'
+        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+      />
+    </Switch>
+  </div>
+  {shadowEnabled && (
+    <>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        {shadowTypes.map((shadow, index) => (
+          <button
+            key={index}
+            className={`w-full h-24 rounded-lg border-2 transition-all duration-300 ${
+              editorState.imageShadow === shadow
+                ? "border-blue-500"
+                : "border-gray-200"
+            }`}
+            style={{ 
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+            onClick={() =>
+              setEditorState((prev) => ({ ...prev, imageShadow: shadow }))
+            }
           >
-            <span
-              className={`${
-                shadowEnabled ? 'translate-x-6' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </Switch>
-        </div>
-        {shadowEnabled && (
-          <>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {shadowTypes.map((shadow, index) => (
-                <button
-                  key={index}
-                  className={`w-full h-16 rounded-lg border-2 transition-all duration-300 ${
-                    editorState.imageShadow === shadow
-                      ? "border-blue-500"
-                      : "border-gray-200"
-                  }`}
-                  style={{ boxShadow: shadow }}
-                  onClick={() =>
-                    setEditorState((prev) => ({ ...prev, imageShadow: shadow }))
-                  }
-                />
-              ))}
-            </div>
-            <label className="block mb-4">
-              <span className="block text-gray-600 mb-1">Shadow Intensity</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={getShadowIntensity(editorState.imageShadow)}
-                onChange={(e) => handleShadowChange(Number(e.target.value))}
-                className="w-full bg-gray-200 rounded-lg appearance-none h-2"
-              />
-            </label>
-          </>
-        )}
-      </section>
+            <div 
+              className="absolute inset-4 bg-white rounded"
+              style={{ boxShadow: shadow }}
+            ></div>
+          </button>
+        ))}
+      </div>
+      <label className="block mb-4">
+        <span className="block text-gray-600 mb-1">Shadow Intensity</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={getShadowIntensity(editorState.imageShadow)}
+          onChange={(e) => handleShadowChange(Number(e.target.value))}
+          className="w-full bg-gray-200 rounded-lg appearance-none h-2"
+        />
+      </label>
+    </>
+  )}
+</section>
       <ArtboardSizeSelector
         size={editorState.imageSize}
         isPortrait={editorState.imageSize.width <= editorState.imageSize.height}

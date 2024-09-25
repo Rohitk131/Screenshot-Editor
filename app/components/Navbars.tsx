@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { CircleIcon, XIcon, MinusIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, RefreshCwIcon, HomeIcon, LockIcon, SearchIcon } from 'lucide-react'
 
@@ -103,3 +102,44 @@ export const ChromeNavbarDark: React.FC = () => (
     </div>
   </div>
 )
+
+// New frame components
+export const SimpleWhiteFrame: React.FC = () => (
+  <div className="w-full h-full bg-white border border-gray-300 rounded-lg flex flex-col">
+    <div className="flex items-center justify-end space-x-1 p-1">
+      <div className="w-3 h-3 bg-gray-300 rounded-sm"></div>
+      <div className="w-3 h-3 bg-gray-300 rounded-sm"></div>
+      <div className="w-3 h-3 bg-gray-300 rounded-sm"></div>
+    </div>
+  </div>
+);
+
+export const RedHeartFrame: React.FC = () => (
+  <div className="w-full h-full bg-white rounded-lg flex flex-col">
+    <div className="flex items-center justify-between px-2 py-1 bg-red-500 rounded-t-lg">
+      <div className="text-white text-xl">❤</div>
+      <div className="text-white text-xl">❤</div>
+      <div className="text-white text-xl">❤</div>
+    </div>
+  </div>
+);
+
+export const PurpleRoundedFrame: React.FC = () => (
+  <div className="w-full h-full bg-purple-100 rounded-3xl border-4 border-purple-500 flex flex-col">
+    <div className="flex items-center justify-start space-x-1 p-2">
+      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+    </div>
+  </div>
+);
+
+export const PinkHeartFrame: React.FC = () => (
+  <div className="w-full h-full bg-pink-100 rounded-lg border-4 border-pink-500 flex flex-col">
+    <div className="flex items-center justify-end space-x-1 p-2">
+      <div className="text-pink-500 text-xl">❤</div>
+      <div className="text-pink-500 text-xl">❤</div>
+      <div className="text-pink-500 text-xl">❤</div>
+    </div>
+  </div>
+);
