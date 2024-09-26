@@ -2,103 +2,132 @@ import React from 'react'
 import { CircleIcon, XIcon, MinusIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, RefreshCwIcon, HomeIcon, LockIcon, SearchIcon, HeartIcon, MenuIcon, BellIcon, UserIcon, SettingsIcon, ChevronDownIcon, MoonIcon, SunIcon } from 'lucide-react'
 
 // 1. macOS Light Theme
-export const MacOSNavbarLight: React.FC = () => (
-  <div className="flex items-center gap-2 p-2 bg-gray-200 rounded-t-lg">
-    <CircleIcon className="w-3 h-3 text-red-500 fill-current" />
-    <CircleIcon className="w-3 h-3 text-yellow-500 fill-current" />
-    <CircleIcon className="w-3 h-3 text-green-500 fill-current" />
+// 1. macOS Light Theme
+export const MacOSNavbarLight: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
+    <div className="flex items-center gap-2 p-2 bg-gray-200 rounded-t-lg">
+      <CircleIcon className="w-3 h-3 text-red-500 fill-current" />
+      <CircleIcon className="w-3 h-3 text-yellow-500 fill-current" />
+      <CircleIcon className="w-3 h-3 text-green-500 fill-current" />
+    </div>
+    <div className="flex-grow bg-white overflow-hidden">
+      {children}
+    </div>
   </div>
 )
 
 // 2. macOS Dark Theme
-export const MacOSNavbarDark: React.FC = () => (
-  <div className="w-full h-full flex flex-col">
+export const MacOSNavbarDark: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
     <div className="flex items-center gap-2 p-2 bg-gray-800 rounded-t-lg">
       <CircleIcon className="w-3 h-3 text-red-600 fill-current" />
       <CircleIcon className="w-3 h-3 text-yellow-600 fill-current" />
       <CircleIcon className="w-3 h-3 text-green-600 fill-current" />
     </div>
-    <div className="flex-grow bg-transparent"></div>
+    <div className="flex-grow bg-gray-900 overflow-hidden">
+      {children}
+    </div>
   </div>
 )
+
 // 3. Safari Light Theme
-export const SafariNavbarLight: React.FC = () => (
-  <div className="flex items-center justify-between p-2 bg-gray-100 rounded-t-lg">
-    <div className="flex items-center gap-2">
-      <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
-      <ChevronRightIcon className="w-5 h-5 text-gray-400" />
-    </div>
-    <div className="flex-grow mx-4">
-      <div className="flex items-center bg-white rounded-full border border-gray-300 px-3 py-1">
-        <LockIcon className="w-4 h-4 text-gray-400 mr-2" />
-        <input type="text" placeholder="Search or enter website name" className="w-full bg-transparent text-sm focus:outline-none" />
+export const SafariNavbarLight: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
+    <div className="flex items-center justify-between p-2 bg-gray-100 rounded-t-lg">
+      <div className="flex items-center gap-2">
+        <ChevronLeftIcon className="w-5 h-5 text-gray-400" />
+        <ChevronRightIcon className="w-5 h-5 text-gray-400" />
+      </div>
+      <div className="flex-grow mx-4">
+        <div className="flex items-center bg-white rounded-full border border-gray-300 px-3 py-1">
+          <LockIcon className="w-4 h-4 text-gray-400 mr-2" />
+          <input type="text" placeholder="Search or enter website name" className="w-full bg-transparent text-sm focus:outline-none" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <PlusIcon className="w-5 h-5 text-gray-500" />
+        <SearchIcon className="w-5 h-5 text-gray-500" />
       </div>
     </div>
-    <div className="flex items-center gap-2">
-      <PlusIcon className="w-5 h-5 text-gray-500" />
-      <SearchIcon className="w-5 h-5 text-gray-500" />
+    <div className="flex-grow bg-white overflow-hidden">
+      {children}
     </div>
   </div>
 )
 
 // 4. Safari Dark Theme
-export const SafariNavbarDark: React.FC = () => (
-  <div className="flex items-center justify-between p-2 bg-gray-900 rounded-t-lg">
-    <div className="flex items-center gap-2">
-      <ChevronLeftIcon className="w-5 h-5 text-gray-500" />
-      <ChevronRightIcon className="w-5 h-5 text-gray-500" />
-    </div>
-    <div className="flex-grow mx-4">
-      <div className="flex items-center bg-gray-800 rounded-full border border-gray-700 px-3 py-1">
-        <LockIcon className="w-4 h-4 text-gray-500 mr-2" />
-        <input type="text" placeholder="Search or enter website name" className="w-full bg-transparent text-sm text-gray-300 focus:outline-none" />
+export const SafariNavbarDark: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
+    <div className="flex items-center justify-between p-2 bg-gray-900 rounded-t-lg">
+      <div className="flex items-center gap-2">
+        <ChevronLeftIcon className="w-5 h-5 text-gray-500" />
+        <ChevronRightIcon className="w-5 h-5 text-gray-500" />
+      </div>
+      <div className="flex-grow mx-4">
+        <div className="flex items-center bg-gray-800 rounded-full border border-gray-700 px-3 py-1">
+          <LockIcon className="w-4 h-4 text-gray-500 mr-2" />
+          <input type="text" placeholder="Search or enter website name" className="w-full bg-transparent text-sm text-gray-300 focus:outline-none" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <PlusIcon className="w-5 h-5 text-gray-400" />
+        <SearchIcon className="w-5 h-5 text-gray-400" />
       </div>
     </div>
-    <div className="flex items-center gap-2">
-      <PlusIcon className="w-5 h-5 text-gray-400" />
-      <SearchIcon className="w-5 h-5 text-gray-400" />
+    <div className="flex-grow bg-gray-800 overflow-hidden">
+      {children}
     </div>
   </div>
 )
 
 // 5. Chrome Light Theme
-export const ChromeNavbarLight: React.FC = () => (
-  <div className="flex items-center justify-between p-2 bg-gray-100 rounded-t-lg">
-    <div className="flex items-center gap-2">
-      <XIcon className="w-4 h-4 text-gray-500" />
-      <div className="w-24 h-6 bg-white rounded flex items-center justify-center text-xs text-gray-500">New Tab</div>
-      <PlusIcon className="w-4 h-4 text-gray-500" />
-    </div>
-    <div className="flex-grow mx-4">
-      <div className="flex items-center bg-white rounded-full shadow px-3 py-1">
-        <LockIcon className="w-4 h-4 text-gray-400 mr-2" />
-        <input type="text" placeholder="Search Google or type a URL" className="w-full bg-transparent text-sm focus:outline-none" />
+export const ChromeNavbarLight: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
+    <div className="flex items-center justify-between p-2 bg-gray-100 rounded-t-lg">
+      <div className="flex items-center gap-2">
+        <XIcon className="w-4 h-4 text-gray-500" />
+        <div className="w-24 h-6 bg-white rounded flex items-center justify-center text-xs text-gray-500">New Tab</div>
+        <PlusIcon className="w-4 h-4 text-gray-500" />
+      </div>
+      <div className="flex-grow mx-4">
+        <div className="flex items-center bg-white rounded-full shadow px-3 py-1">
+          <LockIcon className="w-4 h-4 text-gray-400 mr-2" />
+          <input type="text" placeholder="Search Google or type a URL" className="w-full bg-transparent text-sm focus:outline-none" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <RefreshCwIcon className="w-5 h-5 text-gray-500" />
+        <HomeIcon className="w-5 h-5 text-gray-500" />
       </div>
     </div>
-    <div className="flex items-center gap-2">
-      <RefreshCwIcon className="w-5 h-5 text-gray-500" />
-      <HomeIcon className="w-5 h-5 text-gray-500" />
+    <div className="flex-grow bg-white overflow-hidden">
+      {children}
     </div>
   </div>
 )
 
 // 6. Chrome Dark Theme
-export const ChromeNavbarDark: React.FC = () => (
-  <div className="flex items-center justify-between p-2 bg-gray-900 rounded-t-lg">
-    <div className="flex items-center gap-2">
-      <XIcon className="w-4 h-4 text-gray-400" />
-      <div className="w-24 h-6 bg-gray-800 rounded flex items-center justify-center text-xs text-gray-300">New Tab</div>
-      <PlusIcon className="w-4 h-4 text-gray-400" />
-    </div>
-    <div className="flex-grow mx-4">
-      <div className="flex items-center bg-gray-800 rounded-full shadow px-3 py-1">
-        <LockIcon className="w-4 h-4 text-gray-500 mr-2" />
-        <input type="text" placeholder="Search Google or type a URL" className="w-full bg-transparent text-sm text-gray-300 focus:outline-none" />
+export const ChromeNavbarDark: React.FC<{ children?: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <div className="w-full h-full flex flex-col" style={style}>
+    <div className="flex items-center justify-between p-2 bg-gray-900 rounded-t-lg">
+      <div className="flex items-center gap-2">
+        <XIcon className="w-4 h-4 text-gray-400" />
+        <div className="w-24 h-6 bg-gray-800 rounded flex items-center justify-center text-xs text-gray-300">New Tab</div>
+        <PlusIcon className="w-4 h-4 text-gray-400" />
+      </div>
+      <div className="flex-grow mx-4">
+        <div className="flex items-center bg-gray-800 rounded-full shadow px-3 py-1">
+          <LockIcon className="w-4 h-4 text-gray-500 mr-2" />
+          <input type="text" placeholder="Search Google or type a URL" className="w-full bg-transparent text-sm text-gray-300 focus:outline-none" />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <RefreshCwIcon className="w-5 h-5 text-gray-400" />
+        <HomeIcon className="w-5 h-5 text-gray-400" />
       </div>
     </div>
-    <div className="flex items-center gap-2">
-      <RefreshCwIcon className="w-5 h-5 text-gray-400" />
-      <HomeIcon className="w-5 h-5 text-gray-400" />
+    <div className="flex-grow bg-gray-800 overflow-hidden">
+      {children}
     </div>
   </div>
 )
@@ -112,20 +141,20 @@ export const SimpleWhiteFrame: React.FC<{ children?: React.ReactNode }> = ({ chi
       <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
       <div className="w-3 h-3 bg-green-400 rounded-full"></div>
     </div>
-    <div className="flex-grow p-4">
+    <div className="flex-grow overflow-hidden px-2">
       {children}
     </div>
   </div>
 );
 
 export const RedHeartFrame: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
-  <div className="w-full h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex flex-col shadow-lg">
+  <div className="w-full h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex flex-col shadow-lg ">
     <div className="flex items-center justify-between px-4 py-2 bg-red-600 rounded-t-lg">
       <HeartIcon className="w-5 h-5 text-white" />
       <HeartIcon className="w-5 h-5 text-white" />
       <HeartIcon className="w-5 h-5 text-white" />
     </div>
-    <div className="flex-grow p-4">
+    <div className="flex-grow overflow-hidden px-2">
       {children}
     </div>
   </div>
@@ -138,7 +167,7 @@ export const PurpleRoundedFrame: React.FC<{ children?: React.ReactNode }> = ({ c
       <div className="w-4 h-4 bg-purple-400 rounded-full"></div>
       <div className="w-4 h-4 bg-purple-300 rounded-full"></div>
     </div>
-    <div className="flex-grow p-4">
+    <div className="flex-grow overflow-hidden px-2">
       {children}
     </div>
   </div>
@@ -151,7 +180,7 @@ export const PinkHeartFrame: React.FC<{ children?: React.ReactNode }> = ({ child
       <HeartIcon className="w-5 h-5 text-pink-500" />
       <HeartIcon className="w-5 h-5 text-pink-500" />
     </div>
-    <div className="flex-grow p-4">
+    <div className="flex-grow overflow-hidden px-1">
       {children}
     </div>
   </div>

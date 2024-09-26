@@ -185,237 +185,87 @@ const Editor = () => {
     return null;
   };
 
-  const renderImage = () => {
-    if (!editorState.image) return null;
-    
-    const applyEffect = selectedEffect !== null;
-    
-    const imageStyle: React.CSSProperties = {
-      width: `${editorState.imageSize.width}px`,
-      height: `${editorState.imageSize.height}px`,
-      transform: `${editorState.layout?.transform || "none"}`,
-      boxShadow: editorState.layout?.shadow || "none",
-      transition: "all 0.3s ease-in-out",
-    };
-    
-    return (
+  
+const renderImage = () => {
+  if (!editorState.image) return null;
+  
+  const applyEffect = selectedEffect !== null;
+  
+  const imageStyle: React.CSSProperties = {
+    width: `${editorState.imageSize.width}px`,
+    height: `${editorState.imageSize.height}px`,
+    objectFit: 'contain',
+    transition: "all 0.3s ease-in-out",
+  };
+  
+  const frameStyle: React.CSSProperties = {
+    width: `${canvasSize.width}px`,
+    height: `${canvasSize.height}px`,
+    transform: editorState.layout?.transform || "none",
+    boxShadow: editorState.layout?.shadow || "none",
+  };
+
+  return (
+    <div
+      className={`relative ${editorState.customStyle || ""}`}
+      style={{
+        width: `${canvasSize.width}px`,
+        height: `${canvasSize.height}px`,
+        perspective: "1000px",
+        background: editorState.background,
+      }}
+    >
       <div
-        className={`relative ${editorState.customStyle || ""}`}
+        className={`absolute inset-0 ${selectedEffect?.className || ""}`}
         style={{
-          width: `${canvasSize.width + editorState.padding * 2}px`,
-          height: `${canvasSize.height + editorState.padding * 2}px`,
-          perspective: "1000px",
-          background: editorState.background,
+          transform: `${getThreeDTransform(selectedEffect)}`,
+          transformOrigin: "center",
+          transition: "transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out",
         }}
       >
-        <div
-          className="absolute"
-          style={{
-            top: `${editorState.padding}px`,
-            left: `${editorState.padding}px`,
-            width: `${canvasSize.width}px`,
-            height: `${canvasSize.height}px`,
-            transformStyle: "preserve-3d",
-          }}
-        >
-          {editorState.showStacks && (
-            <>
-              <div
-                className="absolute"
-                style={{
-                  width: `${editorState.imageSize.width}px`,
-                  height: `${editorState.imageSize.height}px`,
-                  left: `${editorState.imagePosition.x - 8}px`,
-                  top: `${editorState.imagePosition.y - 30}px`,
-                  background: "rgba(59, 130, 246, 0.5)",
-                  borderRadius: `${editorState.cornerRadius}px`,
-                  transform: `${getThreeDTransform(selectedEffect)}`,
-                  boxShadow: editorState.imageShadow,
-                }}
-              ></div>
-              <div
-                className="absolute"
-                style={{
-                  width: `${editorState.imageSize.width}px`,
-                  height: `${editorState.imageSize.height}px`,
-                  left: `${editorState.imagePosition.x - 4}px`,
-                  top: `${editorState.imagePosition.y - 20}px`,
-                  background: "rgba(16, 185, 129, 0.5)",
-                  borderRadius: `${editorState.cornerRadius}px`,
-                  transform: `${getThreeDTransform(selectedEffect)}`,
-                  boxShadow: editorState.imageShadow,
-                }}
-              ></div>
-            </>
-          )}
-    
-          {editorState.customStyle === 'prismatic-cascade' && (
-            <div className="card-prismatic-cascade">
-              <img src={editorState.image} alt="Prismatic Cascade" style={imageStyle} />
-            </div>
-          )}
-          {editorState.customStyle === 'polaroid' && (
-            <div className="card-polaroid">
-              <img src={editorState.image} alt="Polaroid" style={imageStyle} />
-              <div className="polaroid-text">
-                <input
-                  type="text"
-                  value={editorState.cardTitle || ""}
-                  onChange={(e) => setEditorState(prev => ({ ...prev, cardTitle: e.target.value }))}
-                  placeholder="Add a caption..."
-                  style={{ width: '100%', background: 'transparent', border: 'none', textAlign: 'center' }}
-                />
-              </div>
-            </div>
-          )}
-          {editorState.customStyle === 'neon-glow' && (
-            <div className="card-neon-glow">
-              <img src={editorState.image} alt="Neon Glow" style={imageStyle} />
-            </div>
-          )}
-          {editorState.customStyle === 'gradient-border' ? (
-            <div className="gradient-border">
-              <div className="gradient-border-inner">
-                <img src={editorState.image} alt="Gradient Border" style={imageStyle} />
-              </div>
-            </div>
-          ) : editorState.customStyle === 'business-analyze' ? (
-            <div className="business-analyze">
-              <div className="header">
-                <div className="logo">BA</div>
-                <div className="chart">
-                  <div className="bar" style={{ height: '60%' }}></div>
-                  <div className="bar" style={{ height: '80%' }}></div>
-                  <div className="bar" style={{ height: '40%' }}></div>
-                  <div className="bar" style={{ height: '100%' }}></div>
-                </div>
-              </div>
-              <h2 className="title">
-                <input
-                  type="text"
-                  value={editorState.cardTitle || ""}
-                  onChange={(e) => setEditorState(prev => ({ ...prev, cardTitle: e.target.value }))}
-                  placeholder="Business Analysis"
-                />
-              </h2>
-              <p className="subtitle">
-                <input
-                  type="text"
-                  value={editorState.cardDescription || ""}
-                  onChange={(e) => setEditorState(prev => ({ ...prev, cardDescription: e.target.value }))}
-                  placeholder="Analyzing market trends"
-                />
-              </p>
-              <div className="image-container">
-                <img src={editorState.image} alt="Business Analyze" style={imageStyle} />
-              </div>
-              <div className="footer">
-                <div className="social-icons">
-                  <span>f</span>
-                  <span>in</span>
-                  <span>@</span>
-                </div>
-                <div className="views">
-                  <span className="eye">👁️</span>
-                  <span className="count">10.4k views</span>
-                </div>
-              </div>
-            </div>
-          ) : editorState.customStyle === 'image-card' ? (
-            <div className="image-card">
-              <div className="image-container">
-                <img src={editorState.image} alt="Image Card" style={imageStyle} />
-              </div>
-              <div className="card-content">
-                <input
-                  type="text"
-                  className="card-title"
-                  value={editorState.cardTitle}
-                  onChange={(e) =>
-                    setEditorState((prev) => ({
-                      ...prev,
-                      cardTitle: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter title"
-                />
-                <textarea
-                  className="card-description"
-                  value={editorState.cardDescription}
-                  onChange={(e) =>
-                    setEditorState((prev) => ({
-                      ...prev,
-                      cardDescription: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter description"
-                />
-              </div>
-            </div>
-          ) : (
-            <div
-              className={`absolute ${selectedEffect?.className || ""}`}
-              style={{
-                width: `${editorState.imageSize.width}px`,
-                height: `${editorState.imageSize.height}px`,
-                left: `${editorState.imagePosition.x}px`,
-                top: `${editorState.imagePosition.y}px`,
-                transform: `${getThreeDTransform(selectedEffect)}`,
-                transformOrigin: "center",
-                transition:
-                  "transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: `${editorState.cornerRadius}px`,
-                  overflow: "hidden",
-                  transform: getLayoutTransform(),
-                }}
+        {editorState.frame ? (
+          <editorState.frame.component style={frameStyle}>
+            <div className="w-full h-full flex items-center justify-center overflow-hidden">
+              <img
+                src={editorState.image}
+                alt="Edited"
+                style={imageStyle}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-              >
-                <div
-                  style={{ position: "relative", width: "100%", height: "100%" }}
-                >
-                  <canvas
-                    ref={canvasRef}
-                    width={editorState.imageSize.width}
-                    height={editorState.imageSize.height}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: `${editorState.cornerRadius}px`,
-                      filter: `${editorState.filter}(${
-                        editorState[editorState.filter as keyof EditorState] || ""
-                      })`,
-                    }}
-                  />
-                  {editorState.frame && editorState.frame.component && (
-                    <div
-                      className="absolute pointer-events-none"
-                      style={{
-                        top: 0,
-                        left: 0,
-                        width: `${editorState.imageSize.width}px`,
-                        height: `${editorState.imageSize.height}px`,
-                      }}
-                    >
-                      {React.createElement(editorState.frame.component)}
-                    </div>
-                  )}
-                </div>
-              </div>
+              />
             </div>
-          )}
-        </div>
+          </editorState.frame.component>
+        ) : (
+          <div
+            style={{
+              ...frameStyle,
+              borderRadius: `${editorState.cornerRadius}px`,
+              overflow: "hidden",
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
+            <img
+              src={editorState.image}
+              alt="Edited"
+              style={{
+                ...imageStyle,
+                filter: `${editorState.filter}(${
+                  editorState[editorState.filter as keyof EditorState] || ""
+                })`,
+              }}
+            />
+          </div>
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
+
   useEffect(() => {
     if (selectedEffect?.className === "wave-3d") {
       const container = document.querySelector(".wave-3d");
