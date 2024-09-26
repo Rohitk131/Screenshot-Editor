@@ -40,8 +40,8 @@ const logos = [
 ]
 export default function Navbar() {
   return (
-    <div className="w-full flex justify-center items-center pt-2">
-    <div className="w-1/2 flex justify-between items-center flex-row h-16 border-2 border-gray-300 rounded-3xl shadow-2xl px-6">
+    <div className="w-full flex justify-center items-center pt-2 ">
+    <div className="w-1/2 flex justify-between items-center flex-row h-16 border-2 border-gray-300 rounded-3xl shadow-2xl px-6 bg-white">
       <img
         src="https://gixland.com/wp-content/uploads/2021/11/logoipsum-logo-17-01.png"
         className="h-12"
