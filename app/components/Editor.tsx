@@ -187,9 +187,9 @@ const Editor = () => {
 
   const renderImage = () => {
     if (!editorState.image) return null;
-  
+    
     const applyEffect = selectedEffect !== null;
-  
+    
     const imageStyle: React.CSSProperties = {
       width: `${editorState.imageSize.width}px`,
       height: `${editorState.imageSize.height}px`,
@@ -197,7 +197,7 @@ const Editor = () => {
       boxShadow: editorState.layout?.shadow || "none",
       transition: "all 0.3s ease-in-out",
     };
-  
+    
     return (
       <div
         className={`relative ${editorState.customStyle || ""}`}
@@ -227,7 +227,7 @@ const Editor = () => {
                   height: `${editorState.imageSize.height}px`,
                   left: `${editorState.imagePosition.x - 8}px`,
                   top: `${editorState.imagePosition.y - 30}px`,
-                  background: "rgba(59, 130, 246, 0.5)", // Blue with 50% opacity
+                  background: "rgba(59, 130, 246, 0.5)",
                   borderRadius: `${editorState.cornerRadius}px`,
                   transform: `${getThreeDTransform(selectedEffect)}`,
                   boxShadow: editorState.imageShadow,
@@ -240,7 +240,7 @@ const Editor = () => {
                   height: `${editorState.imageSize.height}px`,
                   left: `${editorState.imagePosition.x - 4}px`,
                   top: `${editorState.imagePosition.y - 20}px`,
-                  background: "rgba(16, 185, 129, 0.5)", // Green with 50% opacity
+                  background: "rgba(16, 185, 129, 0.5)",
                   borderRadius: `${editorState.cornerRadius}px`,
                   transform: `${getThreeDTransform(selectedEffect)}`,
                   boxShadow: editorState.imageShadow,
@@ -248,22 +248,83 @@ const Editor = () => {
               ></div>
             </>
           )}
-  
-          {editorState.customStyle === 'image-card' ? (
+    
+          {editorState.customStyle === 'prismatic-cascade' && (
+            <div className="card-prismatic-cascade">
+              <img src={editorState.image} alt="Prismatic Cascade" style={imageStyle} />
+            </div>
+          )}
+          {editorState.customStyle === 'polaroid' && (
+            <div className="card-polaroid">
+              <img src={editorState.image} alt="Polaroid" style={imageStyle} />
+              <div className="polaroid-text">
+                <input
+                  type="text"
+                  value={editorState.cardTitle || ""}
+                  onChange={(e) => setEditorState(prev => ({ ...prev, cardTitle: e.target.value }))}
+                  placeholder="Add a caption..."
+                  style={{ width: '100%', background: 'transparent', border: 'none', textAlign: 'center' }}
+                />
+              </div>
+            </div>
+          )}
+          {editorState.customStyle === 'neon-glow' && (
+            <div className="card-neon-glow">
+              <img src={editorState.image} alt="Neon Glow" style={imageStyle} />
+            </div>
+          )}
+          {editorState.customStyle === 'gradient-border' ? (
+            <div className="gradient-border">
+              <div className="gradient-border-inner">
+                <img src={editorState.image} alt="Gradient Border" style={imageStyle} />
+              </div>
+            </div>
+          ) : editorState.customStyle === 'business-analyze' ? (
+            <div className="business-analyze">
+              <div className="header">
+                <div className="logo">BA</div>
+                <div className="chart">
+                  <div className="bar" style={{ height: '60%' }}></div>
+                  <div className="bar" style={{ height: '80%' }}></div>
+                  <div className="bar" style={{ height: '40%' }}></div>
+                  <div className="bar" style={{ height: '100%' }}></div>
+                </div>
+              </div>
+              <h2 className="title">
+                <input
+                  type="text"
+                  value={editorState.cardTitle || ""}
+                  onChange={(e) => setEditorState(prev => ({ ...prev, cardTitle: e.target.value }))}
+                  placeholder="Business Analysis"
+                />
+              </h2>
+              <p className="subtitle">
+                <input
+                  type="text"
+                  value={editorState.cardDescription || ""}
+                  onChange={(e) => setEditorState(prev => ({ ...prev, cardDescription: e.target.value }))}
+                  placeholder="Analyzing market trends"
+                />
+              </p>
+              <div className="image-container">
+                <img src={editorState.image} alt="Business Analyze" style={imageStyle} />
+              </div>
+              <div className="footer">
+                <div className="social-icons">
+                  <span>f</span>
+                  <span>in</span>
+                  <span>@</span>
+                </div>
+                <div className="views">
+                  <span className="eye">👁️</span>
+                  <span className="count">10.4k views</span>
+                </div>
+              </div>
+            </div>
+          ) : editorState.customStyle === 'image-card' ? (
             <div className="image-card">
               <div className="image-container">
-                <canvas
-                  ref={canvasRef}
-                  width={editorState.imageSize.width}
-                  height={editorState.imageSize.height}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    filter: `${editorState.filter}(${
-                      editorState[editorState.filter as keyof EditorState] || ""
-                    })`,
-                  }}
-                />
+                <img src={editorState.image} alt="Image Card" style={imageStyle} />
               </div>
               <div className="card-content">
                 <input
@@ -355,7 +416,6 @@ const Editor = () => {
       </div>
     );
   };
-
   useEffect(() => {
     if (selectedEffect?.className === "wave-3d") {
       const container = document.querySelector(".wave-3d");

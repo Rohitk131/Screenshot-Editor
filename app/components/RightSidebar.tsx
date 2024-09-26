@@ -41,6 +41,9 @@ export default function RightSidebar({
     { label: 'Style 1', effect: 'style1' },
     { label: 'Multicolor Frame', effect: 'multicolor-frame' },
     { label: 'Image Card', effect: 'image-card' },
+    { label: 'Prismatic Cascade', effect: 'prismatic-cascade' }, // New style
+    { label: 'Polaroid', effect: 'polaroid' },
+    { label: 'Neon Glow', effect: 'neon-glow' },
   ];
 
   const frames: Frame[] = [
@@ -159,37 +162,52 @@ export default function RightSidebar({
   };
 
   const handleStyleSelect = (style: { label: string; effect: string }) => {
-    if (style.effect === "style1") {
-      setEditorState((prev) => ({
-        ...prev,
-        selectedStyle: style,
-        customStyle: "card-style1",
-        showStacks: true,
-        stackCount: 3 // You can adjust this number as needed
-      }));
-    } else if (style.effect === 'multicolor-frame') {
-      setEditorState((prev) => ({
-        ...prev,
-        selectedStyle: style,
-        customStyle: 'card-multicolor-frame',
-        showStacks: false
-      }));
-    } else if (style.effect === 'image-card') {
-      setEditorState((prev) => ({
-        ...prev,
-        selectedStyle: style,
-        customStyle: 'image-card',
-        showStacks: false,
-        cardTitle: 'Enter title here', // Add a default title
-        cardDescription: 'Enter description here' // Add a default description
-      }));
-    } else {
-      setEditorState((prev) => ({
-        ...prev,
-        selectedStyle: style,
-        customStyle: '',
-        showStacks: false
-      }));
+    switch (style.effect) {
+      case 'prismatic-cascade': // New case
+      case 'polaroid':
+      case 'neon-glow':
+        setEditorState((prev) => ({
+          ...prev,
+          selectedStyle: style,
+          customStyle: style.effect,
+          showStacks: false,
+        }));
+        break;
+      case 'style1':
+        setEditorState((prev) => ({
+          ...prev,
+          selectedStyle: style,
+          customStyle: "card-style1",
+          showStacks: true,
+          stackCount: 3 // You can adjust this number as needed
+        }));
+        break;
+      case 'multicolor-frame':
+        setEditorState((prev) => ({
+          ...prev,
+          selectedStyle: style,
+          customStyle: 'card-multicolor-frame',
+          showStacks: false
+        }));
+        break;
+      case 'image-card':
+        setEditorState((prev) => ({
+          ...prev,
+          selectedStyle: style,
+          customStyle: 'image-card',
+          showStacks: false,
+          cardTitle: 'Enter title here', // Add a default title
+          cardDescription: 'Enter description here' // Add a default description
+        }));
+        break;
+      default:
+        setEditorState((prev) => ({
+          ...prev,
+          selectedStyle: style,
+          customStyle: '',
+          showStacks: false
+        }));
+        break;
     }
   };
 

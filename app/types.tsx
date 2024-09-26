@@ -57,6 +57,7 @@ export interface EditorState {
   editableTag: string;
   cardTitle?: string;
   cardDescription?: string;
+  cardDate: string;
   instagramUsername?: string;
   instagramCaption?: string;
 }

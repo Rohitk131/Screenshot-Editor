@@ -343,3 +343,125 @@
 .image-card .card-description:focus {
   color: #333;
 }
+
+/* Prismatic Cascade */
+.card-prismatic-cascade {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: all 0.5s ease;
+  transform: scale(1.05) rotate(3deg);
+}
+
+.card-prismatic-cascade::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000
+  );
+  animation: rotate 10s linear infinite;
+}
+
+.card-prismatic-cascade::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border-radius: 15px;
+}
+
+.card-prismatic-cascade img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+  transition: all 0.5s ease;
+  opacity: 0.8;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Polaroid */
+.card-polaroid {
+  background: #fff;
+  padding: 10px 10px 30px 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+  transform: rotate(-2deg);
+  transition: all 0.3s ease;
+}
+
+.card-polaroid:hover {
+  transform: rotate(0deg) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15), 0 6px 6px rgba(0,0,0,0.1);
+}
+
+.card-polaroid img {
+  width: 100%;
+  height: calc(100% - 40px);
+  object-fit: cover;
+}
+
+.card-polaroid .polaroid-text {
+  font-family: 'Permanent Marker', cursive;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Neon Glow */
+.card-neon-glow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.5), 0 0 30px rgba(0,255,255,0.3), 0 0 40px rgba(0,255,255,0.1);
+  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+  from {
+    box-shadow: 0 0 20px rgba(0,255,255,0.5), 0 0 30px rgba(0,255,255,0.3), 0 0 40px rgba(0,255,255,0.1);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(0,255,255,0.6), 0 0 40px rgba(0,255,255,0.4), 0 0 50px rgba(0,255,255,0.2);
+  }
+}
+
+.card-neon-glow img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(1.2) contrast(1.1);
+}
+
+.card-neon-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(0,255,255,0.1), rgba(255,0,255,0.1));
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
